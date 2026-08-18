@@ -8,9 +8,14 @@
   --text-muted: color-mix(in srgb, var(--ink) 55%, transparent);
   --surface: color-mix(in srgb, var(--ink) 6%, var(--cream));
   --border: color-mix(in srgb, var(--ink) 12%, transparent);
-  --grid-minor: color-mix(in srgb, var(--ink) 6%, transparent);
-  --grid-major: color-mix(in srgb, var(--ink) 11%, transparent);
+  --grid-minor: color-mix(in srgb, var(--ink) 3%, transparent);
+  --grid-major: color-mix(in srgb, var(--ink) 5.5%, transparent);
   --grain-opacity: 0.035;
+  --weave-opacity: 5%;
+  --weave-color: color-mix(in srgb, var(--text) var(--weave-opacity), transparent);
+  /* Tiger orange at ~3:1 on Cream fails 4.5:1 for text; darken for text use.
+     On the dark theme's near-black bg, plain --tiger already clears 4.5:1. */
+  --tiger-text: color-mix(in srgb, var(--tiger) 70%, black);
 
   --font-display: "Archivo", sans-serif;
   --font-body: "Inter", sans-serif;
@@ -22,9 +27,11 @@
   --text-muted: color-mix(in srgb, var(--cream) 55%, transparent);
   --surface: color-mix(in srgb, var(--cream) 8%, #14110D);
   --border: color-mix(in srgb, var(--cream) 16%, transparent);
-  --grid-minor: color-mix(in srgb, var(--cream) 7%, transparent);
-  --grid-major: color-mix(in srgb, var(--cream) 14%, transparent);
+  --grid-minor: color-mix(in srgb, var(--cream) 3.5%, transparent);
+  --grid-major: color-mix(in srgb, var(--cream) 7%, transparent);
   --grain-opacity: 0.06;
+  --weave-opacity: 7%;
+  --tiger-text: var(--tiger);
 }
 
 * {
@@ -41,47 +48,113 @@ body {
   background-color: var(--bg);
   color: var(--text);
   font-family: var(--font-body);
+  line-height: 1.5;
   overflow-x: hidden;
   transition: background-color 0.3s ease, color 0.3s ease;
   position: relative;
-}
-
-/* Grain texture */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  opacity: var(--grain-opacity);
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-/* Cutting-mat grid overlay: fine minor grid + bolder major lines every 5 cells */
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  background-image:
-    linear-gradient(to right, var(--grid-major) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--grid-major) 1px, transparent 1px),
-    linear-gradient(to right, var(--grid-minor) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--grid-minor) 1px, transparent 1px);
-  background-size: 200px 200px, 200px 200px, 40px 40px, 40px 40px;
 }
 
 a {
   color: inherit;
 }
 
+/* Canvas texture per section: weave crosshatch + grain, scoped to each
+   section's own box so it scrolls with that section rather than staying
+   fixed to the viewport. Grid character (dots/lines/none) is a separate
+   .section-grid element per section — see below. */
 section {
   position: relative;
   z-index: 2;
   padding: clamp(3rem, 8vw, 6rem) clamp(1.5rem, 6vw, 4rem);
+  background-color: var(--bg);
 }
+
+/* Scroll stack: each section pins to the top of the viewport and the next
+   one scrolls up over it, so sections layer on top of one another going
+   down and unstack in reverse coming back up -- position: sticky handles
+   both directions natively, no scroll-direction JS needed. Divider elements
+   between sections (marquee, stripe) get an in-between z-index so they can
+   scroll over the section before them and then get covered by the one after. */
+main > section {
+  position: sticky;
+  top: 0;
+}
+
+.hero { z-index: 10; }
+.marquee { z-index: 15; }
+.services { z-index: 20; }
+.work { z-index: 30; }
+.stripe { z-index: 35; }
+.about { z-index: 40; }
+.contact { z-index: 50; }
+.signoff { z-index: 60; }
+
+/* Grain layer — own opacity, since the noise SVG is fully opaque per-pixel */
+section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Weave crosshatch (canvas fabric) — alpha baked into its own color */
+section::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  background-image:
+    repeating-linear-gradient(45deg, var(--weave-color) 0, var(--weave-color) 1px, transparent 1px, transparent 4px),
+    repeating-linear-gradient(-45deg, var(--weave-color) 0, var(--weave-color) 1px, transparent 1px, transparent 4px);
+  background-size: 4px 4px, 4px 4px;
+}
+
+/* Per-section grid character — a dedicated element rather than a pseudo,
+   since type (dots/lines/none) varies per section, not just size */
+.section-grid {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Hero: sparse blueprint dots — quiet, doesn't compete with the wordmark */
+.hero .section-grid {
+  background-image: radial-gradient(circle, var(--grid-minor) 1px, transparent 1px);
+  background-size: 80px 80px;
+}
+
+/* Services: fine editorial lines — reading-heavy content */
+.services .section-grid {
+  background-image:
+    linear-gradient(to right, var(--grid-minor) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-minor) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Work: full cutting-mat grid — the "workshop" section */
+.work .section-grid {
+  background-image:
+    linear-gradient(to right, var(--grid-major) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-major) 1px, transparent 1px),
+    linear-gradient(to right, var(--grid-minor) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-minor) 1px, transparent 1px);
+  background-size: 260px 260px, 260px 260px, 52px 52px, 52px 52px;
+}
+
+/* About: soft, larger dots — warmer than the hero's tighter blueprint dots */
+.about .section-grid {
+  background-image: radial-gradient(circle, var(--grid-major) 1.5px, transparent 1.5px);
+  background-size: 64px 64px;
+}
+
+/* Contact: no grid — clean close, weave/grain texture still present */
 
 .wordmark-small {
   font-family: var(--font-display);
@@ -116,7 +189,7 @@ section {
 .site-header {
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 100;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
@@ -168,8 +241,8 @@ section {
   background: none;
   border: 1px solid var(--border);
   border-radius: 50%;
-  width: 2.25rem;
-  height: 2.25rem;
+  width: 2.75rem;
+  height: 2.75rem;
   color: var(--text);
   cursor: pointer;
   flex-shrink: 0;
@@ -197,7 +270,7 @@ section {
 .pill-btn {
   display: inline-block;
   width: fit-content;
-  padding: 0.7rem 1.5rem;
+  padding: 0.85rem 1.5rem;
   background-color: var(--text);
   color: var(--bg);
   text-decoration: none;
@@ -252,27 +325,136 @@ section {
   padding-bottom: clamp(3rem, 8vw, 5rem);
   display: flex;
   flex-direction: column;
-  gap: clamp(2.5rem, 7vw, 5rem);
+  align-items: center;
+}
+
+.hero-inner {
+  width: fit-content;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(1.25rem, 3vw, 2rem);
 }
 
 .hero-wordmark {
   position: relative;
-  font-family: var(--font-display);
-  font-weight: 900;
   font-size: clamp(3.5rem, 17vw, 15rem);
   line-height: 0.85;
-  letter-spacing: -0.02em;
   text-align: center;
+}
+
+/* SANJAY -> SANACE cinematic reveal, then an ongoing loop -- pure CSS.
+   Each letter cell holds a 3-glyph track (SANJAY letter, SANACE letter,
+   SANJAY letter again) that scrolls upward through an infinite animation.
+   The final glyph is a duplicate of the first, so when the animation loops
+   from 100% back to 0% the jump is visually seamless -- the motion only
+   ever reads as continuing upward, never reversing, and it holds a couple
+   of seconds on each letter before the next ease-in/ease-out roll.
+   Total word width is 4.44em (sum of the --w values below); each letter's
+   --w/--x are tuned per-glyph rather than a uniform cell, since individual
+   letterforms (S vs N vs A, etc.) aren't the same width even within one font. */
+
+.flip-word {
+  display: inline-flex;
+  justify-content: center;
+  animation: wordmark-settle 0.9s ease-out 4.35s forwards;
+}
+
+@keyframes wordmark-settle {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.03);
+  }
+}
+
+.flip-letter {
+  position: relative;
+  display: inline-block;
+  width: var(--w);
+  height: 0.85em;
+  overflow: hidden;
+}
+
+.flip-track {
+  display: flex;
+  flex-direction: column;
+  animation: flip-loop 6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  animation-delay: calc(1.1s + var(--i) * 0.25s);
+}
+
+.flip-glyph {
+  flex: 0 0 0.85em;
+  height: 0.85em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-family: var(--font-display);
+  font-weight: 900;
   text-transform: uppercase;
 }
 
-.wordmark-text {
-  display: block;
+.flip-old {
+  color: #000;
+  opacity: 0;
+  animation: letter-emerge 0.7s ease-out forwards;
+}
+
+@keyframes letter-emerge {
+  from {
+    opacity: 0;
+    color: #000;
+  }
+  to {
+    opacity: 1;
+    color: var(--text);
+  }
+}
+
+.flip-new {
   background-image: linear-gradient(135deg, var(--tiger) 0%, var(--text) 45%, var(--tiger) 100%);
+  background-size: 4.44em 100%;
+  background-position-x: calc(-1 * var(--x));
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
   -webkit-text-fill-color: transparent;
+}
+
+/* Hold on the SANJAY letter, ease up to SANACE, hold, ease up to the
+   duplicate SANJAY glyph -- then the infinite loop resets to 0%, which
+   looks identical, so the cycle appears to repeat endlessly upward. */
+@keyframes flip-loop {
+  0%,
+  16.667% {
+    transform: translateY(0%);
+  }
+  33.333%,
+  66.667% {
+    transform: translateY(-33.3334%);
+  }
+  83.333%,
+  100% {
+    transform: translateY(-66.6667%);
+  }
+}
+
+/* Reduced motion: skip straight to the final "SANACE" state, no reveal, no loop */
+:root.no-motion .flip-track {
+  animation: none;
+  transform: translateY(-33.3334%);
+}
+
+:root.no-motion .flip-old {
+  animation: none;
+  opacity: 0;
+}
+
+:root.no-motion .flip-word {
+  animation: none;
 }
 
 /* Video plays inside the wordmark once a source is added; transparent/inert until then */
@@ -292,10 +474,21 @@ section {
   mask-position: center;
 }
 
+.hero-tagline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  font-size: clamp(1.05rem, 2vw, 1.35rem);
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
 .info-strip {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  gap: clamp(1.5rem, 5vw, 4rem);
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(2rem, 6vw, 4rem);
+  margin-top: 1.75rem;
 }
 
 .info-item {
@@ -303,18 +496,6 @@ section {
   align-items: center;
   gap: 0.6rem;
   text-align: left;
-}
-
-.info-item:nth-child(1) {
-  justify-self: start;
-}
-
-.info-item:nth-child(2) {
-  justify-self: center;
-}
-
-.info-item:nth-child(3) {
-  justify-self: end;
 }
 
 .info-item svg {
@@ -330,18 +511,14 @@ section {
     grid-template-columns: auto 1fr;
   }
   .info-strip {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: flex-start;
     gap: 1.25rem;
-  }
-  .info-item:nth-child(1),
-  .info-item:nth-child(2),
-  .info-item:nth-child(3) {
-    justify-self: start;
   }
 }
 
 .info-label {
-  font-size: 0.7rem;
+  font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -360,7 +537,7 @@ section {
   font-size: 0.95rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--tiger);
+  color: var(--tiger-text);
   margin-bottom: 1rem;
 }
 
@@ -416,6 +593,68 @@ section {
 @media (max-width: 40rem) {
   .pillars {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Services */
+
+.services-headline {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(2.5rem, 6.5vw, 5rem);
+  line-height: 1.02;
+  letter-spacing: -0.01em;
+  max-width: 44rem;
+  margin-bottom: 1.25rem;
+}
+
+.services-subhead {
+  font-size: clamp(1.05rem, 1.4vw, 1.4rem);
+  color: var(--text-muted);
+  max-width: 36rem;
+  margin-bottom: clamp(2.5rem, 6vw, 4rem);
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(2rem, 5vw, 3rem);
+  border-top: 1px solid var(--border);
+  padding-top: clamp(2rem, 5vw, 3rem);
+}
+
+.service-icon {
+  color: var(--tiger);
+  margin-bottom: 1.25rem;
+}
+
+.service-num {
+  display: block;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-bottom: 0.6rem;
+}
+
+.service-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.05rem, 1.8vw, 1.3rem);
+  margin-bottom: 0.6rem;
+}
+
+.service-text {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+@media (max-width: 48rem) {
+  .services-grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
   }
 }
 
@@ -494,126 +733,230 @@ section {
   margin-bottom: 2rem;
 }
 
-/* Work timeline */
+/* Work filter tabs */
 
-.timeline {
+.work-filter {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: clamp(2.5rem, 6vw, 4rem);
+}
+
+.filter-btn {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+  padding: 0.55rem 1.15rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+.filter-btn:hover {
+  border-color: var(--tiger);
+  color: var(--text);
+}
+
+.filter-btn.is-active {
+  background-color: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
+}
+
+/* Work carousel — a centered "peek" carousel: one active card fully visible
+   in the middle, dimmed/shrunk neighbors peeking at both edges, clipped by
+   .work-carousel's overflow. .work-track is translated horizontally by JS
+   (js/script.js, renderCarousel) to bring whichever card is active to the
+   center; the active/inactive opacity+scale swap on .work-item is the whole
+   "scroll animation" -- cards wake up as they become active. */
+
+.work {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: clamp(1.5rem, 4vw, 3rem);
+  padding-bottom: clamp(1.5rem, 4vw, 3rem);
+}
+
+/* Tighter header-cluster rhythm than the sitewide defaults, so the full
+   marker + heading + note + filter tabs + active card all fit on one
+   screen instead of pushing the card below the fold. */
+.work .section-marker {
+  margin-bottom: clamp(1rem, 2.5vw, 1.5rem);
+}
+
+.work .section-heading {
+  font-size: clamp(2rem, 4vw, 3rem);
+  margin-bottom: 0.5rem;
+}
+
+.work .section-note {
+  margin-bottom: 1.25rem;
+}
+
+.work-filter {
+  margin-bottom: clamp(1.25rem, 3vw, 2rem);
+}
+
+.work-carousel {
   position: relative;
+  overflow: hidden;
+  width: 100%;
 }
 
-.timeline-item {
-  --gap: clamp(2.5rem, 6vw, 4rem);
-  position: relative;
-  padding-left: clamp(2.25rem, 6vw, 3.5rem);
-  padding-bottom: var(--gap);
+.work-track {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+  will-change: transform;
 }
 
-.timeline-item:last-child {
-  --gap: 0px;
+.work-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.6rem;
+  flex: 0 0 auto;
+  width: min(60vw, 40rem);
+  margin-left: clamp(-3rem, -6vw, -1.5rem);
+  padding: clamp(0.75rem, 2vw, 1.25rem) 0;
+  opacity: 0.4;
+  transform: scale(0.9);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  cursor: pointer;
+  z-index: 1;
 }
 
-.timeline-item::before {
-  content: "";
-  position: absolute;
-  left: 5px;
-  top: 0.5rem;
-  bottom: calc(-1 * var(--gap));
-  width: 1px;
-  background: var(--border);
-}
-
-.timeline-item::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0.4rem;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--tiger);
+.work-item.is-active {
+  opacity: 1;
+  transform: scale(1);
+  cursor: default;
   z-index: 2;
 }
 
-.timeline-content {
-  display: flex;
-  align-items: flex-start;
-  gap: clamp(1.25rem, 3vw, 2rem);
+.work-item[hidden] {
+  display: none;
 }
 
-.timeline-body {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  padding-top: 0.2rem;
+.work-item.is-active .work-thumb {
+  box-shadow: 0 20px 45px -20px color-mix(in srgb, var(--text) 25%, transparent);
 }
 
-.timeline-year {
-  font-weight: 700;
-  font-size: 0.85rem;
-  letter-spacing: 0.04em;
-  color: var(--text-muted);
-}
-
-.work-thumb {
-  position: relative;
-  width: clamp(9rem, 24vw, 15rem);
-  flex-shrink: 0;
-  aspect-ratio: 4 / 3;
-  background-color: var(--surface);
-  border-left: 3px solid var(--tiger);
-  overflow: hidden;
-  clip-path: inset(100% 0 0 0);
-  transform: scale(1.06);
-  transition: clip-path 1s cubic-bezier(0.65, 0, 0.35, 1), transform 1s cubic-bezier(0.65, 0, 0.35, 1);
-}
-
-.timeline-item.is-visible .work-thumb {
-  clip-path: inset(0 0 0 0);
-  transform: scale(1);
-}
-
-.timeline-item:hover .work-thumb {
-  transform: scale(1.02);
-  transition-duration: 0.4s;
-}
-
-:root.no-motion .work-thumb {
-  clip-path: inset(0 0 0 0);
-  transform: scale(1);
+:root.no-motion .work-track {
   transition: none;
 }
 
-.work-dots {
-  position: absolute;
-  bottom: 0.9rem;
-  left: 0.9rem;
+:root.no-motion .work-item {
+  transition: none;
+}
+
+/* Carousel controls: arrows in the site's circular icon-button language,
+   dots reusing the accent/border tokens already used for .filter-btn */
+.work-controls {
   display: flex;
-  gap: 0.35rem;
-}
-
-.dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background-color: var(--text-muted);
-}
-
-.dot.active {
-  background-color: var(--text);
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: clamp(1.25rem, 3vw, 2rem);
 }
 
 .work-arrow {
-  position: absolute;
-  top: 0.9rem;
-  right: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: none;
   color: var(--text);
-  opacity: 0;
-  transform: translate(-4px, 4px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
 }
 
-.timeline-item:hover .work-arrow {
-  opacity: 1;
-  transform: translate(0, 0);
+.work-arrow:hover {
+  border-color: var(--tiger);
+  color: var(--tiger);
+}
+
+.work-dots {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.work-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--border);
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.work-dot.is-active {
+  background-color: var(--tiger);
+  transform: scale(1.3);
+}
+
+/* Floating button, scoped to the Work section: since .work is pinned by the
+   page-level scroll stack while its cards scroll horizontally, positioning
+   this relative to .work (not the viewport) keeps it visually anchored for
+   exactly as long as Work is in view, then it scrolls away with the section. */
+.next-section-btn {
+  position: absolute;
+  right: clamp(1.5rem, 6vw, 4rem);
+  bottom: clamp(1.5rem, 6vw, 3rem);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background-color: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.next-section-btn:hover {
+  border-color: var(--tiger);
+  color: var(--tiger);
+  transform: translateY(3px);
+}
+
+.work-thumb {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 1.5rem;
+  background-color: var(--surface);
+  overflow: hidden;
+  transition: transform 0.4s ease, box-shadow 0.5s ease;
+}
+
+.work-item.is-active:hover .work-thumb {
+  transform: scale(1.02);
+}
+
+.work-category {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--tiger-text);
 }
 
 .work-title {
@@ -622,33 +965,10 @@ section {
   font-size: 1.05rem;
 }
 
-.work-tag {
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--tiger);
-}
-
-@media (max-width: 30rem) {
-  .timeline-content {
-    flex-direction: column;
-  }
-  .work-thumb {
-    width: 100%;
-  }
-}
-
 /* Extra grain weight for the Work section in dark mode */
 
-:root[data-theme="dark"] .work::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.05;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+:root[data-theme="dark"] .work {
+  --grain-opacity: 0.1;
 }
 
 /* About / contact */
@@ -683,7 +1003,7 @@ section {
   font-size: 0.95rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--tiger);
+  color: var(--tiger-text);
 }
 
 .wordmark-giant {
@@ -713,7 +1033,7 @@ section {
 }
 
 .back-to-top:hover {
-  color: var(--tiger);
+  color: var(--tiger-text);
 }
 
 @media (max-width: 30rem) {
