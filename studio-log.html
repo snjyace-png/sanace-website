@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Studio Log — Sanace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    (function () {
+      var saved = localStorage.getItem('theme');
+      var theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+</head>
+<body>
+
+  <header class="site-header is-collapsed">
+    <p class="local-time"><span class="local-label">Local /</span> <span id="localTime">--:--:--</span></p>
+    <div class="dot-grid" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="header-right">
+      <a href="index.html" class="header-wordmark">Sanace</a>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle color theme">
+        <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+      </button>
+      <button type="button" class="pill-btn" id="logLogoutBtn" hidden>Log Out</button>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <!-- Password gate: a simple client-side check, not real security --
+           anyone who reads this page's source can find the password. Good
+           enough to keep this off casual view, not for sensitive data. -->
+      <div class="log-gate" id="logGate">
+        <div class="log-gate-box">
+          <p class="eyebrow">Studio Log</p>
+          <h1 class="section-heading">Sign in</h1>
+          <form id="logGateForm">
+            <input type="password" id="logGatePassword" placeholder="Password" autocomplete="current-password" required>
+            <button type="submit" class="pill-btn">Enter</button>
+          </form>
+          <p class="log-gate-error" id="logGateError" hidden>Incorrect password.</p>
+        </div>
+      </div>
+
+      <div class="log-app" id="logApp" hidden>
+        <div class="log-app-header">
+          <div>
+            <p class="eyebrow">Sanace &middot; Internal</p>
+            <h1 class="section-heading">Studio Log</h1>
+          </div>
+          <p class="section-note">Every project, one directory — completed, ongoing, and new leads.</p>
+        </div>
+
+        <form class="log-form" id="logForm">
+          <label>Project name
+            <input type="text" id="logFieldName" required>
+          </label>
+          <label>Client
+            <input type="text" id="logFieldClient">
+          </label>
+          <label>Category
+            <select id="logFieldCategory">
+              <option value="storyboard">Storyboarding &amp; Concept Art</option>
+              <option value="3d">3D Visualization</option>
+              <option value="production">Production Design &amp; Art Department</option>
+            </select>
+          </label>
+          <label>Status
+            <select id="logFieldStatus">
+              <option value="lead">New Lead</option>
+              <option value="ongoing">Ongoing</option>
+              <option value="completed">Completed</option>
+            </select>
+          </label>
+          <label>Date
+            <input type="text" id="logFieldDate" placeholder="e.g. Aug 2026">
+          </label>
+          <label class="log-form-full">Notes
+            <textarea id="logFieldNotes" placeholder="Scope, contact info, rate, links..."></textarea>
+          </label>
+          <button type="submit" class="pill-btn log-form-full">Add Project</button>
+        </form>
+
+        <div class="log-columns">
+          <div class="log-column">
+            <h2>New Leads <span class="log-column-count" id="logCountLead"></span></h2>
+            <div class="log-entries" id="logListLead"></div>
+          </div>
+          <div class="log-column">
+            <h2>Ongoing <span class="log-column-count" id="logCountOngoing"></span></h2>
+            <div class="log-entries" id="logListOngoing"></div>
+          </div>
+          <div class="log-column">
+            <h2>Completed <span class="log-column-count" id="logCountCompleted"></span></h2>
+            <div class="log-entries" id="logListCompleted"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p class="wordmark-small"><a href="index.html">Sanace</a></p>
+    <p>Private &mdash; not part of the public site.</p>
+  </footer>
+
+  <script src="js/script.js" defer></script>
+  <script src="js/studio-log.js" defer></script>
+</body>
+</html>

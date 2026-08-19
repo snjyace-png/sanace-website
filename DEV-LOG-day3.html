@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sanace — Dev Log — Day 3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F6F1E7;
+    --ink: #171310;
+    --tiger: #E85D04;
+    --text-muted: color-mix(in srgb, var(--ink) 55%, transparent);
+    --surface: color-mix(in srgb, var(--ink) 6%, var(--cream));
+    --border: color-mix(in srgb, var(--ink) 12%, transparent);
+    --font-display: "Archivo", sans-serif;
+    --font-body: "Inter", sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background-color: var(--cream);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    padding: clamp(2rem, 6vw, 5rem) clamp(1.5rem, 6vw, 6rem);
+    max-width: 46rem;
+    margin: 0 auto;
+  }
+  header {
+    margin-bottom: clamp(2.5rem, 6vw, 4rem);
+  }
+  .eyebrow {
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--tiger);
+    margin-bottom: 0.75rem;
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(2rem, 6vw, 3rem);
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+  }
+  .meta {
+    margin-top: 1rem;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+  }
+  .meta strong {
+    color: var(--ink);
+  }
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.15rem;
+    margin-top: 2.25rem;
+    margin-bottom: 0.9rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border);
+  }
+  p {
+    margin-bottom: 0.9rem;
+  }
+  ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  li {
+    position: relative;
+    padding-left: 1.25rem;
+  }
+  li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--tiger);
+  }
+  .open-items li::before {
+    background-color: var(--text-muted);
+  }
+  footer {
+    margin-top: clamp(3rem, 6vw, 5rem);
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Sanace &middot; Dev Log &middot; Day 3</p>
+  <h1>Wednesday, 19 August 2026</h1>
+  <p class="meta"><strong>Hours worked:</strong> ~5h</p>
+</header>
+
+<p>A big one — new Showreel section, the Work carousel got a seamless infinite loop, every project now has its own page, a private Studio Log tool, and the Contact section became a real inline form instead of a bare mailto link.</p>
+
+<h2>Hero</h2>
+<ul>
+  <li>Softer letter-flip settle (no overshoot), continuous down-to-up loop instead of a one-shot reveal</li>
+  <li>Height/centering tuned a few times — settled on <code>80vh</code>, true symmetric centering, then nudged slightly up</li>
+</ul>
+
+<h2>Header</h2>
+<ul>
+  <li>Collapses into a small floating pill (theme toggle + Contact) once scrolled past the hero, instead of staying full-width the whole page</li>
+  <li>The pill now shows a "SANACE" wordmark (same bold uppercase font as the hero title) that links back home</li>
+  <li>Studio Log uses this compact pill permanently rather than the full-length header, since there's no hero to scroll past there</li>
+</ul>
+
+<h2>New Showreel section</h2>
+<ul>
+  <li>Full-bleed autoplaying, looping video placeholder right after the hero</li>
+  <li>Locked to a true 16:9 (Full HD) aspect ratio regardless of screen size, rather than stretching to match the viewport</li>
+</ul>
+
+<h2>Work carousel</h2>
+<ul>
+  <li>Rebuilt into a centered "peek" carousel with a seamless infinite loop — cards clone-and-snap at the wrap instead of visibly reversing across every card</li>
+  <li>Touch swipe support added (previously wheel/arrows/dots only — no way to navigate on a phone at all)</li>
+  <li>Wider cards on narrow screens</li>
+</ul>
+
+<h2>Multi-page project pages</h2>
+<ul>
+  <li>Each of the 10 Work cards now links to its own page (<code>work/01.html</code> through <code>work/10.html</code>), matching category</li>
+  <li>Clicking anywhere on the already-centered card opens its page, not just the title text</li>
+</ul>
+
+<h2>Studio Log</h2>
+<ul>
+  <li>New private, password-gated internal tool (<code>studio-log.html</code>) — a project directory with New Leads / Ongoing / Completed columns, add/edit/delete, stored per-browser (no backend)</li>
+  <li>Discussed real cross-device database options (Supabase, or just using Notion/Airtable directly) — held off for now in favor of the simpler local version</li>
+</ul>
+
+<h2>Contact section</h2>
+<ul>
+  <li>Replaced the bare <code>mailto:</code> link with a real inline form (via Web3Forms) — submits without leaving the page, shows a live "message sent" confirmation</li>
+  <li>Reframed with more casual copy and reordered fields: service dropdown first, then name, then a choice between email or phone (only one shows at a time), then message</li>
+</ul>
+
+<h2>Layout polish</h2>
+<ul>
+  <li>Services and Contact given the same <code>80vh</code> + centered treatment as Hero/Work</li>
+  <li>Removed the numbered section-marker row ("02 //Services" etc.) from every homepage section and re-centered what's left (About didn't have height/centering set up yet — added it)</li>
+  <li>Fixed two identical bugs: the Work filter tabs and the Studio Log's password gate were both silently not hiding, caused by the same <code>[hidden]</code> vs <code>display</code> CSS specificity collision</li>
+</ul>
+
+<h2>Responsive pass</h2>
+<ul>
+  <li>Added a <code>dvh</code> viewport-height fallback across Hero/Work/Showreel/Services/Contact, so full-screen sections size correctly against mobile browsers' address-bar behavior instead of <code>vh</code> alone</li>
+</ul>
+
+<h2>Open items for next session</h2>
+<ul class="open-items">
+  <li>Case-study curation still pending — Work section and the 10 project pages still need real content/images</li>
+  <li>Contact form needs a real Web3Forms access key pasted in before it'll actually send (currently a placeholder)</li>
+  <li>Studio Log's password is still the placeholder <code>changeme</code> — needs to be set to something real before relying on it</li>
+  <li>No real photography/footage yet (hero video mask, showreel, work thumbnails)</li>
+  <li>Domain not purchased; contact email is a placeholder (<code>hello@sanace.com</code>)</li>
+  <li>Header still has no nav links (dropped to match the FXF reference layout) — revisit if that's a problem</li>
+</ul>
+
+<footer>
+  Sanace Website — internal dev log, not part of the public site.
+</footer>
+
+</body>
+</html>

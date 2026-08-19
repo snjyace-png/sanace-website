@@ -226,16 +226,32 @@ if (workCarousel && workTrack && workDots) {
     stepCarousel(1);
   });
 
+  // Each card's title links to its own project page. A card's first click
+  // should always center it -- even if the title link is what was clicked --
+  // and only a click on an already-centered card's link should navigate.
   workTrack.addEventListener('click', function (e) {
     var item = e.target.closest('.work-item');
-    if (!item || item.classList.contains('is-clone') || item.classList.contains('is-active')) return;
-    var items = getVisibleWorkItems();
-    var index = items.indexOf(item);
-    if (index === -1) return;
-    activeIndex = index;
-    updateActiveClasses(items);
-    updateDots(items);
-    moveTrackTo(workTrack.children[items.length > 1 ? activeIndex + 1 : activeIndex], false);
+    if (!item || item.classList.contains('is-clone')) return;
+
+    if (!item.classList.contains('is-active')) {
+      e.preventDefault();
+      var items = getVisibleWorkItems();
+      var index = items.indexOf(item);
+      if (index === -1) return;
+      activeIndex = index;
+      updateActiveClasses(items);
+      updateDots(items);
+      moveTrackTo(workTrack.children[items.length > 1 ? activeIndex + 1 : activeIndex], false);
+      return;
+    }
+
+    // Card is already centered -- clicking anywhere on it opens its page
+    // (a click directly on the title link already navigates natively).
+    if (e.target.closest('a')) return;
+    var link = item.querySelector('.work-title a');
+    if (link) {
+      window.location.href = link.href;
+    }
   });
 
   // Mouse wheel over the cards steps the carousel instead of scrolling the
@@ -301,6 +317,71 @@ if (nextSectionBtn) {
     if (about) {
       about.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth' });
     }
+  });
+}
+
+// Contact form -- submits to Web3Forms (free tier) via fetch so visitors
+// get an inline confirmation without leaving the page. Needs a real access
+// key from web3forms.com pasted into the form's hidden "access_key" field.
+// Contact form: the "reach you" field switches between email and phone
+// depending on which radio is picked, so only one contact field shows at a time
+var contactMethodRadios = document.querySelectorAll('input[name="contactMethod"]');
+var contactValueInput = document.getElementById('contactValue');
+var contactValueLabel = document.getElementById('contactValueLabel');
+if (contactValueInput && contactValueLabel) {
+  contactMethodRadios.forEach(function (radio) {
+    radio.addEventListener('change', function () {
+      if (radio.value === 'Phone' && radio.checked) {
+        contactValueInput.type = 'tel';
+        contactValueInput.placeholder = '(000) 000-0000';
+        contactValueLabel.textContent = 'Your phone number';
+      } else if (radio.checked) {
+        contactValueInput.type = 'email';
+        contactValueInput.placeholder = 'you@example.com';
+        contactValueLabel.textContent = 'Your email';
+      }
+    });
+  });
+}
+
+var contactForm = document.getElementById('contactForm');
+var contactFormStatus = document.getElementById('contactFormStatus');
+if (contactForm && contactFormStatus) {
+  contactForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var submitBtn = contactForm.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    contactFormStatus.hidden = true;
+
+    var payload = {};
+    new FormData(contactForm).forEach(function (value, key) {
+      payload[key] = value;
+    });
+
+    fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        contactFormStatus.hidden = false;
+        if (data.success) {
+          contactFormStatus.textContent = "Thanks — your message is on its way. I'll get back to you soon.";
+          contactFormStatus.className = 'contact-form-status is-success';
+          contactForm.reset();
+        } else {
+          contactFormStatus.textContent = 'Something went wrong. Please try emailing hello@sanace.com directly.';
+          contactFormStatus.className = 'contact-form-status is-error';
+        }
+        submitBtn.disabled = false;
+      })
+      .catch(function () {
+        contactFormStatus.hidden = false;
+        contactFormStatus.textContent = 'Something went wrong. Please try emailing hello@sanace.com directly.';
+        contactFormStatus.className = 'contact-form-status is-error';
+        submitBtn.disabled = false;
+      });
   });
 }
 

@@ -219,8 +219,7 @@ section::after {
    here -- same reasoning as .contact ("no grid, clean close"), a decorative
    grid would compete with the footage. */
 .showreel {
-  min-height: 100vh;
-  min-height: 100dvh;
+  aspect-ratio: 16 / 9;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -305,6 +304,28 @@ section::after {
   padding: 0.5rem 0.5rem 0.5rem 1rem;
   gap: 0.75rem;
   box-shadow: 0 8px 24px -14px color-mix(in srgb, var(--text) 22%, transparent);
+}
+
+/* Only shown inside the collapsed pill -- the full header has no wordmark
+   of its own, so this appears specifically as the pill's "home" link. */
+.header-wordmark {
+  font-family: var(--font-display);
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  text-decoration: none;
+  white-space: nowrap;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-width 0.3s ease, opacity 0.25s ease;
+}
+
+.site-header.is-collapsed .header-wordmark {
+  max-width: 8rem;
+  opacity: 1;
 }
 
 .theme-toggle {
@@ -685,6 +706,14 @@ section::after {
 
 /* Services */
 
+.services {
+  min-height: 80vh;
+  min-height: 80dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 .services-headline {
   font-family: var(--font-display);
   font-weight: 900;
@@ -937,7 +966,6 @@ section::after {
 .work-item.is-active {
   opacity: 1;
   transform: scale(1);
-  cursor: default;
   z-index: 2;
 }
 
@@ -1064,6 +1092,45 @@ section::after {
   font-size: 1.05rem;
 }
 
+.work-title a {
+  text-decoration: none;
+}
+
+.work-item.is-active .work-title a:hover {
+  text-decoration: underline;
+}
+
+/* Project detail pages (work/*.html) -- a single static section, opted out
+   of the homepage's sticky scroll-stack since there's only one section here. */
+.project-detail {
+  position: static;
+  padding-top: clamp(6rem, 10vw, 8rem);
+}
+
+.project-detail .section-marker a {
+  text-decoration: none;
+}
+
+.project-detail .section-marker a:hover {
+  color: var(--tiger-text);
+}
+
+.project-media {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 1rem;
+  background-color: var(--surface);
+  margin: 2rem 0;
+}
+
+.project-body {
+  max-width: 42rem;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin-bottom: clamp(2rem, 5vw, 3rem);
+}
+
 /* Extra grain weight for the Work section in dark mode */
 
 :root[data-theme="dark"] .work {
@@ -1071,6 +1138,22 @@ section::after {
 }
 
 /* About / contact */
+
+.about {
+  min-height: 80vh;
+  min-height: 80dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.contact {
+  min-height: 80vh;
+  min-height: 80dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
 
 .about p,
 .contact p {
@@ -1082,6 +1165,103 @@ section::after {
   font-weight: 600;
   text-decoration: none;
   border-bottom: 2px solid var(--tiger);
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 32rem;
+  margin: clamp(1.5rem, 4vw, 2.5rem) 0;
+}
+
+.contact-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.contact-form input[type="text"],
+.contact-form input[type="email"],
+.contact-form input[type="tel"],
+.contact-form select,
+.contact-form textarea {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--text);
+  padding: 0.85rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+}
+
+.contact-form input[type="text"]:focus,
+.contact-form input[type="email"]:focus,
+.contact-form input[type="tel"]:focus,
+.contact-form select:focus,
+.contact-form textarea:focus {
+  outline: 2px solid var(--tiger);
+  outline-offset: 2px;
+}
+
+.contact-form textarea {
+  resize: vertical;
+  min-height: 7rem;
+}
+
+.contact-form button {
+  align-self: flex-start;
+  border: none;
+  cursor: pointer;
+}
+
+.contact-method {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  border: none;
+  padding: 0;
+  margin: -0.5rem 0 -0.75rem;
+}
+
+.contact-method legend {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 0;
+  margin-bottom: 0.6rem;
+  width: 100%;
+}
+
+.contact-form .contact-method-option {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.contact-method-option input {
+  accent-color: var(--tiger);
+  width: 1rem;
+  height: 1rem;
+}
+
+.contact-form-status {
+  font-size: 0.9rem;
+}
+
+.contact-form-status.is-success {
+  color: var(--tiger-text);
+}
+
+.contact-form-status.is-error {
+  color: var(--text-muted);
 }
 
 /* Sign-off */
@@ -1141,4 +1321,210 @@ section::after {
     gap: 0.5rem;
     text-align: center;
   }
+}
+
+/* Studio Log (studio-log.html) -- private, unlisted internal tool, not part
+   of the public site. Password gate + a localStorage-backed project
+   directory, both plain and utilitarian rather than matching the portfolio's
+   scroll-stack/animation treatment. */
+
+.log-gate {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.log-gate[hidden] {
+  display: none;
+}
+
+.log-gate-box {
+  width: 100%;
+  max-width: 22rem;
+  text-align: center;
+}
+
+.log-gate-box h1 {
+  margin-bottom: 1.5rem;
+}
+
+.log-gate-box form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.log-gate-box input {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+  color: var(--text);
+}
+
+.log-gate-box input:focus {
+  outline: 2px solid var(--tiger);
+  outline-offset: 2px;
+}
+
+.log-gate-box button {
+  border: none;
+  cursor: pointer;
+}
+
+.log-gate-error {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: var(--tiger-text);
+}
+
+.log-app-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: clamp(2rem, 5vw, 3rem);
+}
+
+.log-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 1rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background-color: var(--surface);
+  margin-bottom: clamp(2.5rem, 6vw, 4rem);
+}
+
+.log-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.log-form input,
+.log-form select,
+.log-form textarea {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+.log-form textarea {
+  resize: vertical;
+  min-height: 4rem;
+}
+
+.log-form-full {
+  grid-column: 1 / -1;
+}
+
+.log-form button {
+  border: none;
+  cursor: pointer;
+  justify-self: start;
+}
+
+.log-columns {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+@media (max-width: 60rem) {
+  .log-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+.log-column h2 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.1rem;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.log-column-count {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.log-entries {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.log-entry {
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background-color: var(--surface);
+}
+
+.log-entry-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.log-entry-meta {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.log-entry-notes {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+}
+
+.log-entry-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.log-entry-controls select {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--border);
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+.log-entry-delete {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.log-entry-delete:hover {
+  color: var(--tiger-text);
+}
+
+.log-empty {
+  font-size: 0.88rem;
+  color: var(--text-muted);
 }

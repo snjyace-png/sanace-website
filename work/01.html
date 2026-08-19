@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project title placeholder — Sanace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <script>
+    (function () {
+      var saved = localStorage.getItem('theme');
+      var theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+</head>
+<body>
+
+  <header class="site-header">
+    <p class="local-time"><span class="local-label">Local /</span> <span id="localTime">--:--:--</span></p>
+    <div class="dot-grid" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="header-right">
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle color theme">
+        <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+      </button>
+      <a href="../index.html#contact" class="pill-btn">Contact Now</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="project-detail" id="project">
+      <div class="section-marker">
+        <span class="marker-num">01</span>
+        <span class="marker-label">//Storyboarding &amp; Concept Art</span>
+        <span class="marker-meta"><a href="../index.html#work">&larr; Back to Work</a></span>
+      </div>
+      <h1 class="section-heading reveal">Project title placeholder</h1>
+      <p class="section-note reveal">Case study coming soon.</p>
+      <div class="project-media reveal" aria-hidden="true"></div>
+      <p class="project-body reveal">The full write-up, process breakdown, and credits for this project will go here once the case study is ready.</p>
+      <a href="../index.html#work" class="pill-btn pill-btn-outline">&larr; Back to Selected Work</a>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p class="wordmark-small"><a href="../index.html">Sanace</a></p>
+    <p>&copy; 2026 Sanace. All rights reserved.</p>
+    <a href="../index.html" class="back-to-top">Back to home</a>
+  </footer>
+
+  <script src="https://unpkg.com/lenis@1/dist/lenis.min.js"></script>
+  <script src="../js/script.js" defer></script>
+</body>
+</html>
