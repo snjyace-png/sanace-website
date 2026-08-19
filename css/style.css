@@ -78,9 +78,11 @@ section {
 main > section {
   position: sticky;
   top: 0;
+  box-shadow: 0 -18px 36px -20px color-mix(in srgb, var(--text) 22%, transparent);
 }
 
 .hero { z-index: 10; }
+.showreel { z-index: 12; }
 .marquee { z-index: 15; }
 .services { z-index: 20; }
 .work { z-index: 30; }
@@ -193,9 +195,68 @@ section::after {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  padding: 1.5rem clamp(1.5rem, 6vw, 4rem);
+  padding: 1rem clamp(1.5rem, 6vw, 4rem);
   background-color: var(--bg);
-  transition: background-color 0.3s ease;
+  box-shadow: 0 8px 24px -14px color-mix(in srgb, var(--text) 22%, transparent);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, padding 0.3s ease;
+}
+
+:root.no-motion .site-header,
+:root.no-motion .site-header * {
+  transition: none;
+}
+
+/* Plain (non-sticky) marker sitting exactly at hero's bottom edge, observed
+   by js/script.js to trigger the collapsed header -- unlike observing
+   .hero itself (which is sticky, so it stays "intersecting" the viewport
+   far longer than it takes to visually get covered), this crosses the
+   viewport's top edge at precisely the right moment. */
+.hero-sentinel {
+  height: 1px;
+}
+
+/* Showreel: full-bleed autoplaying video section. No .section-grid overlay
+   here -- same reasoning as .contact ("no grid, clean close"), a decorative
+   grid would compete with the footage. */
+.showreel {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--surface);
+}
+
+.showreel-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Collapsed state, toggled by js/script.js once the hero section scrolls
+   out of view: the header itself becomes an invisible positioning wrapper,
+   local-time/dot-grid fade out, and .header-right becomes the visible
+   floating pill (its own background/border/shadow/radius). */
+.site-header.is-collapsed {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.local-time,
+.dot-grid {
+  transition: opacity 0.25s ease;
+}
+
+.site-header.is-collapsed .local-time,
+.site-header.is-collapsed .dot-grid {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+  pointer-events: none;
 }
 
 .local-time {
@@ -232,6 +293,18 @@ section::after {
   display: flex;
   align-items: center;
   gap: clamp(0.75rem, 2vw, 1.25rem);
+  border-radius: 999px;
+  border: 1px solid transparent;
+  padding: 0;
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, padding 0.3s ease, gap 0.3s ease;
+}
+
+.site-header.is-collapsed .header-right {
+  background-color: var(--bg);
+  border-color: var(--border);
+  padding: 0.5rem 0.5rem 0.5rem 1rem;
+  gap: 0.75rem;
+  box-shadow: 0 8px 24px -14px color-mix(in srgb, var(--text) 22%, transparent);
 }
 
 .theme-toggle {
@@ -246,6 +319,17 @@ section::after {
   color: var(--text);
   cursor: pointer;
   flex-shrink: 0;
+  transition: width 0.3s ease, height 0.3s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.site-header.is-collapsed .theme-toggle {
+  width: 2.25rem;
+  height: 2.25rem;
+}
+
+.site-header.is-collapsed .pill-btn {
+  padding: 0.6rem 1.1rem;
+  font-size: 0.82rem;
 }
 
 .theme-toggle:hover {
@@ -280,7 +364,7 @@ section::after {
   border: 1px solid var(--text);
   white-space: nowrap;
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease,
-    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), padding 0.3s ease, font-size 0.3s ease;
 }
 
 .pill-btn:hover {
@@ -321,6 +405,9 @@ section::after {
 /* Hero */
 
 .hero {
+  min-height: 80vh;
+  min-height: 80dvh;
+  justify-content: center;
   padding-top: clamp(2rem, 6vw, 4rem);
   padding-bottom: clamp(3rem, 8vw, 5rem);
   display: flex;
@@ -777,6 +864,7 @@ section::after {
 
 .work {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -818,6 +906,17 @@ section::after {
   will-change: transform;
 }
 
+/* Disables the transition for one frame, used by moveTrackTo() in
+   js/script.js to snap invisibly from a boundary clone to its real
+   counterpart once a wrap-around slide lands on it. */
+.work-track.no-transition {
+  transition: none;
+}
+
+.work-item.is-clone {
+  pointer-events: none;
+}
+
 .work-item {
   display: flex;
   flex-direction: column;
@@ -825,7 +924,7 @@ section::after {
   text-align: center;
   gap: 0.6rem;
   flex: 0 0 auto;
-  width: min(60vw, 40rem);
+  width: min(82vw, 40rem);
   margin-left: clamp(-3rem, -6vw, -1.5rem);
   padding: clamp(0.75rem, 2vw, 1.25rem) 0;
   opacity: 0.4;

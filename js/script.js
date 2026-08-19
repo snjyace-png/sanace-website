@@ -6,6 +6,28 @@ if (prefersReduced) {
   document.documentElement.classList.add('no-motion');
 }
 
+// Showreel: don't autoplay for reduced-motion users, same as the marquee
+var showreelVideo = document.querySelector('.showreel-video');
+if (showreelVideo && prefersReduced) {
+  showreelVideo.pause();
+}
+
+// Header collapses to a small floating pill once the hero has been fully
+// taken over by the next sticky-stacked section, and expands back when
+// scrolling back up to it. Triggered by an IntersectionObserver on a plain
+// (non-sticky) sentinel sitting exactly at hero's bottom edge, rather than
+// observing .hero itself -- .hero is position:sticky, so it geometrically
+// stays "intersecting" the viewport far longer than it takes to visually
+// get covered by the next section, which is why that approach didn't work.
+var siteHeaderEl = document.querySelector('.site-header');
+var heroSentinel = document.querySelector('.hero-sentinel');
+if (siteHeaderEl && heroSentinel && 'IntersectionObserver' in window) {
+  var headerCollapseObserver = new IntersectionObserver(function (entries) {
+    siteHeaderEl.classList.toggle('is-collapsed', !entries[0].isIntersecting);
+  });
+  headerCollapseObserver.observe(heroSentinel);
+}
+
 // Theme toggle
 var themeToggle = document.getElementById('themeToggle');
 themeToggle.addEventListener('click', function () {
@@ -72,27 +94,62 @@ if (!prefersReduced && 'IntersectionObserver' in window) {
 // Work carousel: centered "peek" carousel -- one active card centered, the
 // rest dimmed/shrunk peeking at the edges. activeIndex drives everything:
 // which card is centered (via .work-track's translateX), which one is
-// full-opacity (.is-active), and which dot is lit.
+// full-opacity (.is-active), and which dot is lit. A clone of the first
+// card is appended after the last (and a clone of the last is prepended
+// before the first), so stepping past either end has somewhere to slide
+// onto that continues in the same direction -- see stepCarousel.
 var workCarousel = document.querySelector('.work-carousel');
 var workTrack = document.getElementById('workTrack');
 var workDots = document.getElementById('workDots');
 var activeIndex = 0;
 
 function getVisibleWorkItems() {
-  return Array.prototype.filter.call(workTrack.children, function (el) {
+  return Array.prototype.filter.call(workTrack.querySelectorAll('.work-item:not(.is-clone)'), function (el) {
     return !el.hidden;
   });
 }
 
-function renderCarousel() {
-  var items = getVisibleWorkItems();
-  if (items.length === 0) return;
-  activeIndex = Math.max(0, Math.min(activeIndex, items.length - 1));
+function rebuildClones() {
+  Array.prototype.slice.call(workTrack.querySelectorAll('.work-item.is-clone')).forEach(function (el) {
+    el.remove();
+  });
 
+  var items = getVisibleWorkItems();
+  if (items.length < 2) return;
+
+  var firstClone = items[0].cloneNode(true);
+  firstClone.classList.add('is-clone');
+  firstClone.setAttribute('aria-hidden', 'true');
+  firstClone.setAttribute('tabindex', '-1');
+  workTrack.appendChild(firstClone);
+
+  var lastClone = items[items.length - 1].cloneNode(true);
+  lastClone.classList.add('is-clone');
+  lastClone.setAttribute('aria-hidden', 'true');
+  lastClone.setAttribute('tabindex', '-1');
+  workTrack.insertBefore(lastClone, items[0]);
+}
+
+// Sets .is-active on the current card, and keeps the two boundary clones in
+// sync with whichever real end is active -- so there's no opacity/scale
+// "pop" the instant moveTrackTo snaps from a clone to its real counterpart.
+function updateActiveClasses(items) {
   items.forEach(function (item, i) {
     item.classList.toggle('is-active', i === activeIndex);
   });
+  if (items.length > 1) {
+    var trailingClone = workTrack.lastElementChild;
+    var leadingClone = workTrack.firstElementChild;
+    if (trailingClone && trailingClone.classList.contains('is-clone')) {
+      trailingClone.classList.toggle('is-active', activeIndex === 0);
+    }
+    if (leadingClone && leadingClone.classList.contains('is-clone')) {
+      leadingClone.classList.toggle('is-active', activeIndex === items.length - 1);
+    }
+  }
+}
 
+function updateDots(items) {
   workDots.innerHTML = '';
   items.forEach(function (item, i) {
     var dot = document.createElement('button');
@@ -100,22 +157,65 @@ function renderCarousel() {
     dot.className = 'work-dot' + (i === activeIndex ? ' is-active' : '');
     dot.setAttribute('aria-label', 'Go to project ' + (i + 1));
     dot.addEventListener('click', function () {
+      var current = getVisibleWorkItems();
       activeIndex = i;
-      renderCarousel();
+      updateActiveClasses(current);
+      updateDots(current);
+      moveTrackTo(workTrack.children[current.length > 1 ? activeIndex + 1 : activeIndex], false);
     });
     workDots.appendChild(dot);
   });
+}
 
-  var active = items[activeIndex];
-  var offset = workCarousel.clientWidth / 2 - (active.offsetLeft + active.offsetWidth / 2);
+// Centers `target` in the carousel's viewport. instant=true disables the
+// transition for one frame first, so the move happens with no animation --
+// used for the invisible clone -> real card snap once a wrap slide lands.
+function moveTrackTo(target, instant) {
+  if (!target) return;
+  if (instant) {
+    workTrack.classList.add('no-transition');
+    void workTrack.offsetWidth;
+  }
+  var offset = workCarousel.clientWidth / 2 - (target.offsetLeft + target.offsetWidth / 2);
   workTrack.style.transform = 'translateX(' + offset + 'px)';
+  if (instant) {
+    void workTrack.offsetWidth;
+    workTrack.classList.remove('no-transition');
+  }
+}
+
+function renderCarousel() {
+  rebuildClones();
+  var items = getVisibleWorkItems();
+  if (items.length === 0) return;
+  activeIndex = Math.max(0, Math.min(activeIndex, items.length - 1));
+  updateActiveClasses(items);
+  updateDots(items);
+  moveTrackTo(workTrack.children[items.length > 1 ? activeIndex + 1 : activeIndex], false);
 }
 
 function stepCarousel(delta) {
   var items = getVisibleWorkItems();
   if (items.length === 0) return;
-  activeIndex = (activeIndex + delta + items.length) % items.length;
-  renderCarousel();
+  var raw = activeIndex + delta;
+  var wrapped = raw >= items.length || raw < 0;
+  activeIndex = ((raw % items.length) + items.length) % items.length;
+
+  updateActiveClasses(items);
+  updateDots(items);
+
+  var hasClones = items.length > 1;
+  if (wrapped && hasClones) {
+    var clone = delta > 0 ? workTrack.lastElementChild : workTrack.firstElementChild;
+    moveTrackTo(clone, false);
+    workTrack.addEventListener('transitionend', function onEnd(e) {
+      if (e.target !== workTrack) return;
+      workTrack.removeEventListener('transitionend', onEnd);
+      moveTrackTo(workTrack.children[activeIndex + 1], true);
+    });
+  } else {
+    moveTrackTo(workTrack.children[hasClones ? activeIndex + 1 : activeIndex], false);
+  }
 }
 
 if (workCarousel && workTrack && workDots) {
@@ -126,13 +226,16 @@ if (workCarousel && workTrack && workDots) {
     stepCarousel(1);
   });
 
-  workTrack.querySelectorAll('.work-item').forEach(function (item) {
-    item.addEventListener('click', function () {
-      if (!item.classList.contains('is-active')) {
-        activeIndex = getVisibleWorkItems().indexOf(item);
-        renderCarousel();
-      }
-    });
+  workTrack.addEventListener('click', function (e) {
+    var item = e.target.closest('.work-item');
+    if (!item || item.classList.contains('is-clone') || item.classList.contains('is-active')) return;
+    var items = getVisibleWorkItems();
+    var index = items.indexOf(item);
+    if (index === -1) return;
+    activeIndex = index;
+    updateActiveClasses(items);
+    updateDots(items);
+    moveTrackTo(workTrack.children[items.length > 1 ? activeIndex + 1 : activeIndex], false);
   });
 
   // Mouse wheel over the cards steps the carousel instead of scrolling the
@@ -148,6 +251,21 @@ if (workCarousel && workTrack && workDots) {
     stepCarousel(delta > 0 ? 1 : -1);
     setTimeout(function () { wheelCooldown = false; }, 400);
   }, { passive: false });
+
+  // Touch swipe steps the carousel the same way wheel does -- wheel events
+  // don't fire from touch scrolling, so without this there's no way to
+  // navigate the cards on a phone/tablet.
+  var touchStartX = null;
+  workCarousel.addEventListener('touchstart', function (e) {
+    touchStartX = e.touches[0].clientX;
+  }, { passive: true });
+  workCarousel.addEventListener('touchend', function (e) {
+    if (touchStartX === null) return;
+    var deltaX = touchStartX - e.changedTouches[0].clientX;
+    touchStartX = null;
+    if (Math.abs(deltaX) < 40) return;
+    stepCarousel(deltaX > 0 ? 1 : -1);
+  }, { passive: true });
 
   window.addEventListener('resize', renderCarousel);
   renderCarousel();

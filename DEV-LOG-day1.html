@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sanace — Dev Log</title>
+<title>Sanace — Dev Log — Day 1</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -107,11 +107,6 @@
     font-size: 0.85rem;
     color: var(--text-muted);
   }
-  .day-divider {
-    margin-top: clamp(3.5rem, 7vw, 5.5rem);
-    padding-top: clamp(2.5rem, 6vw, 4rem);
-    border-top: 1px solid var(--border);
-  }
 </style>
 </head>
 <body>
@@ -152,43 +147,6 @@
 <h2>Open items for next session</h2>
 <ul class="open-items">
   <li>Case-study curation still pending — Work section is all placeholders</li>
-  <li>No real photography/footage yet (hero video mask, work thumbnails)</li>
-  <li>Domain not purchased; contact email is a placeholder (<code>hello@sanace.com</code>)</li>
-  <li>Header currently has no nav links (dropped to match the FXF reference layout) — revisit if that's a problem</li>
-</ul>
-
-<header class="day-divider">
-  <p class="eyebrow">Sanace &middot; Dev Log &middot; Day 2</p>
-  <h1>Wednesday, 19 August 2026</h1>
-  <p class="meta"><strong>Hours worked:</strong> ~5-6h (~3-4h this morning, plus ~2h in a later session today)</p>
-</header>
-
-<p>Focused mostly on the Selected Work section — built it out from a plain placeholder list into a fully interactive filtered carousel — plus a couple of hero and site-wide fixes.</p>
-
-<h2>Hero wordmark</h2>
-<ul>
-  <li>Softened the SANJAY &rarr; SANACE letter-flip settle (removed the overshoot "pop," now a smooth, subtle enlarge that holds)</li>
-  <li>Turned the flip animation from a one-shot reveal into a continuous, deterministic down-to-up loop per letter (pure CSS, no JS) instead of the earlier random flicker</li>
-</ul>
-
-<h2>Site-wide fix</h2>
-<ul>
-  <li>Header (theme toggle + Contact button) was getting covered by lower sections while scrolling — raised its z-index above the page's scroll-stack</li>
-</ul>
-
-<h2>Selected Work section (built out from scratch this session)</h2>
-<ul>
-  <li>Added category filter tabs — Storyboarding &amp; Concept Art / 3D Visualization / Production Design &amp; Art Department — reusing the Services section's taxonomy</li>
-  <li>Expanded from 6 to 10 placeholder projects</li>
-  <li>Iterated through several carousel mechanics (sticky-stacking full-bleed cards, then a horizontal scroll/loop version) before landing on a centered "peek" carousel matching a reference design: one large active card, dimmed/shrunk neighbors peeking at the edges with a subtle stacking overlap, rounded cards, dot pagination, and prev/next arrow buttons</li>
-  <li>Hover-scoped scroll — mousing over the cards steps/scrolls them instead of scrolling the page, including fixing a conflict with the site's Lenis smooth-scroll library (<code>data-lenis-prevent</code>)</li>
-  <li>Added a floating button to jump to the next section</li>
-  <li>Fixed a bug where the filter tabs weren't actually hiding non-matching cards — a CSS specificity collision with the browser's native <code>hidden</code> attribute was silently keeping them visible</li>
-</ul>
-
-<h2>Open items for next session</h2>
-<ul class="open-items">
-  <li>Case-study curation still pending — Work section still needs real project content/images in place of the 10 placeholders</li>
   <li>No real photography/footage yet (hero video mask, work thumbnails)</li>
   <li>Domain not purchased; contact email is a placeholder (<code>hello@sanace.com</code>)</li>
   <li>Header currently has no nav links (dropped to match the FXF reference layout) — revisit if that's a problem</li>
