@@ -1131,6 +1131,57 @@ section::after {
   margin-bottom: clamp(2rem, 5vw, 3rem);
 }
 
+/* Paintings gallery (paintings.html) -- CSS-columns masonry so mixed
+   aspect ratios pack tightly with no gaps, no JS layout needed. */
+.paintings-page {
+  position: static;
+  padding-top: clamp(6rem, 10vw, 8rem);
+}
+
+.painting-grid {
+  columns: 1;
+  column-gap: 1.25rem;
+  margin-top: 2rem;
+}
+
+@media (min-width: 640px) {
+  .painting-grid { columns: 2; }
+}
+
+@media (min-width: 1000px) {
+  .painting-grid { columns: 3; }
+}
+
+@media (min-width: 1400px) {
+  .painting-grid { columns: 4; }
+}
+
+.painting-item {
+  break-inside: avoid;
+  margin-bottom: 1.25rem;
+  border-radius: 1rem;
+  overflow: hidden;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.painting-item img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.painting-item-title {
+  padding: 0.6rem 0.9rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.paintings-empty {
+  color: var(--text-muted);
+  margin-top: 1.5rem;
+}
+
 /* Extra grain weight for the Work section in dark mode */
 
 :root[data-theme="dark"] .work {
