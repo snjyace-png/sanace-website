@@ -100,6 +100,166 @@
     font-size: 0.9rem;
     border-radius: 999px;
   }
+  .snippet-box {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: clamp(1.5rem, 5vw, 2.5rem);
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.75rem;
+  }
+  .snippet-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    align-self: flex-start;
+  }
+  .snippet-wordmark {
+    font-family: var(--font-display);
+    font-weight: 900;
+    text-transform: uppercase;
+    font-size: clamp(2.5rem, 10vw, 4.5rem);
+    line-height: 0.9;
+    letter-spacing: -0.01em;
+    background-image: linear-gradient(135deg, var(--tiger) 0%, var(--ink) 45%, var(--tiger) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .snippet-tagline {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  .snippet-headline {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(1.8rem, 6vw, 2.75rem);
+    line-height: 1;
+  }
+  .snippet-pillars {
+    display: flex;
+    gap: 1.5rem;
+    width: 100%;
+    text-align: left;
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+  }
+  .snippet-pillar {
+    flex: 1;
+  }
+  .snippet-pillar-num {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 0.3rem;
+  }
+  .snippet-pillar-title {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.85rem;
+  }
+  .snippet-type-row {
+    display: flex;
+    align-items: baseline;
+    gap: 1.5rem;
+  }
+  .snippet-type-archivo {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 1.4rem;
+  }
+  .snippet-type-inter {
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 1.4rem;
+  }
+  .snippet-type-label {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 0.3rem;
+  }
+  .snippet-utility-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .snippet-toggle {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+  }
+  .snippet-marker-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .snippet-marker-row .marker-num {
+    color: var(--ink);
+  }
+  .snippet-marquee {
+    width: 100%;
+    overflow: hidden;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 0.6rem 0;
+  }
+  .snippet-marquee span {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+  .snippet-timeline {
+    width: 100%;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+  }
+  .snippet-timeline-year {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    width: 3rem;
+    flex-shrink: 0;
+  }
+  .snippet-timeline-thumb {
+    width: 4rem;
+    aspect-ratio: 4 / 3;
+    border-radius: 0.4rem;
+    background-color: color-mix(in srgb, var(--ink) 8%, var(--cream));
+    flex-shrink: 0;
+  }
+  .snippet-timeline-title {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.9rem;
+  }
   footer {
     margin-top: clamp(3rem, 6vw, 5rem);
     padding-top: 1.5rem;
@@ -133,16 +293,82 @@
   <li>Built out real sections: hero, positioning statement ("Systems, not silos"), messaging pillars, Selected Work, About, Contact, footer</li>
   <li>Removed the LOMONI mention from the About copy per request</li>
 </ul>
+<div class="snippet-box">
+  <span class="snippet-label">Positioning statement</span>
+  <p class="snippet-headline">Systems,<br>not silos.</p>
+</div>
+<div class="snippet-box">
+  <span class="snippet-label">Messaging pillars</span>
+  <div class="snippet-pillars">
+    <div class="snippet-pillar">
+      <span class="snippet-pillar-num">01</span>
+      <p class="snippet-pillar-title">Story before surface</p>
+    </div>
+    <div class="snippet-pillar">
+      <span class="snippet-pillar-num">02</span>
+      <p class="snippet-pillar-title">NID-trained, film-tested</p>
+    </div>
+  </div>
+</div>
 
 <h2>Design direction</h2>
 <ul>
   <li>Reviewed fxfmedia.com as a visual reference (screenshots + a detailed motion-language doc) and adapted it rather than cloning it 1:1 — stayed on plain HTML/CSS/JS instead of adopting its React/Next.js/GSAP stack, since the site needs to stay maintainable for a coding beginner</li>
   <li>Rebuilt typography around Archivo (bold display) + Inter (body/labels), replacing the original Fraunces-led system</li>
+</ul>
+<div class="snippet-box">
+  <span class="snippet-label">Type system</span>
+  <div class="snippet-type-row">
+    <div>
+      <span class="snippet-type-archivo">Archivo</span>
+      <span class="snippet-type-label">Display</span>
+    </div>
+    <div>
+      <span class="snippet-type-inter">Inter</span>
+      <span class="snippet-type-label">Body</span>
+    </div>
+  </div>
+</div>
+<ul>
   <li>Added a light/dark theme toggle (persists choice, respects system preference by default)</li>
   <li>Added numbered section markers, a cutting-mat-style grid background, subtle film grain, a live IST clock, pill buttons, magnetic button hover, a marquee text divider, clip-path reveal animations on scroll, and staggered reveal timing</li>
+</ul>
+<div class="snippet-box">
+  <span class="snippet-label">Theme toggle &amp; section marker</span>
+  <div class="snippet-utility-row">
+    <span class="snippet-toggle" aria-hidden="true">&#9789;</span>
+    <span class="snippet-marker-row">
+      <span class="marker-num">01</span>
+      <span>//Services</span>
+      <span>What I Do</span>
+    </span>
+  </div>
+</div>
+<div class="snippet-box">
+  <span class="snippet-label">Marquee divider</span>
+  <div class="snippet-marquee">
+    <span>Storyboard — 3D Visualization — Concept Art — Film — Storyboard — 3D Visualization —</span>
+  </div>
+</div>
+<ul>
   <li>Reworked the Work section from a card grid into a vertical timeline (newest project at the top, placeholder years for now)</li>
+</ul>
+<div class="snippet-box">
+  <span class="snippet-label">Work timeline item</span>
+  <div class="snippet-timeline">
+    <span class="snippet-timeline-year">2026</span>
+    <div class="snippet-timeline-thumb"></div>
+    <p class="snippet-timeline-title">Project title placeholder</p>
+  </div>
+</div>
+<ul>
   <li>Hero: centered uppercase "SANACE" wordmark with a video-mask slot left in place for real footage later (currently showing a gradient placeholder)</li>
 </ul>
+<div class="snippet-box">
+  <span class="snippet-label">Hero wordmark</span>
+  <p class="snippet-wordmark">Sanace</p>
+  <p class="snippet-tagline">Story first, system throughout.</p>
+</div>
 
 <h2>Open items for next session</h2>
 <ul class="open-items">

@@ -89,6 +89,250 @@
   .open-items li::before {
     background-color: var(--text-muted);
   }
+  .snippet-box {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: clamp(1.5rem, 5vw, 2.5rem);
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.75rem;
+  }
+  .snippet-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    align-self: flex-start;
+  }
+  .snippet-wordmark {
+    font-family: var(--font-display);
+    font-weight: 900;
+    text-transform: uppercase;
+    font-size: clamp(2.5rem, 10vw, 4.5rem);
+    line-height: 0.9;
+    letter-spacing: -0.01em;
+    background-image: linear-gradient(135deg, var(--tiger) 0%, var(--ink) 45%, var(--tiger) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .snippet-tagline {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  .snippet-card {
+    width: 100%;
+    max-width: 18rem;
+  }
+  .snippet-thumb {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--tiger) 25%, var(--surface)), var(--surface));
+    margin-bottom: 0.75rem;
+  }
+  .snippet-category {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--tiger) 70%, black);
+  }
+  .snippet-title {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1rem;
+  }
+  .snippet-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.5rem 0.5rem 0.5rem 1rem;
+    background-color: var(--cream);
+    box-shadow: 0 8px 24px -14px color-mix(in srgb, var(--ink) 22%, transparent);
+  }
+  .snippet-pill-word {
+    font-family: var(--font-display);
+    font-weight: 900;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+  }
+  .snippet-pill-dot {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+  }
+  .snippet-pill-btn {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.78rem;
+    padding: 0.5rem 0.9rem;
+    border-radius: 999px;
+    background-color: var(--ink);
+    color: var(--cream);
+  }
+  .snippet-showreel {
+    width: 100%;
+    max-width: 22rem;
+    aspect-ratio: 16 / 9;
+    border-radius: 0.75rem;
+    background: linear-gradient(135deg, var(--ink), color-mix(in srgb, var(--tiger) 30%, var(--ink)));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .snippet-showreel-play {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    border: 1.5px solid var(--cream);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .snippet-showreel-play::after {
+    content: "";
+    border-style: solid;
+    border-width: 0.45rem 0 0.45rem 0.75rem;
+    border-color: transparent transparent transparent var(--cream);
+    margin-left: 0.2rem;
+  }
+  .snippet-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.25rem;
+  }
+  .snippet-arrow {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  .snippet-dots {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .snippet-dot {
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 50%;
+    background-color: var(--border);
+  }
+  .snippet-dot.is-active {
+    background-color: var(--tiger);
+    width: 0.5rem;
+    height: 0.5rem;
+  }
+  .snippet-page {
+    width: 100%;
+    max-width: 20rem;
+    text-align: left;
+  }
+  .snippet-page-back {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 0.6rem;
+  }
+  .snippet-page-title {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+  .snippet-page-media {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 0.6rem;
+    background-color: color-mix(in srgb, var(--ink) 8%, var(--cream));
+    margin-bottom: 0.5rem;
+  }
+  .snippet-page-body {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+  .snippet-board {
+    display: flex;
+    gap: 0.75rem;
+    width: 100%;
+  }
+  .snippet-board-col {
+    flex: 1;
+    text-align: left;
+  }
+  .snippet-board-heading {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    padding-bottom: 0.4rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .snippet-board-card {
+    background-color: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.6rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+  .snippet-form {
+    width: 100%;
+    max-width: 18rem;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .snippet-form-field {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.65rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--border);
+    background-color: var(--cream);
+    color: var(--text-muted);
+  }
+  .snippet-form-btn {
+    align-self: flex-start;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.78rem;
+    padding: 0.5rem 0.9rem;
+    border-radius: 999px;
+    background-color: var(--ink);
+    color: var(--cream);
+    margin-top: 0.2rem;
+  }
+  .snippet-marker {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .snippet-marker .marker-num {
+    color: var(--ink);
+  }
   footer {
     margin-top: clamp(3rem, 6vw, 5rem);
     padding-top: 1.5rem;
@@ -106,13 +350,18 @@
   <p class="meta"><strong>Hours worked:</strong> ~5h</p>
 </header>
 
-<p>A big one — new Showreel section, the Work carousel got a seamless infinite loop, every project now has its own page, a private Studio Log tool, and the Contact section became a real inline form instead of a bare mailto link.</p>
+<p>A big one — new Showreel section, the Work carousel got a seamless infinite loop, every project now has its own page, a private Studio Log tool, and the Contact section became a real inline form instead of a bare mailto link. Snippets below are rebuilt directly with the site's real fonts, colors, and gradient technique — not screenshots, the same CSS running right here.</p>
 
 <h2>Hero</h2>
 <ul>
   <li>Softer letter-flip settle (no overshoot), continuous down-to-up loop instead of a one-shot reveal</li>
   <li>Height/centering tuned a few times — settled on <code>80vh</code>, true symmetric centering, then nudged slightly up</li>
 </ul>
+<div class="snippet-box">
+  <span class="snippet-label">Hero wordmark</span>
+  <p class="snippet-wordmark">Sanace</p>
+  <p class="snippet-tagline">Animation &middot; Film &middot; Design</p>
+</div>
 
 <h2>Header</h2>
 <ul>
@@ -120,12 +369,24 @@
   <li>The pill now shows a "SANACE" wordmark (same bold uppercase font as the hero title) that links back home</li>
   <li>Studio Log uses this compact pill permanently rather than the full-length header, since there's no hero to scroll past there</li>
 </ul>
+<div class="snippet-box">
+  <span class="snippet-label">Collapsed header pill</span>
+  <div class="snippet-pill">
+    <span class="snippet-pill-word">Sanace</span>
+    <span class="snippet-pill-dot" aria-hidden="true"></span>
+    <span class="snippet-pill-btn">Contact Now</span>
+  </div>
+</div>
 
 <h2>New Showreel section</h2>
 <ul>
   <li>Full-bleed autoplaying, looping video placeholder right after the hero</li>
   <li>Locked to a true 16:9 (Full HD) aspect ratio regardless of screen size, rather than stretching to match the viewport</li>
 </ul>
+<div class="snippet-box">
+  <span class="snippet-label">Showreel (16:9, placeholder)</span>
+  <div class="snippet-showreel"><span class="snippet-showreel-play" aria-hidden="true"></span></div>
+</div>
 
 <h2>Work carousel</h2>
 <ul>
@@ -133,24 +394,78 @@
   <li>Touch swipe support added (previously wheel/arrows/dots only — no way to navigate on a phone at all)</li>
   <li>Wider cards on narrow screens</li>
 </ul>
+<div class="snippet-box">
+  <span class="snippet-label">Work carousel card</span>
+  <div class="snippet-card">
+    <div class="snippet-thumb"></div>
+    <p class="snippet-category">Storyboarding &amp; Concept Art</p>
+    <p class="snippet-title">Project title placeholder</p>
+  </div>
+  <div class="snippet-controls">
+    <span class="snippet-arrow" aria-hidden="true">&larr;</span>
+    <span class="snippet-dots">
+      <span class="snippet-dot"></span>
+      <span class="snippet-dot is-active"></span>
+      <span class="snippet-dot"></span>
+      <span class="snippet-dot"></span>
+    </span>
+    <span class="snippet-arrow" aria-hidden="true">&rarr;</span>
+  </div>
+</div>
 
 <h2>Multi-page project pages</h2>
 <ul>
   <li>Each of the 10 Work cards now links to its own page (<code>work/01.html</code> through <code>work/10.html</code>), matching category</li>
   <li>Clicking anywhere on the already-centered card opens its page, not just the title text</li>
 </ul>
+<div class="snippet-box">
+  <span class="snippet-label">Project page (work/01.html)</span>
+  <div class="snippet-page">
+    <p class="snippet-page-back">&larr; Back to Work</p>
+    <p class="snippet-page-title">Project title placeholder</p>
+    <div class="snippet-page-media"></div>
+    <p class="snippet-page-body">Case study coming soon.</p>
+  </div>
+</div>
 
 <h2>Studio Log</h2>
 <ul>
   <li>New private, password-gated internal tool (<code>studio-log.html</code>) — a project directory with New Leads / Ongoing / Completed columns, add/edit/delete, stored per-browser (no backend)</li>
   <li>Discussed real cross-device database options (Supabase, or just using Notion/Airtable directly) — held off for now in favor of the simpler local version</li>
 </ul>
+<div class="snippet-box">
+  <span class="snippet-label">Studio Log board</span>
+  <div class="snippet-board">
+    <div class="snippet-board-col">
+      <p class="snippet-board-heading">Leads</p>
+      <div class="snippet-board-card">Café brand reel</div>
+    </div>
+    <div class="snippet-board-col">
+      <p class="snippet-board-heading">Ongoing</p>
+      <div class="snippet-board-card">Feature storyboard</div>
+    </div>
+    <div class="snippet-board-col">
+      <p class="snippet-board-heading">Completed</p>
+      <div class="snippet-board-card">Product viz set</div>
+    </div>
+  </div>
+</div>
 
 <h2>Contact section</h2>
 <ul>
   <li>Replaced the bare <code>mailto:</code> link with a real inline form (via Web3Forms) — submits without leaving the page, shows a live "message sent" confirmation</li>
   <li>Reframed with more casual copy and reordered fields: service dropdown first, then name, then a choice between email or phone (only one shows at a time), then message</li>
 </ul>
+<div class="snippet-box">
+  <span class="snippet-label">Contact form</span>
+  <div class="snippet-form">
+    <span class="snippet-form-field">What are you looking for? &darr;</span>
+    <span class="snippet-form-field">What's your name?</span>
+    <span class="snippet-form-field">Your email</span>
+    <span class="snippet-form-field">What's on your mind?</span>
+    <span class="snippet-form-btn">Send it over</span>
+  </div>
+</div>
 
 <h2>Layout polish</h2>
 <ul>
@@ -158,6 +473,14 @@
   <li>Removed the numbered section-marker row ("02 //Services" etc.) from every homepage section and re-centered what's left (About didn't have height/centering set up yet — added it)</li>
   <li>Fixed two identical bugs: the Work filter tabs and the Studio Log's password gate were both silently not hiding, caused by the same <code>[hidden]</code> vs <code>display</code> CSS specificity collision</li>
 </ul>
+<div class="snippet-box">
+  <span class="snippet-label">Section marker (kept on project pages, removed from the homepage)</span>
+  <div class="snippet-marker">
+    <span class="marker-num">02</span>
+    <span>//Services</span>
+    <span>What I Do</span>
+  </div>
+</div>
 
 <h2>Responsive pass</h2>
 <ul>

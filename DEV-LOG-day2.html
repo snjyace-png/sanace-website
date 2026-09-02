@@ -89,6 +89,154 @@
   .open-items li::before {
     background-color: var(--text-muted);
   }
+  .snippet-box {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: clamp(1.5rem, 5vw, 2.5rem);
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.75rem;
+  }
+  .snippet-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    align-self: flex-start;
+  }
+  .snippet-wordmark {
+    font-family: var(--font-display);
+    font-weight: 900;
+    text-transform: uppercase;
+    font-size: clamp(2.5rem, 10vw, 4.5rem);
+    line-height: 0.9;
+    letter-spacing: -0.01em;
+    background-image: linear-gradient(135deg, var(--tiger) 0%, var(--ink) 45%, var(--tiger) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .snippet-tagline {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  .snippet-header-bar {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    background-color: var(--cream);
+    border: 1px solid var(--border);
+  }
+  .snippet-header-time {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .snippet-header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .snippet-pill-dot {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+  }
+  .snippet-pill-btn {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.72rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 999px;
+    background-color: var(--ink);
+    color: var(--cream);
+  }
+  .snippet-filter {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  .snippet-filter-tab {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.4rem 0.8rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  .snippet-filter-tab.is-active {
+    background-color: var(--ink);
+    color: var(--cream);
+    border-color: var(--ink);
+  }
+  .snippet-card {
+    width: 100%;
+    max-width: 18rem;
+  }
+  .snippet-thumb {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--tiger) 25%, var(--surface)), var(--surface));
+    margin-bottom: 0.75rem;
+  }
+  .snippet-category {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--tiger) 70%, black);
+  }
+  .snippet-title {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1rem;
+  }
+  .snippet-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.25rem;
+  }
+  .snippet-arrow {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  .snippet-dots {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .snippet-dot {
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 50%;
+    background-color: var(--border);
+  }
+  .snippet-dot.is-active {
+    background-color: var(--tiger);
+    width: 0.5rem;
+    height: 0.5rem;
+  }
   footer {
     margin-top: clamp(3rem, 6vw, 5rem);
     padding-top: 1.5rem;
@@ -106,18 +254,33 @@
   <p class="meta"><strong>Hours worked:</strong> ~5-6h (~3-4h this morning, plus ~2h in a later session today)</p>
 </header>
 
-<p>Focused mostly on the Selected Work section — built it out from a plain placeholder list into a fully interactive filtered carousel — plus a couple of hero and site-wide fixes.</p>
+<p>Focused mostly on the Selected Work section — built it out from a plain placeholder list into a fully interactive filtered carousel — plus a couple of hero and site-wide fixes. Snippets below are rebuilt with the site's real fonts, colors, and gradient technique, as they looked on this day — not screenshots.</p>
 
 <h2>Hero wordmark</h2>
 <ul>
   <li>Softened the SANJAY &rarr; SANACE letter-flip settle (removed the overshoot "pop," now a smooth, subtle enlarge that holds)</li>
   <li>Turned the flip animation from a one-shot reveal into a continuous, deterministic down-to-up loop per letter (pure CSS, no JS) instead of the earlier random flicker</li>
 </ul>
+<div class="snippet-box">
+  <span class="snippet-label">Hero wordmark</span>
+  <p class="snippet-wordmark">Sanace</p>
+  <p class="snippet-tagline">Animation &middot; Film &middot; Design</p>
+</div>
 
 <h2>Site-wide fix</h2>
 <ul>
   <li>Header (theme toggle + Contact button) was getting covered by lower sections while scrolling — raised its z-index above the page's scroll-stack</li>
 </ul>
+<div class="snippet-box">
+  <span class="snippet-label">Header (full-width, no collapse yet)</span>
+  <div class="snippet-header-bar">
+    <span class="snippet-header-time">Local / 14:02:37</span>
+    <span class="snippet-header-right">
+      <span class="snippet-pill-dot" aria-hidden="true"></span>
+      <span class="snippet-pill-btn">Contact Now</span>
+    </span>
+  </div>
+</div>
 
 <h2>Selected Work section (built out from scratch this session)</h2>
 <ul>
@@ -128,6 +291,32 @@
   <li>Added a floating button to jump to the next section</li>
   <li>Fixed a bug where the filter tabs weren't actually hiding non-matching cards — a CSS specificity collision with the browser's native <code>hidden</code> attribute was silently keeping them visible</li>
 </ul>
+<div class="snippet-box">
+  <span class="snippet-label">Filter tabs</span>
+  <div class="snippet-filter">
+    <span class="snippet-filter-tab is-active">All</span>
+    <span class="snippet-filter-tab">Storyboarding &amp; Concept Art</span>
+    <span class="snippet-filter-tab">3D Visualization</span>
+    <span class="snippet-filter-tab">Production Design &amp; Art Department</span>
+  </div>
+</div>
+<div class="snippet-box">
+  <span class="snippet-label">Work carousel card</span>
+  <div class="snippet-card">
+    <div class="snippet-thumb"></div>
+    <p class="snippet-category">Storyboarding &amp; Concept Art</p>
+    <p class="snippet-title">Project title placeholder</p>
+  </div>
+  <div class="snippet-controls">
+    <span class="snippet-arrow" aria-hidden="true">&larr;</span>
+    <span class="snippet-dots">
+      <span class="snippet-dot"></span>
+      <span class="snippet-dot is-active"></span>
+      <span class="snippet-dot"></span>
+    </span>
+    <span class="snippet-arrow" aria-hidden="true">&rarr;</span>
+  </div>
+</div>
 
 <h2>Open items for next session</h2>
 <ul class="open-items">
