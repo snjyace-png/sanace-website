@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Project title placeholder — Sanace</title>
+  <title>MANTHIRA — Sanace</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&family=Pirata+One&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
   <script>
     (function () {
@@ -18,10 +18,11 @@
 </head>
 <body>
 
-  <header class="site-header">
+  <header class="site-header is-collapsed">
     <p class="local-time"><span class="local-label">Local /</span> <span id="localTime">--:--:--</span></p>
     <div class="dot-grid" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
     <div class="header-right">
+      <a href="../index.html" class="header-wordmark">Sanace</a>
       <button class="theme-toggle" id="themeToggle" aria-label="Toggle color theme">
         <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
         <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
@@ -31,17 +32,135 @@
   </header>
 
   <main>
-    <section class="project-detail" id="project">
+    <section class="case-intro case-noir" id="manthiraIntro">
+      <video class="case-intro-video" id="manthiraIntroVideo" autoplay muted playsinline aria-label="MANTHIRA title animation">
+        <source src="media/manthira/00-intro.mp4" type="video/mp4">
+      </video>
+      <button type="button" class="case-replay-overlay" id="manthiraReplayBtn" aria-label="Replay intro video">&#8635;</button>
+    </section>
+
+    <section class="project-detail case-noir" id="project">
       <div class="section-marker">
         <span class="marker-num">01</span>
         <span class="marker-label">//Storyboarding &amp; Concept Art</span>
         <span class="marker-meta"><a href="../index.html#work">&larr; Back to Work</a></span>
       </div>
-      <h1 class="section-heading reveal">Project title placeholder</h1>
-      <p class="section-note reveal">Case study coming soon.</p>
-      <div class="project-media reveal" aria-hidden="true"></div>
-      <p class="project-body reveal">The full write-up, process breakdown, and credits for this project will go here once the case study is ready.</p>
-      <a href="../index.html#work" class="pill-btn pill-btn-outline">&larr; Back to Selected Work</a>
+
+      <h1 class="section-heading case-title reveal">MANTHIRA</h1>
+      <p class="case-lead reveal">Storyboard &amp; previz for a feature film, currently in production.</p>
+      <div class="case-meta reveal">
+        <span>Storyboard Artist &amp; Previz Lead</span>
+        <span>18 months</span>
+        <span>Storyboard Pro &middot; Blender &middot; ToonSquid &middot; Procreate Dreams &middot; Photoshop &middot; Unreal Engine</span>
+      </div>
+
+      <p class="case-body reveal">MANTHIRA has been production designer T. Muthuraj's dream project for almost twenty years. It's a live-action fantasy feature, blending real performers with CGI characters — and after decades shaping the look of Tamil cinema alongside directors like S. Shankar and Atlee, it's finally taking shape. I got to be part of bringing it there.</p>
+
+      <h2 class="case-heading reveal">What they needed from me</h2>
+      <p class="case-body reveal">MANTHIRA leans hard on character-driven scenes, so the studio needed boards that showed real performance — not just where the camera sits. I took that as an invitation, not a constraint: read every scene the way a director would, and draw the acting, not just the geometry. That meant panel choices came from character intent first — when to hold on a reaction, when to cut away, how a shot was blocked so the emotion reads before the action does — not just from covering the scene efficiently.</p>
+
+      <h2 class="case-heading reveal">How a storyboard actually comes together</h2>
+      <p class="case-body reveal">Every scene follows the same path before it reaches the screen:</p>
+      <ol class="case-pipeline reveal">
+        <li><span class="case-pipeline-num">1</span>Script</li>
+        <li><span class="case-pipeline-num">2</span>Thumbnails</li>
+        <li><span class="case-pipeline-num">3</span>Storyboards</li>
+        <li><span class="case-pipeline-num">4</span>Animatic</li>
+        <li><span class="case-pipeline-num">5</span>Previz</li>
+      </ol>
+
+      <h2 class="case-heading reveal">What I actually did</h2>
+      <p class="case-body reveal">Here's what that looked like on MANTHIRA, day to day:</p>
+      <ul class="case-points reveal">
+        <li>Read the script myself and worked out how each scene should be divided into shots before drawing anything</li>
+        <li>Rough thumbnail sketches to work out staging and acting</li>
+        <li>Cleaned-up storyboards, then an animatic timed against the live edit</li>
+        <li>Called my own shots on timing rather than having it handed to me pre-cut</li>
+        <li>Chimed in on lighting and camera choices with the DOP (Director of Photography) during preproduction</li>
+        <li>Occasionally pitched ideas for music and sound too</li>
+      </ul>
+
+      <div class="case-process-row reveal">
+        <figure class="case-image">
+          <img src="media/manthira/placeholder-thumbnails.jpg" alt="Placeholder image standing in for the thumbnail stage, to be replaced with real art">
+          <figcaption>Thumbnails</figcaption>
+        </figure>
+        <figure class="case-image">
+          <img src="media/manthira/placeholder-storyboard.jpg" alt="Placeholder image standing in for the storyboard stage, to be replaced with real art">
+          <figcaption>Storyboards</figcaption>
+        </figure>
+        <figure class="case-image">
+          <img src="media/manthira/placeholder-previz.jpg" alt="Placeholder image standing in for the previz stage, to be replaced with real art">
+          <figcaption>Previz</figcaption>
+        </figure>
+      </div>
+
+      <blockquote class="case-quote reveal">&#8220;Being trusted with that much ownership is what let the role grow past just drawing boards in the first place.&#8221;</blockquote>
+
+      <h2 class="case-heading reveal">Bringing it to life</h2>
+      <p class="case-body reveal">For select scenes, previz went further than staging — I built the character rigs myself, created the 3D character assets used in those scenes, and animated the previz shots too. It meant owning the whole previz pipeline end to end, in Blender and Unreal Engine together, from a bare rig to a lit, camera-blocked scene ready to pressure-test staging and performance before the shoot day arrives.</p>
+
+      <figure class="case-image reveal">
+        <img src="media/manthira/placeholder-rigging.jpg" alt="Placeholder image standing in for character rigging and animation work, to be replaced with real art">
+        <figcaption>Character rigging &amp; animation</figcaption>
+      </figure>
+
+      <h2 class="case-heading reveal">Where things stand</h2>
+      <p class="case-body reveal">MANTHIRA hasn't come out yet, so this isn't a story about reception — it's one about growth. Eighteen months on a single feature grew the role from "storyboard artist" into someone shaping shot planning and preproduction conversations across the film.</p>
+      <blockquote class="case-quote reveal">&#8220;Character acting only really lands when a scene gets read the way a director reads it, not just staged.&#8221;</blockquote>
+      <p class="case-body reveal">If I went back, I'd push for that same script-first read on every scene from day one, not just the character-heavy ones — the earlier a scene gets read that way, the less gets fixed later. I'll update this page with the real outcome once MANTHIRA is out.</p>
+
+      <h2 class="case-heading reveal">Want to see the actual boards?</h2>
+      <p class="case-body reveal">MANTHIRA's under NDA, so I can't post the storyboards or previz here directly — but I'm happy to share them with people who ask. Drop your name and how to reach you, and I'll follow up myself.</p>
+
+      <form class="contact-form reveal" id="contactForm">
+        <input type="hidden" name="access_key" value="YOUR_WEB3FORMS_ACCESS_KEY">
+        <input type="hidden" name="subject" value="MANTHIRA access request from the website">
+        <input type="hidden" name="service" value="MANTHIRA — Storyboard & Previz Access Request">
+        <input type="checkbox" name="botcheck" style="display:none" tabindex="-1" autocomplete="off">
+
+        <label>What's your name?
+          <input type="text" name="name" required>
+        </label>
+
+        <fieldset class="contact-method">
+          <legend>How can I reach you?</legend>
+          <label class="contact-method-option">
+            <input type="radio" name="contactMethod" value="Email" checked> Email
+          </label>
+          <label class="contact-method-option">
+            <input type="radio" name="contactMethod" value="Phone"> Phone
+          </label>
+        </fieldset>
+        <label>
+          <span id="contactValueLabel">Your email</span>
+          <input type="email" name="contact" id="contactValue" placeholder="you@example.com" required>
+        </label>
+
+        <button type="submit" class="pill-btn">Request access</button>
+        <p class="contact-form-status" id="contactFormStatus" hidden></p>
+      </form>
+
+      <h2 class="case-heading reveal">Related projects</h2>
+      <div class="case-related-grid reveal">
+        <a class="case-related-item" href="05.html">
+          <div class="work-thumb" style="background-image: url('media/manthira/00-title-card.jpg'); background-size: cover; background-position: center;"></div>
+          <span class="work-category">3D Visualization</span>
+          <p class="work-title">MANTHIRA — Title Animation</p>
+        </a>
+        <a class="case-related-item" href="08.html">
+          <div class="work-thumb"></div>
+          <span class="work-category">Production Design &amp; Art Department</span>
+          <p class="work-title">Baby John</p>
+        </a>
+        <a class="case-related-item" href="02.html">
+          <div class="work-thumb"></div>
+          <span class="work-category">Storyboarding &amp; Concept Art</span>
+          <p class="work-title">Illustrations — Indian 2</p>
+        </a>
+      </div>
+
+      <a href="../index.html#work" class="pill-btn pill-btn-outline case-cta">&larr; Back to Selected Work</a>
     </section>
   </main>
 

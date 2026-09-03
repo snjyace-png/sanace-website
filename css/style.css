@@ -1121,6 +1121,15 @@ section::after {
   border-radius: 1rem;
   background-color: var(--surface);
   margin: 2rem 0;
+  overflow: hidden;
+}
+
+.project-media img,
+.project-media video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .project-body {
@@ -1129,6 +1138,469 @@ section::after {
   line-height: 1.6;
   color: var(--text-muted);
   margin-bottom: clamp(2rem, 5vw, 3rem);
+}
+
+/* Deep case study pages (e.g. work/01.html -- MANTHIRA) */
+
+.case-lead {
+  font-size: clamp(1.05rem, 1.4vw, 1.3rem);
+  color: var(--text-muted);
+  max-width: 40rem;
+}
+
+.case-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 0;
+  margin: 1.5rem 0 clamp(2.5rem, 6vw, 3.5rem);
+}
+
+.case-meta span:not(:last-child)::after {
+  content: "\00b7";
+  margin: 0 0.75rem;
+  color: var(--border);
+}
+
+.case-heading {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.3rem, 2.5vw, 1.75rem);
+  margin-top: clamp(2.5rem, 6vw, 3.5rem);
+  margin-bottom: 0.9rem;
+}
+
+.case-body {
+  max-width: 42rem;
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.case-image {
+  margin: 1.5rem 0;
+}
+
+.case-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 1rem;
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+}
+
+.case-image figcaption {
+  margin-top: 0.6rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.case-process-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin: 1.5rem 0;
+}
+
+.case-process-row .case-image {
+  margin: 0;
+}
+
+@media (max-width: 40rem) {
+  .case-process-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Related Projects: real project cards, reusing the homepage Work carousel's
+   own .work-thumb/.work-category/.work-title (css/style.css ~line 1068) so
+   these look identical to the real thing -- just a static grid, no carousel
+   JS needed. */
+.case-related-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  max-width: 56rem;
+  margin: 0 auto clamp(2rem, 5vw, 3rem);
+}
+
+@media (max-width: 56rem) {
+  .case-related-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 40rem) {
+  .case-related-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.case-related-item {
+  display: block;
+  text-decoration: none;
+  transition: transform 0.3s ease;
+}
+
+.case-related-item:hover {
+  transform: translateY(-3px);
+}
+
+.case-cta {
+  margin-top: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.case-access-btn {
+  margin-bottom: 1rem;
+}
+
+/* Centered case-study column (MANTHIRA) -- the column itself stays centered
+   on wide screens rather than hugging the left edge, but body copy reads
+   left-aligned (centered multi-line paragraphs are harder to read) -- only
+   display elements (title/lead/headings) are actually center-aligned text.
+   Scoped to .case-noir so a future non-centered case study page isn't affected. */
+.case-noir .case-lead,
+.case-noir .case-heading {
+  text-align: center;
+}
+
+.case-noir .case-lead,
+.case-noir .case-body,
+.case-noir .case-points {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.case-noir .case-body,
+.case-noir .case-points {
+  text-align: left;
+}
+
+.case-noir .case-meta {
+  justify-content: center;
+}
+
+.case-noir .case-access-btn,
+.case-noir .case-cta {
+  display: block;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* "How storyboards get made" step pipeline -- a centered row of numbered
+   chips connected by a thin line, wraps to a stack on narrow screens. */
+.case-pipeline {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 0 auto clamp(2.5rem, 6vw, 3.5rem);
+}
+
+.case-pipeline li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 1.1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.case-pipeline li:not(:first-child)::before {
+  content: "";
+  width: 1.25rem;
+  height: 1px;
+  background-color: var(--border);
+  margin-right: 0.5rem;
+}
+
+.case-pipeline-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  font-size: 0.72rem;
+}
+
+.case-noir .case-pipeline-num {
+  border-color: var(--case-gold);
+  color: var(--case-gold);
+}
+
+/* "Process" points list -- centered as a block, left-aligned text within
+   for readability, gold marker per item. */
+.case-points {
+  list-style: none;
+  display: block;
+  width: fit-content;
+  max-width: 34rem;
+  margin: 0 auto 1.5rem;
+  text-align: left;
+}
+
+.case-points li {
+  position: relative;
+  padding-left: 1.4rem;
+  margin-bottom: 0.6rem;
+  color: var(--text-muted);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.case-points li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--border);
+}
+
+.case-noir .case-points li::before {
+  background-color: var(--case-gold);
+}
+
+/* Replay control, overlaid on the intro video itself rather than living
+   as a separate button further down the page. */
+.case-replay-overlay {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 5;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  background-color: rgba(5, 5, 5, 0.55);
+  border: 1px solid var(--case-gold);
+  color: var(--case-gold);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.case-replay-overlay:hover {
+  background-color: var(--case-gold);
+  color: #050505;
+}
+
+/* MANTHIRA's request-access form reuses the homepage's .contact-form as-is
+   (same markup, same js/script.js handlers) -- just centered and reaccented
+   in gold/teal to match the rest of this page instead of the default orange. */
+.case-noir .contact-form {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.case-noir .contact-form button {
+  align-self: center;
+}
+
+.case-noir .contact-form input:focus,
+.case-noir .contact-form select:focus,
+.case-noir .contact-form textarea:focus {
+  outline-color: var(--case-gold);
+}
+
+.case-noir .contact-method-option input {
+  accent-color: var(--case-gold);
+}
+
+.case-noir .contact-form-status.is-success {
+  color: var(--case-teal);
+}
+
+/* Stop the browser's forced light autofill background from breaking the
+   dark theme on this page's form fields. */
+.case-noir .contact-form input:-webkit-autofill,
+.case-noir .contact-form input:-webkit-autofill:hover,
+.case-noir .contact-form input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text);
+  -webkit-box-shadow: 0 0 0 1000px var(--surface) inset;
+  box-shadow: 0 0 0 1000px var(--surface) inset;
+  caret-color: var(--text);
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+/* Pull-quote, distinct from body copy -- centered as a deliberate accent. */
+.case-quote {
+  max-width: 34rem;
+  margin: clamp(2rem, 5vw, 3rem) auto;
+  padding: 0 1rem;
+  text-align: center;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 700;
+  font-size: clamp(1.15rem, 2vw, 1.4rem);
+  line-height: 1.5;
+  color: var(--case-gold);
+}
+
+.case-quote::before {
+  content: "";
+  display: block;
+  width: 2.5rem;
+  height: 2px;
+  margin: 0 auto 1rem;
+  background-color: var(--case-ruby);
+}
+
+/* Cinematic theme, scoped to one case study page (MANTHIRA) -- matches the
+   film's own title card rather than the site's usual cream/tiger look, but
+   still responds to the site-wide light/dark toggle like every other page.
+   Overriding the shared --bg/--text/etc custom properties here means every
+   existing case-study rule above (and the section's own background-color)
+   picks up the new palette automatically. Dark is a near-black cinematic
+   read; light is a warm-parchment take on the same jewel palette, with
+   deeper/more saturated accent tones so gold/teal/lavender/ruby don't wash
+   out against a light background. */
+:root[data-theme="dark"] .case-noir {
+  --bg: #050505;
+  --text: #F3ECD9;
+  --text-muted: color-mix(in srgb, #F3ECD9 60%, transparent);
+  --surface: color-mix(in srgb, var(--case-gold) 8%, #050505);
+  --border: color-mix(in srgb, var(--case-gold) 25%, transparent);
+  --case-gold: #C2A06B;
+  --case-teal: #2C767C;
+  --case-magic: #9B80B0;
+  --case-ruby: #A63B34;
+}
+
+:root[data-theme="light"] .case-noir {
+  --bg: #F3ECDD;
+  --text: #2B2116;
+  --text-muted: color-mix(in srgb, #2B2116 55%, transparent);
+  --surface: color-mix(in srgb, var(--case-gold) 10%, #F3ECDD);
+  --border: color-mix(in srgb, #2B2116 15%, transparent);
+  --case-gold: #8A6A32;
+  --case-teal: #1F5A5F;
+  --case-magic: #6B4F7A;
+  --case-ruby: #8F2F29;
+}
+
+.case-noir .work-category {
+  color: var(--case-gold);
+}
+
+/* Title treatment: a decorative face closer to the title card's own
+   lettering, plus a soft multi-color glow behind the text for a more
+   "magical" feel than a flat gold gradient alone. The glow sits behind
+   the text (negative z-index) and never affects layout or click targets. */
+.case-noir .case-title {
+  position: relative;
+  z-index: 1;
+  font-family: 'Pirata One', var(--font-display);
+  letter-spacing: 0.01em;
+  background-image: linear-gradient(135deg, var(--case-gold) 0%, #F3D27A 45%, var(--case-gold) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.case-noir .case-title::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -50% -15%;
+  background-image: radial-gradient(circle, var(--case-teal) 0%, var(--case-magic) 35%, var(--case-gold) 65%, transparent 75%);
+  filter: blur(50px);
+  pointer-events: none;
+}
+
+:root[data-theme="dark"] .case-noir .case-title::before {
+  opacity: 0.3;
+}
+
+:root[data-theme="light"] .case-noir .case-title::before {
+  opacity: 0.15;
+}
+
+.case-noir .case-heading {
+  color: var(--case-gold);
+}
+
+.case-noir .section-marker a:hover {
+  color: var(--case-teal);
+}
+
+.case-noir .pill-btn-outline {
+  border-color: var(--case-gold);
+  color: var(--case-gold);
+}
+
+.case-noir .pill-btn-outline:hover {
+  background-color: var(--case-gold);
+  color: #050505;
+}
+
+.case-noir .case-access-btn {
+  background-color: var(--case-gold);
+  color: #050505;
+}
+
+.case-noir .case-access-btn:hover {
+  background-color: var(--case-teal);
+}
+
+/* Cinematic video intro for the MANTHIRA case study, own sibling section
+   before .project-detail. Opts out of main > section's sticky scroll-stack
+   (position: relative instead of the inherited sticky) -- this page is a
+   simple play-through-then-scroll, not a pinned/stacking effect. */
+.case-intro {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background-color: var(--surface);
+}
+
+.case-intro-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Contained video widget for pages where the clip shouldn't fill the
+   screen (e.g. work/05.html) -- same aspect-ratio/fill technique as
+   .case-intro, just boxed into the content column with a visible frame
+   instead of going full-bleed. */
+.case-video-frame {
+  position: relative;
+  max-width: 42rem;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+  margin: 2rem 0;
+}
+
+.case-replay-center {
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+  width: 3.5rem;
+  height: 3.5rem;
+  font-size: 1.4rem;
 }
 
 /* Paintings gallery (paintings.html) -- CSS-columns masonry so mixed

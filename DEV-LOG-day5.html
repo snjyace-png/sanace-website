@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sanace — Dev Log — Day 5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&family=Pirata+One&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F6F1E7;
+    --ink: #171310;
+    --tiger: #E85D04;
+    --text-muted: color-mix(in srgb, var(--ink) 55%, transparent);
+    --surface: color-mix(in srgb, var(--ink) 6%, var(--cream));
+    --border: color-mix(in srgb, var(--ink) 12%, transparent);
+    --font-display: "Archivo", sans-serif;
+    --font-body: "Inter", sans-serif;
+    --gold: #C2A06B;
+    --teal: #2C767C;
+    --magic: #9B80B0;
+    --ruby: #A63B34;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background-color: var(--cream);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    padding: clamp(2rem, 6vw, 5rem) clamp(1.5rem, 6vw, 6rem);
+    max-width: 46rem;
+    margin: 0 auto;
+  }
+  header {
+    margin-bottom: clamp(2.5rem, 6vw, 4rem);
+  }
+  .eyebrow {
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--tiger);
+    margin-bottom: 0.75rem;
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(2rem, 6vw, 3rem);
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+  }
+  .meta {
+    margin-top: 1rem;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+  }
+  .meta strong {
+    color: var(--ink);
+  }
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.15rem;
+    margin-top: 2.25rem;
+    margin-bottom: 0.9rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border);
+  }
+  p {
+    margin-bottom: 0.9rem;
+  }
+  ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  li {
+    position: relative;
+    padding-left: 1.25rem;
+  }
+  li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--tiger);
+  }
+  .open-items li::before {
+    background-color: var(--text-muted);
+  }
+  .snippet-box {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: clamp(1.5rem, 5vw, 2.5rem);
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.75rem;
+  }
+  .snippet-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    align-self: flex-start;
+  }
+  .snippet-card {
+    width: 100%;
+    max-width: 18rem;
+  }
+  .snippet-thumb {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--tiger) 25%, var(--surface)), var(--surface));
+    margin-bottom: 0.75rem;
+  }
+  .snippet-category {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--tiger) 70%, black);
+  }
+  .snippet-title {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1rem;
+  }
+  .swatch-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    width: 100%;
+  }
+  .swatch {
+    width: 5.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    align-items: center;
+  }
+  .swatch-chip {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 0.6rem;
+    border: 1px solid var(--border);
+  }
+  .swatch-label {
+    font-size: 0.68rem;
+    font-family: monospace;
+    color: var(--text-muted);
+  }
+  .noir-title {
+    font-family: "Pirata One", serif;
+    font-size: 2.4rem;
+    background: linear-gradient(135deg, var(--gold), #F3ECD9, var(--gold));
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px color-mix(in srgb, var(--gold) 40%, transparent);
+  }
+  .noir-demo {
+    background-color: #050505;
+    border-radius: 0.75rem;
+    padding: 2rem 1.5rem;
+    width: 100%;
+  }
+  .pipeline-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  .pipeline-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.9rem 0.4rem 0.4rem;
+    border-radius: 999px;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+  }
+  .pipeline-num {
+    width: 1.4rem;
+    height: 1.4rem;
+    border-radius: 50%;
+    border: 1px solid var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+  }
+  footer {
+    margin-top: clamp(3rem, 6vw, 5rem);
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Sanace &middot; Dev Log &middot; Day 5</p>
+  <h1>Wednesday, 2 September 2026</h1>
+  <p class="meta"><strong>Hours worked:</strong> ~3-4h</p>
+</header>
+
+<p>First real deep case study on the site — MANTHIRA. This one came with a wrinkle none of the placeholder pages had: the project is under NDA, and the site's repo is public. Most of the session was about solving that constraint rather than working around it — building a page that reads as a proper case study without ever showing a single frame of the actual storyboards.</p>
+
+<h2>NDA-safe page strategy</h2>
+<ul>
+  <li>Real storyboard/previz/thumbnail images stay out of the tracked site folders entirely — the only real MANTHIRA assets committed are the title card image and the title animation video, both explicitly cleared for public use</li>
+  <li>The rest of the visual interest comes from synthetic placeholder images (generated, clearly labeled) standing in for the thumbnail/storyboard/previz/rigging stages until real stills are ready to swap in</li>
+  <li>Added a real "Request Access" section at the bottom — a proper gated form, not a mailto link, reusing the homepage's Web3Forms contact-form pattern (same fields, same JS handlers, just re-scoped to a MANTHIRA subject line)</li>
+</ul>
+
+<h2>A page-specific "magical" theme</h2>
+<ul>
+  <li>New scoped theme, <code>.case-noir</code> — gold / teal / magic / ruby accent tokens pulled from the real title card and character art, not arbitrary picks</li>
+  <li>Still fully respects the site's light/dark toggle — each token gets its own light and dark value rather than being hardcoded to one look</li>
+  <li>Title treatment uses Pirata One (blackletter) with a blurred gradient glow behind the gradient-text fill, echoing the title card's own lettering</li>
+</ul>
+<div class="snippet-box">
+  <span class="snippet-label">case-noir accent tokens</span>
+  <div class="swatch-row">
+    <div class="swatch"><div class="swatch-chip" style="background-color: var(--gold);"></div><span class="swatch-label">#C2A06B</span></div>
+    <div class="swatch"><div class="swatch-chip" style="background-color: var(--teal);"></div><span class="swatch-label">#2C767C</span></div>
+    <div class="swatch"><div class="swatch-chip" style="background-color: var(--magic);"></div><span class="swatch-label">#9B80B0</span></div>
+    <div class="swatch"><div class="swatch-chip" style="background-color: var(--ruby);"></div><span class="swatch-label">#A63B34</span></div>
+  </div>
+</div>
+<div class="snippet-box">
+  <span class="snippet-label">Title treatment (dark)</span>
+  <div class="noir-demo">
+    <p class="noir-title">MANTHIRA</p>
+  </div>
+</div>
+
+<h2>Title animation, two ways</h2>
+<ul>
+  <li>Full-bleed intro video + replay button on the main case study (work/01.html) — plays once on load, auto-scrolls into the page</li>
+  <li>Its own standalone page (work/05.html) for the title animation itself — reflowed so the write-up comes first and the video sits in a smaller, framed, contained box further down with a centered replay icon, instead of full-bleed</li>
+  <li>Both reuse the same replay/autoplay JS — no duplication, since both pages share element IDs</li>
+</ul>
+<div class="snippet-box">
+  <span class="snippet-label">Storyboard-to-previz pipeline chips</span>
+  <div class="noir-demo">
+    <div class="pipeline-row">
+      <span class="pipeline-chip"><span class="pipeline-num">1</span>Script</span>
+      <span class="pipeline-chip"><span class="pipeline-num">2</span>Thumbnails</span>
+      <span class="pipeline-chip"><span class="pipeline-num">3</span>Storyboards</span>
+      <span class="pipeline-chip"><span class="pipeline-num">4</span>Animatic</span>
+      <span class="pipeline-chip"><span class="pipeline-num">5</span>Previz</span>
+    </div>
+  </div>
+</div>
+
+<h2>Rest of the site caught up</h2>
+<ul>
+  <li>Collapsible pill header rolled out to every work/*.html page, not just the ones that had been touched so far</li>
+  <li>Related-project cards added for Baby John and Illustrations — Indian 2 (both real, verified credits), reusing the homepage's own card component so they don't look bolted-on</li>
+</ul>
+<div class="snippet-box">
+  <span class="snippet-label">Related-project card</span>
+  <div class="snippet-card">
+    <div class="snippet-thumb"></div>
+    <p class="snippet-category">Production Design &amp; Art Department</p>
+    <p class="snippet-title">Baby John</p>
+  </div>
+</div>
+
+<h2>Design-system reference sheet</h2>
+<ul>
+  <li>Split out a standalone reference page (kept in the private working folder, not the public site) with the full palette, type specimens, and component demos for MANTHIRA</li>
+  <li>Meant purely as a personal reference for tweaking colors/type by hand later, not something wired to the live stylesheet</li>
+</ul>
+
+<h2>Open items for next session</h2>
+<ul class="open-items">
+  <li>Real thumbnail/BTS stills still needed from Sanjay to replace the 4 synthetic placeholders</li>
+  <li>Contact form (including the new Request Access form) still needs a real Web3Forms access key — currently a placeholder</li>
+  <li>Two more Tier 1/2 deep case studies still to build, plus the Tier 3 capsule template for the smaller range/interest projects</li>
+  <li>A4-landscape print PDF export not yet started</li>
+  <li>Studio Log's password is still the placeholder <code>changeme</code></li>
+</ul>
+
+<footer>
+  Sanace Website — internal dev log, not part of the public site.
+</footer>
+
+</body>
+</html>

@@ -12,6 +12,34 @@ if (showreelVideo && prefersReduced) {
   showreelVideo.pause();
 }
 
+// MANTHIRA intro video: auto-scroll into the case study once it ends
+var manthiraIntroVideo = document.getElementById('manthiraIntroVideo');
+if (manthiraIntroVideo) {
+  var scrollToContent = function () {
+    var target = document.getElementById('project');
+    if (!target) return;
+    if (typeof lenis !== 'undefined' && lenis) {
+      lenis.scrollTo(target);
+    } else {
+      target.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth' });
+    }
+  };
+  if (prefersReduced) {
+    manthiraIntroVideo.pause();
+  } else {
+    manthiraIntroVideo.addEventListener('ended', scrollToContent);
+    setTimeout(scrollToContent, 4300);
+  }
+
+  var manthiraReplayBtn = document.getElementById('manthiraReplayBtn');
+  if (manthiraReplayBtn) {
+    manthiraReplayBtn.addEventListener('click', function () {
+      manthiraIntroVideo.currentTime = 0;
+      manthiraIntroVideo.play();
+    });
+  }
+}
+
 // Header collapses to a small floating pill once the hero has been fully
 // taken over by the next sticky-stacked section, and expands back when
 // scrolling back up to it. Triggered by an IntersectionObserver on a plain
