@@ -1181,6 +1181,22 @@ section::after {
   margin-bottom: 0.9rem;
 }
 
+/* Script / sound-script excerpts -- a distinct quoted-document look,
+   separate from regular prose paragraphs. */
+.script-excerpt {
+  max-width: 42rem;
+  margin: 0 0 clamp(2rem, 5vw, 3rem);
+  padding: 1.25rem 1.5rem;
+  border-left: 3px solid var(--tiger);
+  background-color: var(--surface);
+  border-radius: 0 0.75rem 0.75rem 0;
+  font-family: monospace;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+  white-space: pre-wrap;
+}
+
 .case-body {
   max-width: 42rem;
   font-size: 1.05rem;
@@ -1811,6 +1827,11 @@ section::after {
   background-color: var(--surface);
   border: 1px solid var(--border);
   cursor: pointer;
+}
+
+/* A4-landscape storyboard pages (5 Degrees) instead of 16:9 video-shot frames */
+.storyboard-grid.is-a4-landscape .storyboard-item {
+  aspect-ratio: 842 / 595;
 }
 
 .storyboard-item img {

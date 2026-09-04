@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sanace — Dev Log — Day 7</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F6F1E7;
+    --ink: #171310;
+    --tiger: #E85D04;
+    --text-muted: color-mix(in srgb, var(--ink) 55%, transparent);
+    --surface: color-mix(in srgb, var(--ink) 6%, var(--cream));
+    --border: color-mix(in srgb, var(--ink) 12%, transparent);
+    --font-display: "Archivo", sans-serif;
+    --font-body: "Inter", sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background-color: var(--cream);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    padding: clamp(2rem, 6vw, 5rem) clamp(1.5rem, 6vw, 6rem);
+    max-width: 46rem;
+    margin: 0 auto;
+  }
+  header {
+    margin-bottom: clamp(2.5rem, 6vw, 4rem);
+  }
+  .eyebrow {
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--tiger);
+    margin-bottom: 0.75rem;
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(2rem, 6vw, 3rem);
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+  }
+  .meta {
+    margin-top: 1rem;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+  }
+  .meta strong {
+    color: var(--ink);
+  }
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.15rem;
+    margin-top: 2.25rem;
+    margin-bottom: 0.9rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border);
+  }
+  p {
+    margin-bottom: 0.9rem;
+  }
+  ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  li {
+    position: relative;
+    padding-left: 1.25rem;
+  }
+  li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--tiger);
+  }
+  .open-items li::before {
+    background-color: var(--text-muted);
+  }
+  .snippet-box {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: clamp(1.5rem, 5vw, 2.5rem);
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.75rem;
+  }
+  .snippet-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    align-self: flex-start;
+  }
+  .progress-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    width: 100%;
+  }
+  .progress-chip {
+    flex: 1;
+    min-width: 7rem;
+    aspect-ratio: 16 / 9;
+    border-radius: 0.75rem;
+    border: 1px solid var(--border);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--tiger) 20%, var(--surface)), var(--surface));
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 0.5rem;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
+  .swatch-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    width: 100%;
+  }
+  .swatch {
+    width: 6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    align-items: center;
+  }
+  .swatch-chip {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 0.6rem;
+    border: 1px solid var(--border);
+  }
+  .swatch-label {
+    font-size: 0.68rem;
+    font-family: monospace;
+    color: var(--text-muted);
+  }
+  .toc-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    justify-content: center;
+    font-size: 0.78rem;
+  }
+  .toc-chip {
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  footer {
+    margin-top: clamp(3rem, 6vw, 5rem);
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Sanace &middot; Dev Log &middot; Day 7</p>
+  <h1>Friday, 4 September 2026</h1>
+  <p class="meta"><strong>Hours worked:</strong> ~6-7h</p>
+</header>
+
+<p>Four new project pages today, moving from quick single-project builds into one much bigger one — the graduation film finally got the full treatment it earned.</p>
+
+<h2>Letter Box — first honest "work in progress" page</h2>
+<ul>
+  <li>An active, unfinished CGI short (postcard/letter piece with crystal set-dressing) — built the page to say exactly that instead of dressing it up as a finished case study</li>
+  <li>Instead of one hero shot, the "Where it's at" section shows the actual render progression — July 2025 first blocking test, August 2025 lighting pass, current 4K render — since that trajectory was more honest and more interesting than pretending it's done</li>
+  <li>Hero video compressed from 280MB down to 3.4MB; the extracted poster frame (a glowing ember under an inland letter card) turned out to be a genuinely good piece of art on its own</li>
+</ul>
+<div class="snippet-box">
+  <span class="snippet-label">Render progression, not a single hero shot</span>
+  <div class="progress-row">
+    <div class="progress-chip">July 2025</div>
+    <div class="progress-chip">August 2025</div>
+    <div class="progress-chip">Now</div>
+  </div>
+</div>
+
+<h2>Auto VFX — a real before/after</h2>
+<ul>
+  <li>A windshield-reflection-removal cleanup shot (Blender tracking + masking + compositing), done as part of a short film's VFX pass</li>
+  <li>Found the exact frame where the fix reads clearest — a bright ghost-reflection blob over a passenger's face in the raw plate, gone in the graded final — and trimmed both to matching 15-second loops for a direct side-by-side</li>
+  <li>Corrected the year: the folder said "2025" but the file history showed the actual work was done Nov 2024, so the page is dated by when the work happened, not the folder name</li>
+</ul>
+
+<h2>5 Degrees — rebuilt around the actual thesis</h2>
+<ul>
+  <li>First pass was a condensed 6-section case study I wrote myself. Sanjay asked for it to be rebuilt using his real 72-page NID graduation thesis document as the structural template instead — same section order, same section titles, same voice</li>
+  <li>Read the entire thesis PDF page by page to extract it properly, then rebuilt the page end to end: About myself, Idea for the film, Story, Script excerpt, Storyboard, all four characters/vehicles (Velan, Kizhan, Small fly, Pecaplane), World building (World, Camp site, Bunker, Cave, Conference), Finished shot, Sound design, Process, My learnings, Tools, Acknowledgement, Bibliography</li>
+  <li>Pulled real environment renders directly off the thesis PDF's own pages (Bunker and Cave sections) rather than hunting for separate source files — rendering the PDF page itself turned out to be the fastest path to the actual embedded art</li>
+  <li>Kept the personal, reflective sections (the 15-month timeline, a health-related production break, what the process taught him) in his own voice from the source text, but trimmed the ~30-person faculty thank-you list down to names already relevant elsewhere on the page</li>
+  <li>Split the full 76-panel storyboard into its own gallery page, same pattern as Madan and Family's but sized to the real A4-landscape page ratio instead of forcing 16:9</li>
+</ul>
+<div class="snippet-box">
+  <span class="snippet-label">Page structure mirrors the thesis document's own section order</span>
+  <div class="toc-row">
+    <span class="toc-chip">introduction</span>
+    <span class="toc-chip">pre-production</span>
+    <span class="toc-chip">characters</span>
+    <span class="toc-chip">world building</span>
+    <span class="toc-chip">sfx</span>
+    <span class="toc-chip">process</span>
+    <span class="toc-chip">acknowledgement</span>
+  </div>
+</div>
+
+<h2>Inspire Cricket Academy — first Graphic Design piece</h2>
+<ul>
+  <li>A crest logo for a youth cricket academy (2022) plus a summer-camp poster applying it (2023) — added a new "Graphic Design" filter category since nothing existing fit a logo/identity project</li>
+  <li>The source folder also had nine brand-strategy/pitch-deck/invoice documents generated the same day as this session — all explicitly self-described as "reconstructed," with placeholder pricing and invoice numbers. Kept the page to only the real, dated deliverables (the logo and the poster), while borrowing the positioning language itself ("turns raw enthusiasm into real technique") as Sanjay's own articulated thinking rather than presenting any of the fabricated business paperwork as real</li>
+</ul>
+<div class="snippet-box">
+  <span class="snippet-label">Academy palette</span>
+  <div class="swatch-row">
+    <div class="swatch"><div class="swatch-chip" style="background-color: #004AAD;"></div><span class="swatch-label">#004AAD</span></div>
+    <div class="swatch"><div class="swatch-chip" style="background-color: #FFBD59;"></div><span class="swatch-label">#FFBD59</span></div>
+  </div>
+</div>
+
+<h2>Open items for next session</h2>
+<ul class="open-items">
+  <li>5 Degrees is a genuinely long page now — worth a read-through pass from Sanjay to check nothing important got lost in condensing the thesis essays</li>
+  <li>"Vincent Van Goah" filename spelling in Fine Arts still unresolved from Day 6</li>
+  <li>Real thumbnail/BTS stills still needed for the two remaining MANTHIRA placeholders</li>
+  <li>Contact form (including MANTHIRA's Request Access form) still needs a real Web3Forms access key</li>
+  <li>Studio Log's password is still the placeholder <code>changeme</code></li>
+</ul>
+
+<footer>
+  Sanace Website — internal dev log, not part of the public site.
+</footer>
+
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Project title placeholder — Sanace</title>
+  <title>Auto VFX — Sanace</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -35,13 +35,36 @@
     <section class="project-detail" id="project">
       <div class="section-marker">
         <span class="marker-num">07</span>
-        <span class="marker-label">//3D Visualization</span>
+        <span class="marker-label">//3D Vis / CGI</span>
         <span class="marker-meta"><a href="../index.html#work">&larr; Back to Work</a></span>
       </div>
-      <h1 class="section-heading reveal">Project title placeholder</h1>
-      <p class="section-note reveal">Case study coming soon.</p>
-      <div class="project-media reveal" aria-hidden="true"></div>
-      <p class="project-body reveal">The full write-up, process breakdown, and credits for this project will go here once the case study is ready.</p>
+      <h1 class="section-heading reveal">Auto VFX</h1>
+      <p class="section-note reveal">A VFX cleanup shot for a short film, 2024 — removing a reflection glare from an auto-rickshaw's windshield in a night driving scene.</p>
+
+      <div class="project-media reveal">
+        <video controls playsinline poster="media/auto-vfx/poster.jpg" aria-label="Auto VFX, final graded shot">
+          <source src="media/auto-vfx/hero.mp4" type="video/mp4">
+        </video>
+      </div>
+
+      <p class="project-body reveal">The raw plate had a bright reflection washing across the windshield glass, catching one of the passengers' faces for most of the shot. Fixed it in Blender: tracked the moving footage in the Movie Clip Editor, built a mask around the glass and the glare region, and painted the reflection out frame by frame through the compositor. It took a couple of masking passes to get the roto clean before the final composite held up across the whole move.</p>
+
+      <h2 class="case-heading reveal">Before / after</h2>
+      <div class="case-process-row is-pair reveal">
+        <figure class="case-image">
+          <video autoplay muted loop playsinline aria-label="Before: windshield reflection visible">
+            <source src="media/auto-vfx/before.mp4" type="video/mp4">
+          </video>
+          <figcaption>Before</figcaption>
+        </figure>
+        <figure class="case-image">
+          <video autoplay muted loop playsinline aria-label="After: reflection removed">
+            <source src="media/auto-vfx/after.mp4" type="video/mp4">
+          </video>
+          <figcaption>After</figcaption>
+        </figure>
+      </div>
+
       <a href="../index.html#work" class="pill-btn pill-btn-outline">&larr; Back to Selected Work</a>
     </section>
   </main>
