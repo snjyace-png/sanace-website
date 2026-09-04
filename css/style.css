@@ -843,6 +843,13 @@ section::after {
   margin-bottom: 0.75rem;
 }
 
+.section-lead {
+  color: var(--text);
+  font-style: italic;
+  font-size: clamp(1.05rem, 2vw, 1.25rem);
+  margin-bottom: 0.75rem;
+}
+
 .section-note {
   color: var(--text-muted);
   font-size: 0.95rem;
@@ -1186,7 +1193,8 @@ section::after {
   margin: 1.5rem 0;
 }
 
-.case-image img {
+.case-image img,
+.case-image video {
   display: block;
   width: 100%;
   height: auto;
@@ -1211,6 +1219,10 @@ section::after {
 
 .case-process-row .case-image {
   margin: 0;
+}
+
+.case-process-row.is-pair {
+  grid-template-columns: repeat(2, 1fr);
 }
 
 @media (max-width: 40rem) {
@@ -1251,6 +1263,44 @@ section::after {
 
 .case-related-item:hover {
   transform: translateY(-3px);
+}
+
+/* Storyboard link card (work/09.html) -- styled as a stack of cards peeking
+   out from behind the thumbnail, fanning further out on hover. */
+.storyboard-stack {
+  position: relative;
+}
+
+.storyboard-stack::before,
+.storyboard-stack::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 1.5rem;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  transition: transform 0.35s ease;
+}
+
+.storyboard-stack::before {
+  z-index: -1;
+  transform: rotate(-4deg) translate(-4px, 4px);
+}
+
+.storyboard-stack::after {
+  z-index: -2;
+  transform: rotate(5deg) translate(6px, 6px);
+}
+
+.storyboard-stack:hover::before {
+  transform: rotate(-8deg) translate(-10px, 8px);
+}
+
+.storyboard-stack:hover::after {
+  transform: rotate(10deg) translate(14px, 10px);
 }
 
 .case-cta {
@@ -1603,55 +1653,306 @@ section::after {
   font-size: 1.4rem;
 }
 
-/* Paintings gallery (paintings.html) -- CSS-columns masonry so mixed
-   aspect ratios pack tightly with no gaps, no JS layout needed. */
-.paintings-page {
+/* Fine Arts gallery (fine-arts.html) -- bento grid: a real CSS grid,
+   capped at 4 columns, whose row-spans are computed in JS from each
+   image's real aspect ratio, so tiles pack tightly according to their
+   actual proportions instead of being force-cropped to one shape. */
+.fine-arts-page {
   position: static;
   padding-top: clamp(6rem, 10vw, 8rem);
 }
 
-.painting-grid {
-  columns: 1;
-  column-gap: 1.25rem;
+.fine-art-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  grid-auto-rows: 10px;
+  grid-auto-flow: dense;
+  gap: 1.25rem;
   margin-top: 2rem;
 }
 
 @media (min-width: 640px) {
-  .painting-grid { columns: 2; }
+  .fine-art-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (min-width: 1000px) {
-  .painting-grid { columns: 3; }
+  .fine-art-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (min-width: 1400px) {
-  .painting-grid { columns: 4; }
+  .fine-art-grid { grid-template-columns: repeat(4, 1fr); }
 }
 
-.painting-item {
-  break-inside: avoid;
-  margin-bottom: 1.25rem;
+.fine-art-item {
+  position: relative;
   border-radius: 1rem;
   overflow: hidden;
   background-color: var(--surface);
   border: 1px solid var(--border);
 }
 
-.painting-item img {
+.fine-art-item img {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
 }
 
-.painting-item-title {
-  padding: 0.6rem 0.9rem;
+.fine-art-item-title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 1.5rem 0.9rem 0.6rem;
   font-size: 0.85rem;
-  color: var(--text-muted);
+  color: #fff;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.65), transparent);
 }
 
-.paintings-empty {
+.fine-arts-empty {
   color: var(--text-muted);
   margin-top: 1.5rem;
+}
+
+.fine-art-item {
+  cursor: pointer;
+}
+
+/* Animation Shorts gallery (animation-shorts.html) -- same bento grid
+   system as Fine Arts, but tiles are silently autoplaying video loops
+   instead of images. */
+.anim-shorts-page {
+  position: static;
+  padding-top: clamp(6rem, 10vw, 8rem);
+}
+
+.anim-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  grid-auto-rows: 10px;
+  grid-auto-flow: dense;
+  gap: 1.25rem;
+  margin-top: 2rem;
+}
+
+@media (min-width: 640px) {
+  .anim-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 1000px) {
+  .anim-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (min-width: 1400px) {
+  .anim-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+.anim-item {
+  position: relative;
+  border-radius: 1rem;
+  overflow: hidden;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.anim-item video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.anim-item-title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 1.5rem 0.9rem 0.6rem;
+  font-size: 0.85rem;
+  color: #fff;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.65), transparent);
+}
+
+.anim-shorts-empty {
+  color: var(--text-muted);
+  margin-top: 1.5rem;
+}
+
+/* Madan and Family storyboard gallery (work/madan-family-storyboard.html) --
+   a plain sequential grid, not the dense-packed bento layout: every frame is
+   a uniform 16:9 shot and reading order matters, so tiles stay in place
+   instead of being reflowed to fill gaps. */
+.storyboard-page {
+  position: static;
+  padding-top: clamp(6rem, 10vw, 8rem);
+}
+
+.storyboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+@media (min-width: 640px) {
+  .storyboard-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (min-width: 1000px) {
+  .storyboard-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+.storyboard-item {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 0.6rem;
+  overflow: hidden;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.storyboard-item img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Fullscreen lightbox for a clicked fine-art piece. Always dark-backdrop
+   regardless of site theme -- the point is showing the piece itself. */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.92);
+}
+
+.lightbox[hidden] {
+  display: none;
+}
+
+.lightbox-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lightbox-image,
+.lightbox-video {
+  display: block;
+  max-width: 90vw;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: 0.5rem;
+}
+
+.lightbox-details {
+  position: fixed;
+  top: 50%;
+  right: 4rem;
+  transform: translateY(-50%);
+  width: 16rem;
+  text-align: left;
+}
+
+/* Video lightbox variant (animation-shorts.html) -- stacks the details
+   below the video instead of floating them fixed to the right, since a
+   90vw-wide 16:9 clip leaves no clear space beside it for a side panel. */
+.lightbox--stacked {
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.lightbox--stacked .lightbox-video {
+  max-height: 70vh;
+}
+
+.lightbox--stacked .lightbox-details {
+  position: static;
+  width: auto;
+  max-width: 90vw;
+  transform: none;
+  text-align: center;
+}
+
+.lightbox-title {
+  color: #fff;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.25rem;
+}
+
+.lightbox-medium {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  margin-top: 0.4rem;
+}
+
+@media (max-width: 800px) {
+  .lightbox-image {
+    max-height: 65vh;
+  }
+  .lightbox-details {
+    top: auto;
+    bottom: 1.25rem;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: 90vw;
+    text-align: center;
+  }
+}
+
+.lightbox-close,
+.lightbox-nav {
+  position: fixed;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.lightbox-close:hover,
+.lightbox-nav:hover {
+  background-color: #fff;
+  color: #050505;
+}
+
+.lightbox-close {
+  top: 1.5rem;
+  right: 1.5rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  font-size: 1.4rem;
+}
+
+.lightbox-nav {
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3rem;
+  height: 3rem;
+  font-size: 1.6rem;
+}
+
+.lightbox-prev { left: 1.5rem; }
+.lightbox-next { right: 1.5rem; }
+
+@media (max-width: 640px) {
+  .lightbox-nav { width: 2.5rem; height: 2.5rem; font-size: 1.3rem; }
+  .lightbox-prev { left: 0.5rem; }
+  .lightbox-next { right: 0.5rem; }
+  .lightbox-close { top: 0.75rem; right: 0.75rem; }
 }
 
 /* Extra grain weight for the Work section in dark mode */

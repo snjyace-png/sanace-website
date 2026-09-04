@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fine Arts — Sanace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    (function () {
+      var saved = localStorage.getItem('theme');
+      var theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+</head>
+<body>
+
+  <header class="site-header is-collapsed">
+    <p class="local-time"><span class="local-label">Local /</span> <span id="localTime">--:--:--</span></p>
+    <div class="dot-grid" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="header-right">
+      <a href="index.html" class="header-wordmark">Sanace</a>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle color theme">
+        <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+      </button>
+      <a href="index.html#contact" class="pill-btn">Contact Now</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="project-detail fine-arts-page" id="fine-arts">
+      <div class="section-marker">
+        <span class="marker-num">&#9679;</span>
+        <span class="marker-label">//Fine Arts</span>
+        <span class="marker-meta"><a href="index.html#work">&larr; Back to Work</a></span>
+      </div>
+      <h1 class="section-heading reveal">Fine Arts</h1>
+      <p class="section-lead reveal">This is where it all started — long before client work, it was just me, paper, and time.</p>
+      <p class="section-note reveal">A personal practice outside client work — portraits and studies, shown together as they are.</p>
+
+      <div class="fine-art-grid" id="fineArtGrid"></div>
+      <p class="fine-arts-empty" id="fineArtsEmpty" hidden>More pieces coming soon.</p>
+    </section>
+  </main>
+
+  <div class="lightbox" id="fineArtLightbox" hidden role="dialog" aria-modal="true">
+    <button type="button" class="lightbox-close" id="lightboxClose" aria-label="Close">&times;</button>
+    <button type="button" class="lightbox-nav lightbox-prev" id="lightboxPrev" aria-label="Previous piece">&#8249;</button>
+    <button type="button" class="lightbox-nav lightbox-next" id="lightboxNext" aria-label="Next piece">&#8250;</button>
+    <div class="lightbox-stage">
+      <img class="lightbox-image" id="lightboxImage" src="" alt="">
+    </div>
+    <div class="lightbox-details">
+      <p class="lightbox-title" id="lightboxTitle"></p>
+      <p class="lightbox-medium" id="lightboxMedium" hidden></p>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <p class="wordmark-small"><a href="index.html">Sanace</a></p>
+    <p>&copy; 2026 Sanace. All rights reserved.</p>
+    <a href="index.html" class="back-to-top">Back to home</a>
+  </footer>
+
+  <script src="js/fine-arts-manifest.js"></script>
+  <script src="https://unpkg.com/lenis@1/dist/lenis.min.js"></script>
+  <script src="js/script.js" defer></script>
+  <script>
+    (function () {
+      var grid = document.getElementById('fineArtGrid');
+      var empty = document.getElementById('fineArtsEmpty');
+      var pieces = window.FINE_ARTS || [];
+
+      if (!pieces.length) {
+        empty.hidden = false;
+        return;
+      }
+
+      function layoutItem(item, img) {
+        if (!img.naturalWidth || !img.naturalHeight) return;
+
+        var gridStyles = getComputedStyle(grid);
+        var rowUnit = parseFloat(gridStyles.gridAutoRows);
+        var gap = parseFloat(gridStyles.rowGap || gridStyles.gap) || 0;
+        var aspect = img.naturalWidth / img.naturalHeight;
+
+        var rect = item.getBoundingClientRect();
+        var renderedHeight = rect.width / aspect;
+        var rowSpan = Math.max(1, Math.ceil((renderedHeight + gap) / (rowUnit + gap)));
+        item.style.gridRowEnd = 'span ' + rowSpan;
+      }
+
+      var entries = [];
+
+      pieces.forEach(function (piece, index) {
+        var item = document.createElement('figure');
+        item.className = 'fine-art-item';
+
+        var img = document.createElement('img');
+        img.src = piece.src;
+        img.alt = piece.title || 'Fine art piece';
+        img.loading = 'lazy';
+        item.appendChild(img);
+
+        if (piece.title) {
+          var caption = document.createElement('figcaption');
+          caption.className = 'fine-art-item-title';
+          caption.textContent = piece.title;
+          item.appendChild(caption);
+        }
+
+        item.addEventListener('click', function () {
+          openLightbox(index);
+        });
+
+        grid.appendChild(item);
+        entries.push({ item: item, img: img });
+
+        if (img.complete) {
+          layoutItem(item, img);
+        } else {
+          img.addEventListener('load', function () {
+            layoutItem(item, img);
+          });
+        }
+      });
+
+      var resizeTimer;
+      window.addEventListener('resize', function () {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function () {
+          entries.forEach(function (entry) {
+            layoutItem(entry.item, entry.img);
+          });
+        }, 150);
+      });
+
+      // Fullscreen lightbox
+
+      var lightbox = document.getElementById('fineArtLightbox');
+      var lightboxImage = document.getElementById('lightboxImage');
+      var lightboxTitle = document.getElementById('lightboxTitle');
+      var lightboxMedium = document.getElementById('lightboxMedium');
+      var lightboxClose = document.getElementById('lightboxClose');
+      var lightboxPrev = document.getElementById('lightboxPrev');
+      var lightboxNext = document.getElementById('lightboxNext');
+      var currentIndex = 0;
+
+      function render(index) {
+        var piece = pieces[index];
+        lightboxImage.src = piece.src;
+        lightboxImage.alt = piece.title || 'Fine art piece';
+        lightboxTitle.textContent = piece.title || '';
+        lightboxTitle.hidden = !piece.title;
+        lightboxMedium.textContent = piece.medium || '';
+        lightboxMedium.hidden = !piece.medium;
+      }
+
+      function openLightbox(index) {
+        currentIndex = index;
+        render(currentIndex);
+        lightbox.hidden = false;
+        document.body.style.overflow = 'hidden';
+        if (typeof lenis !== 'undefined' && lenis) {
+          lenis.stop();
+        }
+      }
+
+      function closeLightbox() {
+        lightbox.hidden = true;
+        document.body.style.overflow = '';
+        if (typeof lenis !== 'undefined' && lenis) {
+          lenis.start();
+        }
+      }
+
+      function showRelative(delta) {
+        currentIndex = (currentIndex + delta + pieces.length) % pieces.length;
+        render(currentIndex);
+      }
+
+      lightboxClose.addEventListener('click', closeLightbox);
+      lightboxPrev.addEventListener('click', function () { showRelative(-1); });
+      lightboxNext.addEventListener('click', function () { showRelative(1); });
+
+      lightbox.addEventListener('click', function (e) {
+        if (!e.target.closest('.lightbox-image, .lightbox-details, .lightbox-close, .lightbox-nav')) {
+          closeLightbox();
+        }
+      });
+
+      document.addEventListener('keydown', function (e) {
+        if (lightbox.hidden) return;
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowLeft') showRelative(-1);
+        if (e.key === 'ArrowRight') showRelative(1);
+      });
+    })();
+  </script>
+</body>
+</html>

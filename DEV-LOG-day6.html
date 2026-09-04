@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sanace — Dev Log — Day 6</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F6F1E7;
+    --ink: #171310;
+    --tiger: #E85D04;
+    --text-muted: color-mix(in srgb, var(--ink) 55%, transparent);
+    --surface: color-mix(in srgb, var(--ink) 6%, var(--cream));
+    --border: color-mix(in srgb, var(--ink) 12%, transparent);
+    --font-display: "Archivo", sans-serif;
+    --font-body: "Inter", sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background-color: var(--cream);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    padding: clamp(2rem, 6vw, 5rem) clamp(1.5rem, 6vw, 6rem);
+    max-width: 46rem;
+    margin: 0 auto;
+  }
+  header {
+    margin-bottom: clamp(2.5rem, 6vw, 4rem);
+  }
+  .eyebrow {
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--tiger);
+    margin-bottom: 0.75rem;
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(2rem, 6vw, 3rem);
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+  }
+  .meta {
+    margin-top: 1rem;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+  }
+  .meta strong {
+    color: var(--ink);
+  }
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.15rem;
+    margin-top: 2.25rem;
+    margin-bottom: 0.9rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border);
+  }
+  p {
+    margin-bottom: 0.9rem;
+  }
+  ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  li {
+    position: relative;
+    padding-left: 1.25rem;
+  }
+  li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--tiger);
+  }
+  .open-items li::before {
+    background-color: var(--text-muted);
+  }
+  .snippet-box {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: clamp(1.5rem, 5vw, 2.5rem);
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.75rem;
+  }
+  .snippet-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    align-self: flex-start;
+  }
+  .bento-demo {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: 8px;
+    gap: 0.5rem;
+    width: 100%;
+  }
+  .bento-demo span {
+    border-radius: 0.5rem;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--tiger) 22%, var(--surface)), var(--surface));
+    border: 1px solid var(--border);
+  }
+  .stack-demo {
+    position: relative;
+    width: 10rem;
+    aspect-ratio: 16 / 9;
+    margin: 1.5rem 0 1rem;
+  }
+  .stack-demo .layer {
+    position: absolute;
+    inset: 0;
+    border-radius: 0.9rem;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+  }
+  .stack-demo .layer:nth-child(1) { transform: rotate(5deg) translate(6px, 6px); z-index: 1; }
+  .stack-demo .layer:nth-child(2) { transform: rotate(-4deg) translate(-4px, 4px); z-index: 2; }
+  .stack-demo .layer:nth-child(3) {
+    z-index: 3;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--tiger) 22%, var(--surface)), var(--surface));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+  .pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  .pill-demo {
+    font-size: 0.8rem;
+    padding: 0.45rem 1rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  .pill-demo.is-active {
+    background-color: var(--tiger);
+    border-color: var(--tiger);
+    color: white;
+  }
+  footer {
+    margin-top: clamp(3rem, 6vw, 5rem);
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Sanace &middot; Dev Log &middot; Day 6</p>
+  <h1>Thursday, 3 September 2026</h1>
+  <p class="meta"><strong>Hours worked:</strong> ~5-6h</p>
+</header>
+
+<p>Long, gallery-heavy session — three new content types went up (Fine Arts, Animation Shorts, a full narrative short's project page), plus a real bug fix and a fair bit of iteration on how a lightbox should behave when the media changes shape from image to video.</p>
+
+<h2>Fine Arts gallery (renamed from Paintings)</h2>
+<ul>
+  <li>Rebuilt as a proper bento grid — capped at 4 columns, row-spans computed in JS from each image's real aspect ratio instead of force-cropping everything to one shape</li>
+  <li>37 real pieces loaded in, each with a researched title and medium (pencil, charcoal, oil, digital) judged from the actual artwork</li>
+  <li>Whole feature renamed Paintings &rarr; Fine Arts site-wide — files, folder, CSS classes, manifest, nav labels</li>
+  <li>Established the ongoing workflow going forward: rename a file in the private working folder, and it gets synced into the site's served copy plus the manifest on request</li>
+</ul>
+<div class="snippet-box">
+  <span class="snippet-label">Bento grid — row-span packed by real aspect ratio</span>
+  <div class="bento-demo">
+    <span style="grid-row: span 9;"></span>
+    <span style="grid-row: span 14;"></span>
+    <span style="grid-row: span 6;"></span>
+    <span style="grid-row: span 11;"></span>
+    <span style="grid-row: span 7;"></span>
+    <span style="grid-row: span 5;"></span>
+    <span style="grid-row: span 10;"></span>
+    <span style="grid-row: span 8;"></span>
+  </div>
+</div>
+
+<h2>Lightbox, and a real bug</h2>
+<ul>
+  <li>Click any tile to view it fullscreen with title/medium — image stays dead-centered, details panel fixed to the right, click outside the image closes it</li>
+  <li>Found the actual cause behind two rounds of "it's broken" reports: <code>.lightbox { display: flex }</code> had no <code>.lightbox[hidden] { display: none; }</code> override, so the browser's built-in <code>[hidden]</code> rule was silently losing to the author stylesheet — the lightbox was always visible regardless of the hidden attribute, which explained both "shows by default" and "click outside doesn't close it" from the same root cause</li>
+</ul>
+
+<h2>Baby John — new project page</h2>
+<ul>
+  <li>Single VFX shot built solo in Blender — a school bus sinking underwater — filled in from concept sketch through to the final animated clip</li>
+  <li>Includes a Cycles-vs-Eevee lookdev comparison explaining the actual tradeoff made: Cycles for physical accuracy, Eevee for iteration speed on a moving-camera shot, which is why the final sink was rendered in Eevee</li>
+</ul>
+
+<h2>Animation Shorts — new gallery, video this time</h2>
+<ul>
+  <li>Same bento-grid system as Fine Arts, but every tile is a real video clip, not an image</li>
+  <li>Tiles autoplay muted and looped by default (no click or hover needed), gated behind an IntersectionObserver so only on-screen clips are actually decoding — with up to 21 clips on one page, autoplaying all of them regardless of scroll position would have been a real performance problem</li>
+  <li>21 personal/hobby clips compressed from ~509MB down to ~78MB total</li>
+  <li>Lightbox variant added for video: same centered-media pattern as Fine Arts, but details stack below the video instead of floating to the right — a fixed side panel would've overlapped a 16:9 clip at lightbox width, so stacking was the fix</li>
+</ul>
+
+<h2>Selected Work cleanup</h2>
+<ul>
+  <li>Removed the category label from under every card in the homepage carousel — thumbnail and title only now, keeping the filter tabs above doing the categorizing instead of repeating it on every card</li>
+  <li>Renamed the "3D Visualization" filter tab to "3D Vis / CGI"</li>
+</ul>
+
+<h2>Madan and Family — first full narrative short on the site</h2>
+<ul>
+  <li>A college graduation short co-written, designed, and animated with classmate Nilesh — didn't fit any existing category, so it got its own new "Short Films" filter instead of being force-fit into Production Design or 3D</li>
+  <li>Project page built as a real case study: hero video (click-to-play with poster, not autoplay — a 2:36 cut with music isn't a background loop), synopsis, character design breakdown for the three leads, and a "key scenes" row of three looping clips converted from the original GIFs (14-17MB each down to ~0.5-0.6MB)</li>
+  <li>Full 129-shot storyboard pulled out into its own gallery page — plain sequential grid, not the dense-packed bento style, since shot order actually matters here and <code>grid-auto-flow: dense</code> would have scrambled the sequence</li>
+  <li>The storyboard link on the project page went through a couple of rounds: text button &rarr; small thumbnail card &rarr; a proper "stack of cards" visual (two rotated card edges peeking out behind the thumbnail, fanning further out on hover)</li>
+  <li>Storyboard gallery cross-linked both ways: a card for it now lives under the "Storyboarding &amp; Concept Art" filter on the homepage, and the gallery itself links back to the main project page at the bottom</li>
+</ul>
+<div class="snippet-box">
+  <span class="snippet-label">Storyboard link — stack-of-cards hover</span>
+  <div class="stack-demo">
+    <div class="layer"></div>
+    <div class="layer"></div>
+    <div class="layer">129 shots</div>
+  </div>
+</div>
+<div class="snippet-box">
+  <span class="snippet-label">Selected Work filters, current set</span>
+  <div class="pill-row">
+    <span class="pill-demo is-active">All</span>
+    <span class="pill-demo">Storyboarding &amp; Concept Art</span>
+    <span class="pill-demo">3D Vis / CGI</span>
+    <span class="pill-demo">Production Design &amp; Art Department</span>
+    <span class="pill-demo">Fine Arts</span>
+    <span class="pill-demo">Animation Shorts</span>
+    <span class="pill-demo">Short Films</span>
+  </div>
+</div>
+
+<h2>Open items for next session</h2>
+<ul class="open-items">
+  <li>Madan and Family's write-up is getting a pass to read more like a proper pitch narration — richer synopsis and character detail, framed around the finished short as proof-of-concept for a bigger idea open to backing. Re-read all the source docs and character bibles for this already; the actual copy rewrite is still pending</li>
+  <li>One filename spelling flagged but unresolved: "Vincent Van Goah" in the Fine Arts folder — manifest shows the corrected title "Vincent Van Gogh," filename left as-is pending Sanjay's call</li>
+  <li>Real thumbnail/BTS stills still needed for the two remaining MANTHIRA placeholders from Day 5</li>
+  <li>Contact form (including MANTHIRA's Request Access form) still needs a real Web3Forms access key</li>
+  <li>Studio Log's password is still the placeholder <code>changeme</code></li>
+</ul>
+
+<footer>
+  Sanace Website — internal dev log, not part of the public site.
+</footer>
+
+</body>
+</html>

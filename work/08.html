@@ -40,8 +40,35 @@
       </div>
       <h1 class="section-heading reveal">Baby John</h1>
       <p class="section-note reveal">VFX shot, as part of the production design team — Baby John (2024), Hindi.</p>
-      <div class="project-media reveal" aria-hidden="true"></div>
-      <p class="project-body reveal">Baby John is a 2024 Hindi action thriller directed by Kalees, presented by Atlee and Jio Studios, starring Varun Dhawan. I contributed a VFX shot as part of the production design team. Images and a fuller write-up to come.</p>
+
+      <div class="project-media reveal">
+        <video autoplay muted loop playsinline aria-label="Bus sinking underwater, CGI shot for Baby John">
+          <source src="media/baby-john/underwater-bus.mp4" type="video/mp4">
+        </video>
+      </div>
+
+      <p class="project-body reveal">Baby John is a 2024 Hindi action thriller directed by Kalees, presented by Atlee and Jio Studios, starring Varun Dhawan. I contributed a VFX shot as part of the production design team — a school bus sinking underwater, built end to end in Blender: staging the shot from a concept sketch, modeling and lighting the underwater look, then animating the sink itself.</p>
+
+      <h2 class="case-heading reveal">From sketch to shot</h2>
+      <p class="project-body reveal">Before any 3D work, the shot started as a quick sketch — the bus's angle as it goes under, the direction of the sink, where the light from the surface would fall. That early staging call carried through to the final camera angle and motion, so it was worth getting right on paper first, cheaply, before touching Blender.</p>
+      <figure class="case-image reveal">
+        <img src="media/baby-john/concept-sketch.jpg" alt="Concept sketch of a bus sinking underwater, showing its angle and the surface ripples above">
+        <figcaption>Concept sketch — establishing the bus's angle and the sink's direction</figcaption>
+      </figure>
+
+      <h2 class="case-heading reveal">Render engine lookdev</h2>
+      <p class="project-body reveal">I tested the underwater look in both of Blender's render engines before committing to one for the animation. Cycles, path-traced, gave the more physically accurate light falloff and murk — closer to how light actually behaves underwater — but at a real cost in iteration time. Eevee, real-time, let me try far more lighting and fog variations per hour, at the expense of some of that physical accuracy. The final animated sink was rendered in Eevee for exactly that reason: with a moving camera and a bus tumbling through frame, being able to iterate fast mattered more than chasing Cycles' extra realism.</p>
+      <div class="case-process-row is-pair reveal">
+        <figure class="case-image">
+          <img src="media/baby-john/render-cycles.jpg" alt="Cycles path-traced render of the bus underwater">
+          <figcaption>Cycles (path-traced)</figcaption>
+        </figure>
+        <figure class="case-image">
+          <img src="media/baby-john/render-eevee.jpg" alt="Eevee real-time render of the bus underwater, mid-sink">
+          <figcaption>Eevee (real-time)</figcaption>
+        </figure>
+      </div>
+
       <a href="../index.html#work" class="pill-btn pill-btn-outline">&larr; Back to Selected Work</a>
     </section>
   </main>
