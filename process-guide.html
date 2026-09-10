@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Process Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --ink:#121212; --ink-soft:#5C5C5C; --ink-faint:#8A8A8A;
+  --paper:#FFFFFF; --paper-raised:#F3F3F3; --paper-sunk:#E7E7E7;
+  --rule:#D4D4D4;
+  --shadow: 0 1px 0 rgba(0,0,0,0.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#F0F0F0; --ink-soft:#A6A6A6; --ink-faint:#767676;
+    --paper:#0D0D0D; --paper-raised:#181818; --paper-sunk:#080808;
+    --rule:#333333;
+    --shadow: 0 1px 0 rgba(0,0,0,0.5);
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#F0F0F0; --ink-soft:#A6A6A6; --ink-faint:#767676;
+  --paper:#0D0D0D; --paper-raised:#181818; --paper-sunk:#080808;
+  --rule:#333333;
+  --shadow: 0 1px 0 rgba(0,0,0,0.5);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:'Source Serif 4', Georgia, 'Times New Roman', serif;
+  font-size:16px; line-height:1.6;
+}
+h1,h2,h3{ font-family:'Montserrat','Arial',sans-serif; font-weight:700; letter-spacing:-0.01em; text-wrap:balance; margin:0; }
+.mono{ font-family:'IBM Plex Mono','SF Mono',monospace; }
+:focus-visible{ outline:2px solid var(--ink); outline-offset:2px; }
+
+header{
+  border-bottom:1px solid var(--rule); padding:18px 28px 16px;
+  display:flex; align-items:baseline; justify-content:space-between; gap:20px; flex-wrap:wrap;
+}
+header .brand{ display:flex; align-items:baseline; gap:10px; }
+header .tag{ font-family:'IBM Plex Mono'; font-size:11px; color:var(--paper); background:var(--ink); padding:3px 7px; border-radius:2px; letter-spacing:.08em; }
+header h1{ font-size:24px; }
+header .sub{ font-family:'IBM Plex Mono'; font-size:11.5px; color:var(--ink-faint); letter-spacing:.02em; }
+
+.layout{ display:grid; grid-template-columns:280px 1fr; max-width:1180px; margin:0 auto; min-height:calc(100vh - 64px); }
+@media (max-width:820px){ .layout{ grid-template-columns:1fr; } nav{ position:static!important; border-right:none!important; border-bottom:1px solid var(--rule); } }
+
+nav{
+  position:sticky; top:0; align-self:start; border-right:1px solid var(--rule);
+  padding:20px 10px 30px; max-height:100vh; overflow-y:auto;
+}
+nav .navlabel{ font-family:'IBM Plex Mono'; font-size:10px; letter-spacing:.12em; color:var(--ink-faint); text-transform:uppercase; padding:6px 14px 8px; }
+nav button{
+  display:flex; gap:10px; align-items:baseline; width:100%; text-align:left; background:none; border:none;
+  font-family:inherit; color:var(--ink-soft); padding:9px 14px; border-radius:6px; cursor:pointer; font-size:13.5px;
+}
+nav button .n{ font-family:'IBM Plex Mono'; font-size:10.5px; color:var(--ink-faint); flex-shrink:0; padding-top:1px; }
+nav button:hover{ background:var(--paper-raised); color:var(--ink); }
+nav button.active{ background:var(--ink); color:var(--paper); font-weight:600; }
+nav button.active .n{ color:var(--paper); opacity:.7; }
+nav .navdivider{ height:1px; background:var(--rule); margin:12px 14px; }
+
+main{ padding:32px 40px 80px; max-width:760px; }
+.eyebrow{ font-family:'IBM Plex Mono'; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint); }
+.cat-title{ font-size:28px; margin:6px 0 4px; }
+.cat-what{ font-size:16.5px; color:var(--ink-soft); margin:0 0 30px; max-width:62ch; }
+
+.block{ margin-bottom:32px; }
+.block h3{ font-size:13px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); font-family:'IBM Plex Mono'; font-weight:600; margin-bottom:14px; }
+
+.steps{ list-style:none; margin:0; padding:0; counter-reset:step; }
+.steps li{ counter-increment:step; display:grid; grid-template-columns:28px 1fr; gap:12px; padding:10px 0; border-bottom:1px solid var(--paper-sunk); font-size:15px; }
+.steps li:last-child{ border-bottom:none; }
+.steps li::before{ content: counter(step); font-family:'Montserrat'; font-weight:800; font-size:15px; color:var(--ink-faint); }
+
+.reflist{ display:flex; flex-wrap:wrap; gap:8px; }
+.reflist span{
+  font-family:'IBM Plex Mono'; font-size:12.5px; color:var(--ink); background:var(--paper-raised);
+  border:1px solid var(--rule); padding:6px 12px; border-radius:20px;
+}
+
+.checklist{ list-style:none; margin:0; padding:0; }
+.checklist li{ display:grid; grid-template-columns:18px 1fr; gap:10px; padding:8px 0; font-size:14.5px; color:var(--ink-soft); }
+.checklist li::before{ content:"—"; color:var(--ink-faint); }
+
+.notlead{
+  font-family:'IBM Plex Mono'; font-size:12.5px; color:var(--ink-faint); border:1px dashed var(--rule);
+  border-radius:8px; padding:12px 16px; margin-top:4px;
+}
+
+footer{ max-width:1180px; margin:0 auto; padding:18px 28px 40px; font-family:'IBM Plex Mono'; font-size:11px; color:var(--ink-faint); border-top:1px solid var(--rule); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span class="tag mono">GUIDE REF. 01</span>
+    <h1>Process Guide</h1>
+  </div>
+  <div class="sub">How you actually work, by category — for you, when a new lead lands</div>
+</header>
+
+<div class="layout">
+  <nav id="nav">
+    <div class="navlabel">Freelance categories</div>
+    <div id="navLeadFacing"></div>
+    <div class="navdivider"></div>
+    <div class="navlabel">Personal practice</div>
+    <div id="navNotLeadFacing"></div>
+  </nav>
+  <main id="main"></main>
+</div>
+
+<footer>Built from a survey of your own past projects — every process step and reference below traces to something actually observed in your files, not generic advice.</footer>
+
+<script>
+const CATEGORIES = [
+  {
+    id:'storyboard', name:'Storyboarding & Concept Art',
+    what:'Turning a script or an original concept into ordered visual panels that establish shot composition and story beats before production begins.',
+    steps:[
+      'Get the source material — a script/treatment, or your own concept — and break it into scenes and beats.',
+      'Rough thumbnail pass: block out composition and sequence per shot.',
+      'Run revision passes on story-critical panels (5 Degrees went through a documented final revision pass across 76 panels).',
+      'Lock the final panel sequence and export as a numbered shot set (Madan and Family ran to 129 numbered shots).',
+    ],
+    refs:['Manthira — storyboard','Madan and Family — storyboard (129 shots)','5 Degrees — storyboard (76 panels, final revision pass)'],
+    checklist:[
+      'Is there a script/treatment already, or are you generating the beats too?',
+      'Get an estimated shot/panel count up front — that is the real scope unit here, not hours.',
+      'Confirm thumbnail-level vs. final-render-level panels — very different time cost.',
+      'Ask whether a revision pass is included, or billed separately.',
+    ],
+  },
+  {
+    id:'cgi', name:'3D Vis / CGI',
+    what:'CGI work ranging from full sequences and title animation to targeted VFX cleanup on existing live-action plates.',
+    steps:[
+      'Establish the shot’s live-action plate, or the CGI brief (title card, sequence beat).',
+      'Block and iterate render passes — Letter Box shows a clear three-pass pipeline before final.',
+      'For cleanup work, isolate the specific defect (Auto VFX: removing reflection glare from a windshield) and resolve it without disturbing the rest of the plate.',
+      'Deliver the final render or composite.',
+    ],
+    refs:['Manthira — title animation','Letter Box','Auto VFX'],
+    checklist:[
+      'Full CGI build, or a fix/cleanup on existing footage? Very different effort.',
+      'How many render/revision passes are budgeted?',
+      'What plate/footage will you actually receive, and in what format?',
+    ],
+  },
+  {
+    id:'prod-design', name:'Production Design & Art Department',
+    what:'Working inside a larger film production’s art department, delivering specific shots within someone else’s pipeline — not running your own.',
+    steps:[
+      'Join an existing production pipeline; you inherit their shot list and technical spec.',
+      'Execute the assigned shot(s) to the production’s existing visual standard.',
+      'Deliver through the production’s own review and approval cycle.',
+    ],
+    refs:['Baby John'],
+    checklist:[
+      'Who do you report to, and what’s their pipeline/spec (resolution, format, plate delivery)?',
+      'What’s the credited role and shot count?',
+      'What’s their revision/approval process — this is not a one-on-one client relationship.',
+    ],
+  },
+  {
+    id:'uxui', name:'UX/UI Design',
+    what:'Digital product design for a client’s brand, from wireframes through a final visual system.',
+    steps:[
+      'Understand the brand and its audience.',
+      'Wireframe the core flows.',
+      'Develop the final visual system (Kidipoo: a playful system built for a children’s fashion brand).',
+      'Deliver across the full flow, wireframe to final screens.',
+    ],
+    refs:['Kidipoo'],
+    checklist:[
+      'How many core screens/flows are actually in scope?',
+      'Does the client have existing brand assets, or are you defining the visual system too?',
+      'Wireframes only, or wireframe-through-final-UI?',
+    ],
+  },
+  {
+    id:'graphic', name:'Graphic Design',
+    what:'Brand identity and mark work — logos, crests, standalone identity pieces.',
+    steps:[
+      'Understand what the mark needs to represent (name, activity, locality).',
+      'Develop the identity as a standalone deliverable.',
+      'Hand off final files.',
+    ],
+    refs:['Inspire Cricket Academy'],
+    checklist:[
+      'Single mark/logo, or a fuller identity system (colour, type, applications)?',
+      'What file formats/use-cases does the client need — print, digital, merch?',
+    ],
+  },
+  {
+    id:'shortfilm', name:'Short Films (concept development)',
+    what:'Originating your own film concepts — premise, world, character — before any visual production begins. Distinct from the storyboarding pass on the same idea.',
+    steps:[
+      'Originate the core premise (Madan and Family’s dissociative-identity twist; 5 Degrees’ post-climate-tipping-point premise).',
+      'Develop world and character around that hook.',
+      'Hand the locked concept into the Storyboarding & Concept Art process for visual development.',
+    ],
+    refs:['Madan and Family','5 Degrees'],
+    checklist:[
+      'Is the client asking you to originate the concept, or just execute an existing one? If existing, this is really a Storyboarding lead.',
+      'What’s the intended format/length — it shapes how much world/character work is warranted before boarding starts.',
+    ],
+  },
+  {
+    id:'fineart', name:'Fine Arts', notLeadFacing:true,
+    what:'Personal practice — portraits and studies. Not client work.',
+  },
+  {
+    id:'animshorts', name:'Animation Shorts', notLeadFacing:true,
+    what:'Personal animation tests and short experiments. Not client work.',
+  },
+  {
+    id:'pitchdeck', name:'Pitch Decks / Brand & Film Strategy',
+    what:'Producer- or investor-facing pitch decks — for a brand (Lomoni) or a film (Kulasamy) — where the deck itself is the deliverable, built in Affinity/InDesign against a locked design system.',
+    steps:[
+      'Ideation/staging in markdown or docs — structure and story locked before any visual design (Kulasamy’s staging docs and mood board).',
+      'Lock content first, independent of visual design — the single clearest discipline in both past projects.',
+      'Lock a design system (colour, type, components) separately from content.',
+      'Build final artboards in Affinity/InDesign against that locked system.',
+      'Keep a running dev-log per session (Lomoni’s documented practice) so visual-direction decisions stay traceable.',
+    ],
+    refs:['Lomoni Brand Pitch','Kulasamy'],
+    checklist:[
+      'Is content (story/structure) locked before visual design starts? If not, do not start visuals yet — this is the failure point both past projects deliberately avoided.',
+      'How many slides/artboards, roughly? That’s the scope unit.',
+      'Is there an existing brand/visual system to work within, or are you defining one from scratch?',
+      'Get a formal handoff doc in writing before production starts — both past projects had one.',
+    ],
+  },
+  {
+    id:'devtool', name:'Technical / Dev Tooling & Builds',
+    what:'Hands-on technical builds — game dev, GIS/data pipelines, AV tooling — where you’re building the tool itself, not designing around one.',
+    steps:[
+      'Build a narrow working prototype first (a CLI, a single mechanic, a single georeferencing pass).',
+      'Iterate in small dated increments with a running devlog (Beach Cricket’s Day1–Day3 builds; TTS AV and HEMA Census’s day-1 devlogs).',
+      'Once the core pipeline/mechanic is proven, wrap it for actual use (TTS AV’s Flask web UI over its CLI core).',
+      'Write a formal project-handoff doc once a phase is genuinely done (TTS AV and HEMA Census both have one; HEMA Census explicitly marks its georeferencing phase “done” before moving on).',
+    ],
+    refs:['TTS AV','HEMA Census','Beach Cricket'],
+    checklist:[
+      'Is there a genuinely novel technical risk, or is this assembly of known parts? The risk is what needs prototyping first.',
+      'What’s the smallest slice that proves the core idea works, before building anything around it?',
+      'Does this need to run offline/locally, or can it depend on paid APIs? (TTS AV was built specifically to avoid paid API dependency.)',
+    ],
+  },
+];
+
+const navLead = document.getElementById('navLeadFacing');
+const navNot = document.getElementById('navNotLeadFacing');
+const main = document.getElementById('main');
+
+CATEGORIES.forEach((c,i)=>{
+  const btn = document.createElement('button');
+  btn.dataset.id = c.id;
+  btn.innerHTML = `<span class="n mono">${String(i+1).padStart(2,'0')}</span><span>${c.name}</span>`;
+  btn.addEventListener('click', ()=>select(c.id));
+  (c.notLeadFacing ? navNot : navLead).appendChild(btn);
+});
+
+function select(id){
+  const c = CATEGORIES.find(x=>x.id===id);
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active', b.dataset.id===id));
+
+  let html = `<div class="eyebrow">${c.notLeadFacing ? 'Personal practice' : 'Freelance category'}</div>
+    <h2 class="cat-title">${c.name}</h2>
+    <p class="cat-what">${c.what}</p>`;
+
+  if(c.notLeadFacing){
+    html += `<div class="notlead">Not lead-facing — kept here for the full record of how you work, not as intake material.</div>`;
+  } else {
+    html += `<div class="block"><h3>Your process</h3><ol class="steps">${c.steps.map(s=>`<li>${s}</li>`).join('')}</ol></div>
+      <div class="block"><h3>Reference projects</h3><div class="reflist">${c.refs.map(r=>`<span>${r}</span>`).join('')}</div></div>
+      <div class="block"><h3>New-lead checklist</h3><ul class="checklist">${c.checklist.map(q=>`<li>${q}</li>`).join('')}</ul></div>`;
+  }
+  main.innerHTML = html;
+  window.scrollTo({top:0, behavior:'instant'});
+}
+
+select(CATEGORIES[0].id);
+</script>
+</body>
+</html>
