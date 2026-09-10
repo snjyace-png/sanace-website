@@ -1,358 +1,284 @@
-// Sanace site scripts
-
 var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
 if (prefersReduced) {
   document.documentElement.classList.add('no-motion');
 }
 
-// Showreel: don't autoplay for reduced-motion users, same as the marquee
-var showreelVideo = document.querySelector('.showreel-video');
-if (showreelVideo && prefersReduced) {
-  showreelVideo.pause();
+// Theme toggle -- a soft cross-fade between the old and new theme via the
+// View Transitions API, instead of an instant hard cut. Falls back to a
+// plain instant swap where unsupported.
+var themeToggle = document.getElementById('themeToggle');
+if (themeToggle) {
+  themeToggle.addEventListener('click', function () {
+    var current = document.documentElement.getAttribute('data-theme');
+    var next = current === 'dark' ? 'light' : 'dark';
+
+    if (!document.startViewTransition || prefersReduced) {
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      return;
+    }
+
+    document.startViewTransition(function () {
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+    });
+  });
 }
 
-// MANTHIRA intro video: auto-scroll into the case study once it ends
-var manthiraIntroVideo = document.getElementById('manthiraIntroVideo');
-if (manthiraIntroVideo) {
-  var scrollToContent = function () {
-    var target = document.getElementById('project');
-    if (!target) return;
-    if (typeof lenis !== 'undefined' && lenis) {
-      lenis.scrollTo(target);
-    } else {
-      target.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth' });
-    }
-  };
-  if (prefersReduced) {
-    manthiraIntroVideo.pause();
-  } else {
-    manthiraIntroVideo.addEventListener('ended', scrollToContent);
-    setTimeout(scrollToContent, 4300);
-  }
-
-  var manthiraReplayBtn = document.getElementById('manthiraReplayBtn');
-  if (manthiraReplayBtn) {
-    manthiraReplayBtn.addEventListener('click', function () {
-      manthiraIntroVideo.currentTime = 0;
-      manthiraIntroVideo.play();
+// Magnetic hover (same mechanism as v1's .pill-btn, css/style.css) --
+// every clickable button/link in v2 pulls slightly toward the cursor.
+if (!prefersReduced && window.matchMedia('(pointer: fine)').matches) {
+  function applyMagnetic(selector, maxOffset, extraTransform) {
+    document.querySelectorAll(selector).forEach(function (el) {
+      el.addEventListener('mousemove', function (e) {
+        var rect = el.getBoundingClientRect();
+        var relX = (e.clientX - rect.left) / rect.width - 0.5;
+        var relY = (e.clientY - rect.top) / rect.height - 0.5;
+        var move = 'translate(' + (relX * maxOffset * 2) + 'px, ' + (relY * maxOffset * 2) + 'px)';
+        el.style.transform = extraTransform ? extraTransform + ' ' + move : move;
+      });
+      el.addEventListener('mouseleave', function () {
+        el.style.transform = '';
+      });
     });
   }
+
+  applyMagnetic('.header-contact-btn, .header-wordmark, .btn-primary, .pill-btn', 8);
+  applyMagnetic('.card-link, .case-related-item, .storyboard-item, .storyboard-stack', 6, 'translateY(-4px)');
+  applyMagnetic('.theme-toggle', 5);
+  applyMagnetic('.feed-filter-btn', 5);
+  applyMagnetic('.hero-link, .section-marker a', 6);
+  applyMagnetic('.social-text-link', 6, 'translateY(-3px)');
 }
 
-// Header collapses to a small floating pill once the hero has been fully
-// taken over by the next sticky-stacked section, and expands back when
-// scrolling back up to it. Triggered by an IntersectionObserver on a plain
-// (non-sticky) sentinel sitting exactly at hero's bottom edge, rather than
-// observing .hero itself -- .hero is position:sticky, so it geometrically
-// stays "intersecting" the viewport far longer than it takes to visually
-// get covered by the next section, which is why that approach didn't work.
-var siteHeaderEl = document.querySelector('.site-header');
-var heroSentinel = document.querySelector('.hero-sentinel');
-if (siteHeaderEl && heroSentinel && 'IntersectionObserver' in window) {
-  var headerCollapseObserver = new IntersectionObserver(function (entries) {
-    siteHeaderEl.classList.toggle('is-collapsed', !entries[0].isIntersecting);
+// Measure each hero-name flip-letter's actual "old"/"new" glyph widths,
+// so each letter's box is exactly as wide as whichever glyph it's showing
+// (rather than padded out to match its widest sibling) -- the word's total
+// width is allowed to shift slightly during the hover roll as a result.
+function measureFlipLetters() {
+  var heroName = document.querySelector('.hero-name');
+  if (!heroName) return;
+  var letters = Array.prototype.slice.call(heroName.querySelectorAll('.flip-letter'));
+  if (!letters.length) return;
+
+  var probe = document.createElement('span');
+  var heroStyle = getComputedStyle(heroName);
+  probe.style.position = 'absolute';
+  probe.style.visibility = 'hidden';
+  probe.style.whiteSpace = 'pre';
+  probe.style.left = '-9999px';
+  probe.style.top = '0';
+  probe.style.fontFamily = heroStyle.fontFamily;
+  probe.style.fontWeight = heroStyle.fontWeight;
+  probe.style.fontSize = heroStyle.fontSize;
+  probe.style.letterSpacing = heroStyle.letterSpacing;
+  document.body.appendChild(probe);
+
+  letters.forEach(function (letter) {
+    var glyphs = letter.querySelectorAll('.flip-glyph');
+    if (glyphs.length < 2) return;
+    var oldText = glyphs[0].textContent;
+    var newText = glyphs[1].textContent;
+
+    probe.textContent = oldText;
+    var wOld = probe.getBoundingClientRect().width;
+    probe.textContent = newText;
+    var wNew = probe.getBoundingClientRect().width;
+
+    var pad = 2; // matches .flip-glyph's small horizontal padding
+    letter.style.setProperty('--w-old', (wOld + pad) + 'px');
+    letter.style.setProperty('--w-new', (wNew + pad) + 'px');
   });
-  headerCollapseObserver.observe(heroSentinel);
+
+  probe.remove();
 }
 
-// Theme toggle
-var themeToggle = document.getElementById('themeToggle');
-themeToggle.addEventListener('click', function () {
-  var current = document.documentElement.getAttribute('data-theme');
-  var next = current === 'dark' ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', next);
-  localStorage.setItem('theme', next);
-});
-
-// Local time ticker (IST)
-var localTimeEl = document.getElementById('localTime');
-var timeFormatter = new Intl.DateTimeFormat('en-GB', {
-  timeZone: 'Asia/Kolkata',
-  hour: '2-digit',
-  minute: '2-digit',
-  second: '2-digit',
-  hour12: false
-});
-function updateLocalTime() {
-  localTimeEl.textContent = timeFormatter.format(new Date());
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(measureFlipLetters);
+} else {
+  measureFlipLetters();
 }
-updateLocalTime();
-setInterval(updateLocalTime, 1000);
+window.addEventListener('resize', measureFlipLetters);
 
-// Smooth scroll (Lenis)
-if (!prefersReduced && window.Lenis) {
-  var lenis = new window.Lenis();
-  requestAnimationFrame(function raf(time) {
-    lenis.raf(time);
-    requestAnimationFrame(raf);
+// Sanjay -> Sanace hover roll: start looping on mouseenter; on mouseleave,
+// don't cut the animation off mid-roll -- let each letter finish its
+// current cycle (each one naturally passes back through the resting
+// "Sanjay" frame once per loop) and settle there instead of snapping.
+(function () {
+  var heroNameEl = document.querySelector('.hero-name');
+  if (!heroNameEl) return;
+  var flipLetterEls = Array.prototype.slice.call(heroNameEl.querySelectorAll('.flip-letter'));
+  if (!flipLetterEls.length) return;
+
+  heroNameEl.addEventListener('mouseenter', function () {
+    flipLetterEls.forEach(function (letter) {
+      letter.dataset.pendingStop = '';
+      letter.classList.add('is-flipping');
+    });
+  });
+
+  heroNameEl.addEventListener('mouseleave', function () {
+    flipLetterEls.forEach(function (letter) {
+      letter.dataset.pendingStop = '1';
+    });
+  });
+
+  flipLetterEls.forEach(function (letter) {
+    letter.addEventListener('animationiteration', function () {
+      if (letter.dataset.pendingStop === '1') {
+        letter.classList.remove('is-flipping');
+        letter.dataset.pendingStop = '';
+      }
+    });
+  });
+
+  // Auto-play the roll once on a fresh page load -- same start/settle
+  // sequence as a hover-in-then-out, just triggered by us instead of the
+  // pointer, so first-time visitors see the Sanjay -> Sanace reveal
+  // without needing to find and hover the name.
+  if (!prefersReduced) {
+    flipLetterEls.forEach(function (letter) {
+      letter.dataset.pendingStop = '';
+      letter.classList.add('is-flipping');
+    });
+    setTimeout(function () {
+      flipLetterEls.forEach(function (letter) {
+        letter.dataset.pendingStop = '1';
+      });
+    }, 1600);
+  }
+})();
+
+// Feed filter tabs + sliding underline
+var feedGrid = document.getElementById('feedGrid');
+var filterBtns = Array.prototype.slice.call(document.querySelectorAll('.feed-filter-btn'));
+var underline = document.querySelector('.feed-filter-underline');
+
+function moveUnderline(btn) {
+  if (!underline || !btn) return;
+  underline.style.width = btn.offsetWidth + 'px';
+  underline.style.transform = 'translateX(' + btn.offsetLeft + 'px)';
+}
+
+function setFilter(value, btn) {
+  filterBtns.forEach(function (b) {
+    b.classList.toggle('is-active', b === btn);
+  });
+  moveUnderline(btn);
+
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.card-wrap'));
+  cards.forEach(function (card) {
+    var type = card.getAttribute('data-type');
+    card.hidden = !(value === 'all' || type === value);
+  });
+  layoutBento();
+}
+
+filterBtns.forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    setFilter(btn.getAttribute('data-filter-value'), btn);
+  });
+});
+
+var activeBtn = document.querySelector('.feed-filter-btn.is-active');
+if (activeBtn) {
+  requestAnimationFrame(function () { moveUnderline(activeBtn); });
+}
+window.addEventListener('resize', function () {
+  var current = document.querySelector('.feed-filter-btn.is-active');
+  if (current) moveUnderline(current);
+});
+
+// Bento grid: row-span per card computed from its real aspect ratio,
+// same technique as the Fine Arts gallery (css/style.css .fine-art-grid).
+function layoutBento() {
+  if (!feedGrid) return;
+  var gridStyles = getComputedStyle(feedGrid);
+  var rowUnit = parseFloat(gridStyles.gridAutoRows);
+  var gap = parseFloat(gridStyles.rowGap || gridStyles.gap) || 0;
+
+  Array.prototype.slice.call(feedGrid.querySelectorAll('.card-wrap')).forEach(function (card) {
+    if (card.hidden) return;
+    var aspect = parseFloat(card.getAttribute('data-aspect')) || 1;
+    var rect = card.getBoundingClientRect();
+    if (!rect.width) return;
+    var renderedHeight = rect.width / aspect;
+    var rowSpan = Math.max(1, Math.ceil((renderedHeight + gap) / (rowUnit + gap)));
+    card.style.gridRowEnd = 'span ' + rowSpan;
   });
 }
 
-// Scroll-reveal (siblings within the same parent stagger in)
-var revealGroupCounts = new Map();
-document.querySelectorAll('.reveal').forEach(function (el) {
-  var index = revealGroupCounts.get(el.parentElement) || 0;
-  el.style.transitionDelay = (index * 80) + 'ms';
-  revealGroupCounts.set(el.parentElement, index + 1);
+layoutBento();
+var bentoResizeTimer;
+window.addEventListener('resize', function () {
+  clearTimeout(bentoResizeTimer);
+  bentoResizeTimer = setTimeout(layoutBento, 150);
 });
 
+// Card entrance animation (rise-in once, first time scrolled into view)
 if (!prefersReduced && 'IntersectionObserver' in window) {
-  var observer = new IntersectionObserver(
+  var cardObserver = new IntersectionObserver(
     function (entries) {
       entries.forEach(function (entry) {
         if (entry.isIntersecting) {
           entry.target.classList.add('is-visible');
-          observer.unobserve(entry.target);
+          cardObserver.unobserve(entry.target);
         }
       });
     },
     { threshold: 0.15 }
   );
-
-  document.querySelectorAll('.reveal').forEach(function (el) {
-    observer.observe(el);
+  document.querySelectorAll('.card-wrap').forEach(function (el) {
+    cardObserver.observe(el);
   });
 } else {
-  document.querySelectorAll('.reveal').forEach(function (el) {
+  document.querySelectorAll('.card-wrap').forEach(function (el) {
     el.classList.add('is-visible');
   });
 }
 
-// Work carousel: centered "peek" carousel -- one active card centered, the
-// rest dimmed/shrunk peeking at the edges. activeIndex drives everything:
-// which card is centered (via .work-track's translateX), which one is
-// full-opacity (.is-active), and which dot is lit. A clone of the first
-// card is appended after the last (and a clone of the last is prepended
-// before the first), so stepping past either end has somewhere to slide
-// onto that continues in the same direction -- see stepCarousel.
-var workCarousel = document.querySelector('.work-carousel');
-var workTrack = document.getElementById('workTrack');
-var workDots = document.getElementById('workDots');
-var activeIndex = 0;
-
-function getVisibleWorkItems() {
-  return Array.prototype.filter.call(workTrack.querySelectorAll('.work-item:not(.is-clone)'), function (el) {
-    return !el.hidden;
-  });
-}
-
-function rebuildClones() {
-  Array.prototype.slice.call(workTrack.querySelectorAll('.work-item.is-clone')).forEach(function (el) {
-    el.remove();
-  });
-
-  var items = getVisibleWorkItems();
-  if (items.length < 2) return;
-
-  var firstClone = items[0].cloneNode(true);
-  firstClone.classList.add('is-clone');
-  firstClone.setAttribute('aria-hidden', 'true');
-  firstClone.setAttribute('tabindex', '-1');
-  workTrack.appendChild(firstClone);
-
-  var lastClone = items[items.length - 1].cloneNode(true);
-  lastClone.classList.add('is-clone');
-  lastClone.setAttribute('aria-hidden', 'true');
-  lastClone.setAttribute('tabindex', '-1');
-  workTrack.insertBefore(lastClone, items[0]);
-}
-
-// Sets .is-active on the current card, and keeps the two boundary clones in
-// sync with whichever real end is active -- so there's no opacity/scale
-// "pop" the instant moveTrackTo snaps from a clone to its real counterpart.
-function updateActiveClasses(items) {
-  items.forEach(function (item, i) {
-    item.classList.toggle('is-active', i === activeIndex);
-  });
-  if (items.length > 1) {
-    var trailingClone = workTrack.lastElementChild;
-    var leadingClone = workTrack.firstElementChild;
-    if (trailingClone && trailingClone.classList.contains('is-clone')) {
-      trailingClone.classList.toggle('is-active', activeIndex === 0);
-    }
-    if (leadingClone && leadingClone.classList.contains('is-clone')) {
-      leadingClone.classList.toggle('is-active', activeIndex === items.length - 1);
-    }
-  }
-}
-
-function updateDots(items) {
-  workDots.innerHTML = '';
-  items.forEach(function (item, i) {
-    var dot = document.createElement('button');
-    dot.type = 'button';
-    dot.className = 'work-dot' + (i === activeIndex ? ' is-active' : '');
-    dot.setAttribute('aria-label', 'Go to project ' + (i + 1));
-    dot.addEventListener('click', function () {
-      var current = getVisibleWorkItems();
-      activeIndex = i;
-      updateActiveClasses(current);
-      updateDots(current);
-      moveTrackTo(workTrack.children[current.length > 1 ? activeIndex + 1 : activeIndex], false);
-    });
-    workDots.appendChild(dot);
-  });
-}
-
-// Centers `target` in the carousel's viewport. instant=true disables the
-// transition for one frame first, so the move happens with no animation --
-// used for the invisible clone -> real card snap once a wrap slide lands.
-function moveTrackTo(target, instant) {
-  if (!target) return;
-  if (instant) {
-    workTrack.classList.add('no-transition');
-    void workTrack.offsetWidth;
-  }
-  var offset = workCarousel.clientWidth / 2 - (target.offsetLeft + target.offsetWidth / 2);
-  workTrack.style.transform = 'translateX(' + offset + 'px)';
-  if (instant) {
-    void workTrack.offsetWidth;
-    workTrack.classList.remove('no-transition');
-  }
-}
-
-function renderCarousel() {
-  rebuildClones();
-  var items = getVisibleWorkItems();
-  if (items.length === 0) return;
-  activeIndex = Math.max(0, Math.min(activeIndex, items.length - 1));
-  updateActiveClasses(items);
-  updateDots(items);
-  moveTrackTo(workTrack.children[items.length > 1 ? activeIndex + 1 : activeIndex], false);
-}
-
-function stepCarousel(delta) {
-  var items = getVisibleWorkItems();
-  if (items.length === 0) return;
-  var raw = activeIndex + delta;
-  var wrapped = raw >= items.length || raw < 0;
-  activeIndex = ((raw % items.length) + items.length) % items.length;
-
-  updateActiveClasses(items);
-  updateDots(items);
-
-  var hasClones = items.length > 1;
-  if (wrapped && hasClones) {
-    var clone = delta > 0 ? workTrack.lastElementChild : workTrack.firstElementChild;
-    moveTrackTo(clone, false);
-    workTrack.addEventListener('transitionend', function onEnd(e) {
-      if (e.target !== workTrack) return;
-      workTrack.removeEventListener('transitionend', onEnd);
-      moveTrackTo(workTrack.children[activeIndex + 1], true);
-    });
+// LQIP crossfade: fade out the blurred placeholder once the real image loads
+document.querySelectorAll('.card-img').forEach(function (img) {
+  if (img.complete && img.naturalWidth > 0) {
+    img.classList.add('is-loaded');
   } else {
-    moveTrackTo(workTrack.children[hasClones ? activeIndex + 1 : activeIndex], false);
+    img.addEventListener('load', function () {
+      img.classList.add('is-loaded');
+    });
   }
-}
-
-if (workCarousel && workTrack && workDots) {
-  document.querySelector('.work-arrow-prev').addEventListener('click', function () {
-    stepCarousel(-1);
-  });
-  document.querySelector('.work-arrow-next').addEventListener('click', function () {
-    stepCarousel(1);
-  });
-
-  // Each card's title links to its own project page. A card's first click
-  // should always center it -- even if the title link is what was clicked --
-  // and only a click on an already-centered card's link should navigate.
-  workTrack.addEventListener('click', function (e) {
-    var item = e.target.closest('.work-item');
-    if (!item || item.classList.contains('is-clone')) return;
-
-    if (!item.classList.contains('is-active')) {
-      e.preventDefault();
-      var items = getVisibleWorkItems();
-      var index = items.indexOf(item);
-      if (index === -1) return;
-      activeIndex = index;
-      updateActiveClasses(items);
-      updateDots(items);
-      moveTrackTo(workTrack.children[items.length > 1 ? activeIndex + 1 : activeIndex], false);
-      return;
-    }
-
-    // Card is already centered -- clicking anywhere on it opens its page
-    // (a click directly on the title link already navigates natively).
-    if (e.target.closest('a')) return;
-    var link = item.querySelector('.work-title a');
-    if (link) {
-      window.location.href = link.href;
-    }
-  });
-
-  // Mouse wheel over the cards steps the carousel instead of scrolling the
-  // page; off the cards, the page scrolls normally as usual. Debounced so
-  // one wheel gesture reliably moves one card, matching the arrow/dot step.
-  var wheelCooldown = false;
-  workCarousel.addEventListener('wheel', function (e) {
-    e.preventDefault();
-    if (wheelCooldown) return;
-    var delta = e.deltaY + e.deltaX;
-    if (Math.abs(delta) < 12) return;
-    wheelCooldown = true;
-    stepCarousel(delta > 0 ? 1 : -1);
-    setTimeout(function () { wheelCooldown = false; }, 400);
-  }, { passive: false });
-
-  // Touch swipe steps the carousel the same way wheel does -- wheel events
-  // don't fire from touch scrolling, so without this there's no way to
-  // navigate the cards on a phone/tablet.
-  var touchStartX = null;
-  workCarousel.addEventListener('touchstart', function (e) {
-    touchStartX = e.touches[0].clientX;
-  }, { passive: true });
-  workCarousel.addEventListener('touchend', function (e) {
-    if (touchStartX === null) return;
-    var deltaX = touchStartX - e.changedTouches[0].clientX;
-    touchStartX = null;
-    if (Math.abs(deltaX) < 40) return;
-    stepCarousel(deltaX > 0 ? 1 : -1);
-  }, { passive: true });
-
-  window.addEventListener('resize', renderCarousel);
-  renderCarousel();
-}
-
-// Work section category filter
-var filterBtns = document.querySelectorAll('.filter-btn');
-var workItems = document.querySelectorAll('.work-item');
-filterBtns.forEach(function (btn) {
-  btn.addEventListener('click', function () {
-    filterBtns.forEach(function (b) {
-      b.classList.remove('is-active');
-      b.setAttribute('aria-pressed', 'false');
-    });
-    btn.classList.add('is-active');
-    btn.setAttribute('aria-pressed', 'true');
-
-    var filter = btn.dataset.filter;
-    workItems.forEach(function (item) {
-      item.hidden = filter !== 'all' && item.dataset.category !== filter;
-    });
-
-    activeIndex = 0;
-    renderCarousel();
-  });
 });
 
-// Work section: floating button scrolls down to the next section
-var nextSectionBtn = document.querySelector('.next-section-btn');
-if (nextSectionBtn) {
-  nextSectionBtn.addEventListener('click', function () {
-    var about = document.getElementById('about');
-    if (about) {
-      about.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth' });
-    }
-  });
-}
+// Progressive reveal: message -> name -> contact method -> submit
+(function () {
+  var fieldMessage = document.getElementById('fieldMessage');
+  var fieldName = document.getElementById('fieldName');
+  var stepName = document.getElementById('stepName');
+  var stepContact = document.getElementById('stepContact');
+  var stepSubmit = document.getElementById('stepSubmit');
+  var fieldContact = document.getElementById('contactValue');
 
-// Contact form -- submits to Web3Forms (free tier) via fetch so visitors
-// get an inline confirmation without leaving the page. Needs a real access
-// key from web3forms.com pasted into the form's hidden "access_key" field.
-// Contact form: the "reach you" field switches between email and phone
-// depending on which radio is picked, so only one contact field shows at a time
+  function reveal(el) {
+    if (el) el.classList.add('is-visible');
+  }
+
+  if (fieldMessage && stepName) {
+    fieldMessage.addEventListener('input', function () {
+      if (fieldMessage.value.trim().length > 0) reveal(stepName);
+    });
+  }
+  if (fieldName && stepContact) {
+    fieldName.addEventListener('input', function () {
+      if (fieldName.value.trim().length > 0) reveal(stepContact);
+    });
+  }
+  if (fieldContact && stepSubmit) {
+    fieldContact.addEventListener('input', function () {
+      if (fieldContact.value.trim().length > 0) reveal(stepSubmit);
+    });
+  }
+})();
+
+// Contact method toggle (Email / Phone)
 var contactMethodRadios = document.querySelectorAll('input[name="contactMethod"]');
 var contactValueInput = document.getElementById('contactValue');
 var contactValueLabel = document.getElementById('contactValueLabel');
@@ -361,17 +287,16 @@ if (contactValueInput && contactValueLabel) {
     radio.addEventListener('change', function () {
       if (radio.value === 'Phone' && radio.checked) {
         contactValueInput.type = 'tel';
-        contactValueInput.placeholder = '(000) 000-0000';
-        contactValueLabel.textContent = 'Your phone number';
+        contactValueInput.placeholder = '+91 XXXXX XXXXX';
       } else if (radio.checked) {
         contactValueInput.type = 'email';
         contactValueInput.placeholder = 'you@example.com';
-        contactValueLabel.textContent = 'Your email';
       }
     });
   });
 }
 
+// Contact form submit (Web3Forms)
 var contactForm = document.getElementById('contactForm');
 var contactFormStatus = document.getElementById('contactFormStatus');
 if (contactForm && contactFormStatus) {
@@ -396,35 +321,16 @@ if (contactForm && contactFormStatus) {
         contactFormStatus.hidden = false;
         if (data.success) {
           contactFormStatus.textContent = "Thanks — your message is on its way. I'll get back to you soon.";
-          contactFormStatus.className = 'contact-form-status is-success';
           contactForm.reset();
         } else {
-          contactFormStatus.textContent = 'Something went wrong. Please try emailing hello@sanace.com directly.';
-          contactFormStatus.className = 'contact-form-status is-error';
+          contactFormStatus.textContent = 'Something went wrong. Please try emailing snjy.ace@gmail.com directly.';
         }
         submitBtn.disabled = false;
       })
       .catch(function () {
         contactFormStatus.hidden = false;
-        contactFormStatus.textContent = 'Something went wrong. Please try emailing hello@sanace.com directly.';
-        contactFormStatus.className = 'contact-form-status is-error';
+        contactFormStatus.textContent = 'Something went wrong. Please try emailing snjy.ace@gmail.com directly.';
         submitBtn.disabled = false;
       });
-  });
-}
-
-// Magnetic pill buttons (desktop/fine-pointer only)
-if (!prefersReduced && window.matchMedia('(pointer: fine)').matches) {
-  var maxMagnetOffset = 8;
-  document.querySelectorAll('.pill-btn').forEach(function (btn) {
-    btn.addEventListener('mousemove', function (e) {
-      var rect = btn.getBoundingClientRect();
-      var relX = (e.clientX - rect.left) / rect.width - 0.5;
-      var relY = (e.clientY - rect.top) / rect.height - 0.5;
-      btn.style.transform = 'translate(' + (relX * maxMagnetOffset * 2) + 'px, ' + (relY * maxMagnetOffset * 2) + 'px)';
-    });
-    btn.addEventListener('mouseleave', function () {
-      btn.style.transform = '';
-    });
   });
 }

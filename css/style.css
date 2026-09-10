@@ -1,1430 +1,1113 @@
+/* ==========================================================================
+   Design tokens — black-and-white base with one sparing accent color,
+   tuned per theme so it holds contrast against pure black/white rather
+   than reusing the sitewide brand orange verbatim.
+   ========================================================================== */
+
+/* Theme-switch: a soft cross-fade between the old and new theme snapshots,
+   instead of the instant hard cut a plain data-theme swap would give.
+   Slower and eased vs. the browser's ~0.25s linear default, both pseudo
+   elements share the timing so old fades out exactly as new fades in. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.45s;
+  animation-timing-function: ease;
+}
+
 :root {
-  --cream: #F6F1E7;
-  --ink: #171310;
-  --tiger: #E85D04;
+  --c-bg: oklch(99% 0 0);
+  --c-text: oklch(12% 0 0);
+  --c-muted: oklch(45% 0 0);
+  --c-border: oklch(12% 0 0 / 0.12);
+  --c-accent: oklch(58% 0.19 45);
 
-  --bg: var(--cream);
-  --text: var(--ink);
-  --text-muted: color-mix(in srgb, var(--ink) 55%, transparent);
-  --surface: color-mix(in srgb, var(--ink) 6%, var(--cream));
-  --border: color-mix(in srgb, var(--ink) 12%, transparent);
-  --grid-minor: color-mix(in srgb, var(--ink) 3%, transparent);
-  --grid-major: color-mix(in srgb, var(--ink) 5.5%, transparent);
-  --grain-opacity: 0.035;
-  --weave-opacity: 5%;
-  --weave-color: color-mix(in srgb, var(--text) var(--weave-opacity), transparent);
-  /* Tiger orange at ~3:1 on Cream fails 4.5:1 for text; darken for text use.
-     On the dark theme's near-black bg, plain --tiger already clears 4.5:1. */
-  --tiger-text: color-mix(in srgb, var(--tiger) 70%, black);
+  --c-dark-bg: oklch(10% 0 0);
+  --c-dark-text: oklch(97% 0 0);
+  --c-dark-muted: oklch(65% 0 0);
+  --c-dark-border: oklch(97% 0 0 / 0.16);
+  --c-dark-accent: oklch(70% 0.17 45);
 
-  --font-display: "Archivo", sans-serif;
-  --font-body: "Inter", sans-serif;
+  --font-display: "Montserrat", sans-serif;
+  --font-sans: "Inter", sans-serif;
+
+  --dur-fast: 0.2s;
+  --dur-base: 0.4s;
+  --dur-slow: 0.5s;
+  --ease-out-sharp: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out-back: cubic-bezier(0.2, 0, 0, 1.4);
 }
 
 :root[data-theme="dark"] {
-  --bg: #14110D;
-  --text: var(--cream);
-  --text-muted: color-mix(in srgb, var(--cream) 55%, transparent);
-  --surface: color-mix(in srgb, var(--cream) 8%, #14110D);
-  --border: color-mix(in srgb, var(--cream) 16%, transparent);
-  --grid-minor: color-mix(in srgb, var(--cream) 3.5%, transparent);
-  --grid-major: color-mix(in srgb, var(--cream) 7%, transparent);
-  --grain-opacity: 0.06;
-  --weave-opacity: 7%;
-  --tiger-text: var(--tiger);
+  --c-bg: var(--c-dark-bg);
+  --c-text: var(--c-dark-text);
+  --c-muted: var(--c-dark-muted);
+  --c-border: var(--c-dark-border);
+  --c-accent: var(--c-dark-accent);
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --c-bg: var(--c-dark-bg);
+    --c-text: var(--c-dark-text);
+    --c-muted: var(--c-dark-muted);
+    --c-border: var(--c-dark-border);
+    --c-accent: var(--c-dark-accent);
+  }
 }
 
-html {
-  scroll-behavior: smooth;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { color-scheme: light dark; }
 
 body {
-  background-color: var(--bg);
-  color: var(--text);
-  font-family: var(--font-body);
-  line-height: 1.5;
-  overflow-x: hidden;
-  transition: background-color 0.3s ease, color 0.3s ease;
-  position: relative;
-}
-
-a {
-  color: inherit;
-}
-
-/* Canvas texture per section: weave crosshatch + grain, scoped to each
-   section's own box so it scrolls with that section rather than staying
-   fixed to the viewport. Grid character (dots/lines/none) is a separate
-   .section-grid element per section — see below. */
-section {
-  position: relative;
-  z-index: 2;
-  padding: clamp(3rem, 8vw, 6rem) clamp(1.5rem, 6vw, 4rem);
-  background-color: var(--bg);
-}
-
-/* Scroll stack: each section pins to the top of the viewport and the next
-   one scrolls up over it, so sections layer on top of one another going
-   down and unstack in reverse coming back up -- position: sticky handles
-   both directions natively, no scroll-direction JS needed. Divider elements
-   between sections (marquee, stripe) get an in-between z-index so they can
-   scroll over the section before them and then get covered by the one after. */
-main > section {
-  position: sticky;
-  top: 0;
-  box-shadow: 0 -18px 36px -20px color-mix(in srgb, var(--text) 22%, transparent);
-}
-
-.hero { z-index: 10; }
-.showreel { z-index: 12; }
-.marquee { z-index: 15; }
-.credentials { z-index: 18; }
-.services { z-index: 20; }
-.work { z-index: 30; }
-.stripe { z-index: 35; }
-.about { z-index: 40; }
-.contact { z-index: 50; }
-.signoff { z-index: 60; }
-
-/* Grain layer — own opacity, since the noise SVG is fully opaque per-pixel */
-section::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  opacity: var(--grain-opacity);
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-/* Weave crosshatch (canvas fabric) — alpha baked into its own color */
-section::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  mix-blend-mode: overlay;
+  background-color: var(--c-bg);
+  /* Same "cutting-mat" grid used behind v1's Work section (css/style.css
+     .work .section-grid) -- major+minor line grid, applied sitewide here
+     as the page's own background instead of per-section. */
   background-image:
-    repeating-linear-gradient(45deg, var(--weave-color) 0, var(--weave-color) 1px, transparent 1px, transparent 4px),
-    repeating-linear-gradient(-45deg, var(--weave-color) 0, var(--weave-color) 1px, transparent 1px, transparent 4px);
-  background-size: 4px 4px, 4px 4px;
-}
-
-/* Per-section grid character — a dedicated element rather than a pseudo,
-   since type (dots/lines/none) varies per section, not just size */
-.section-grid {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-}
-
-/* Hero: sparse blueprint dots — quiet, doesn't compete with the wordmark */
-.hero .section-grid {
-  background-image: radial-gradient(circle, var(--grid-minor) 1px, transparent 1px);
-  background-size: 80px 80px;
-}
-
-/* Services: fine editorial lines — reading-heavy content */
-.services .section-grid {
-  background-image:
-    linear-gradient(to right, var(--grid-minor) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--grid-minor) 1px, transparent 1px);
-  background-size: 32px 32px;
-}
-
-/* Work: full cutting-mat grid — the "workshop" section */
-.work .section-grid {
-  background-image:
-    linear-gradient(to right, var(--grid-major) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--grid-major) 1px, transparent 1px),
-    linear-gradient(to right, var(--grid-minor) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--grid-minor) 1px, transparent 1px);
+    linear-gradient(to right, color-mix(in oklch, var(--c-text) 5.5%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklch, var(--c-text) 5.5%, transparent) 1px, transparent 1px),
+    linear-gradient(to right, color-mix(in oklch, var(--c-text) 3%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklch, var(--c-text) 3%, transparent) 1px, transparent 1px);
   background-size: 260px 260px, 260px 260px, 52px 52px, 52px 52px;
+  background-attachment: fixed;
+  color: var(--c-text);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  font-size: 16px;
+  transition: background-color var(--dur-base) ease, color var(--dur-base) ease;
 }
 
-/* About: soft, larger dots — warmer than the hero's tighter blueprint dots */
-.about .section-grid {
-  background-image: radial-gradient(circle, var(--grid-major) 1.5px, transparent 1.5px);
-  background-size: 64px 64px;
+a { color: inherit; text-decoration: none; }
+
+main {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 0;
 }
 
-/* Contact: no grid — clean close, weave/grain texture still present */
-
-.wordmark-small {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 1.35rem;
-  letter-spacing: -0.01em;
-  text-decoration: none;
-  color: var(--text);
+@media (min-width: 1024px) {
+  main { padding: 2.5rem 6.25rem 0; }
 }
 
-/* Reveal-on-scroll */
+.stack { display: flex; flex-direction: column; gap: 5rem; }
+@media (min-width: 640px) { .stack { gap: 8rem; } }
 
-.reveal {
-  opacity: 0;
-  transform: translateY(28px);
-  transition: opacity 0.8s ease, transform 0.8s ease;
-}
+/* ---------- Header ---------- */
 
-.reveal.is-visible {
-  opacity: 1;
-  transform: none;
-}
-
-:root.no-motion .reveal {
-  opacity: 1;
-  transform: none;
-  transition: none;
-}
-
-/* Header */
-
+/* Pill header — same "collapsed" floating capsule used on v1's inner
+   project pages (site-header.is-collapsed .header-right in css/style.css),
+   minus the local-time/dot-grid decoration since those stay hidden in
+   that collapsed state anyway. */
 .site-header {
   position: sticky;
   top: 0;
   z-index: 100;
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  display: flex;
+  justify-content: flex-end;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 1.5rem 1.5rem 0;
+}
+
+@media (min-width: 1024px) {
+  .site-header { padding: 2rem 6.25rem 0; }
+}
+
+.header-pill {
+  display: flex;
   align-items: center;
-  padding: 1rem clamp(1.5rem, 6vw, 4rem);
-  background-color: var(--bg);
-  box-shadow: 0 8px 24px -14px color-mix(in srgb, var(--text) 22%, transparent);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease, padding 0.3s ease;
+  gap: 0.5rem;
+  border-radius: 999px;
+  background-color: var(--c-bg);
+  border: 1px solid var(--c-border);
+  box-shadow: 0 8px 24px -14px color-mix(in oklch, var(--c-text) 22%, transparent);
+  padding: 0.4rem 0.4rem 0.4rem 0.85rem;
+  max-width: calc(100vw - 2rem);
 }
 
-:root.no-motion .site-header,
-:root.no-motion .site-header * {
-  transition: none;
+@media (min-width: 480px) {
+  .header-pill {
+    gap: 0.75rem;
+    padding: 0.5rem 0.5rem 0.5rem 1rem;
+  }
 }
 
-/* Plain (non-sticky) marker sitting exactly at hero's bottom edge, observed
-   by js/script.js to trigger the collapsed header -- unlike observing
-   .hero itself (which is sticky, so it stays "intersecting" the viewport
-   far longer than it takes to visually get covered), this crosses the
-   viewport's top edge at precisely the right moment. */
-.hero-sentinel {
-  height: 1px;
+.header-wordmark {
+  display: inline-block;
+  flex-shrink: 0;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1rem;
+  color: var(--c-text);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Showreel: full-bleed autoplaying video section. No .section-grid overlay
-   here -- same reasoning as .contact ("no grid, clean close"), a decorative
-   grid would compete with the footage. */
-.showreel {
-  aspect-ratio: 16 / 9;
+@media (min-width: 480px) {
+  .header-wordmark { font-size: 1.2rem; }
+}
+
+.header-contact-btn,
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  padding: 0.5rem 0.75rem;
+  border-radius: 999px;
+  background-color: var(--c-text);
+  color: var(--c-bg);
+  font-size: 0.74rem;
+  font-weight: 600;
+  border: 0;
+  cursor: pointer;
+  transition: background-color var(--dur-fast) ease, color var(--dur-fast) ease,
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@media (min-width: 480px) {
+  .header-contact-btn,
+  .btn-primary {
+    padding: 0.6rem 1.1rem;
+    font-size: 0.82rem;
+  }
+}
+
+.header-contact-btn:hover,
+.btn-primary:hover {
+  background-color: var(--c-accent);
+}
+
+.btn-primary {
+  font-size: 0.9rem;
+  padding: 0.85rem 1.5rem;
+}
+
+/* ---------- Motion primitives ---------- */
+
+[data-entrance] {
+  opacity: 0;
+  transform: translateY(8px);
+  animation: entrance-rise var(--dur-slow) var(--ease-out-sharp) forwards;
+  animation-delay: var(--entrance-delay, 0ms);
+}
+
+@keyframes entrance-rise {
+  to { opacity: 1; transform: none; }
+}
+
+:root.no-motion [data-entrance] {
+  opacity: 1;
+  transform: none;
+  animation: none;
+}
+
+/* ==========================================================================
+   Hero (sky band) — grayscale panel, portrait + bio side by side
+   ========================================================================== */
+
+.sky-band {
+  position: relative;
+  z-index: 0;
+  padding-top: 2.5rem;
+  padding-bottom: 3rem;
+}
+
+.sky-band__content {
+  --c-text-inner: var(--c-text);
+  --c-accent-inner: var(--c-accent);
+  color: var(--c-text-inner);
+  max-width: 64rem;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+}
+
+@media (min-width: 720px) {
+  .sky-band__content {
+    grid-template-columns: 1.1fr 0.9fr;
+    align-items: center;
+    gap: 3rem;
+  }
+}
+
+.hero-text { max-width: 28rem; }
+
+.hero-portrait {
+  display: flex;
+  justify-content: center;
+}
+
+.hero-portrait img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: clamp(13rem, 55vw, 26rem);
+  object-fit: contain;
+  object-position: bottom;
+}
+
+/* Two portraits -- white outfit for the light theme, black outfit for
+   the dark theme. */
+.hero-portrait img.portrait-light { display: none; }
+
+:root[data-theme="dark"] .hero-portrait img.portrait-dark { display: none; }
+:root[data-theme="dark"] .hero-portrait img.portrait-light { display: block; }
+
+.hero-top {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+/* Type scale: three tiers, each x1.6 the one below, mapped to information
+   hierarchy — identity (name) > context (role) > supporting text (base). */
+.hero-name {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(1.85rem, 1.1rem + 4vw, 2.56rem);
+  line-height: 1.1;
+  color: var(--c-accent-inner);
+  cursor: default;
+}
+
+/* Sanjay -> Sanace hover roll — restyled from v1's homepage wordmark flip
+   (css/style.css .flip-word: a 3-glyph vertical track per letter, the
+   "new" glyph gradient-filled), but hover-triggered/looping here instead
+   of an autoplay-once-then-loop-forever page-load reveal. Every letter
+   gets the same track (matching v1's uniform per-letter treatment) even
+   where the letter doesn't visually change (S-a-n), so the whole word
+   settles together as one gesture. */
+.flip-word {
+  display: inline-flex;
+}
+
+.flip-letter {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  height: 1.3em;
+  vertical-align: top;
+  /* Width is set per-letter by js/script.js (measureFlipLetters) to the
+     actual rendered width of its "old" glyph, then animated to its "new"
+     glyph's width on hover -- letters take exactly the space each glyph
+     needs rather than being padded out to a shared box, so the total
+     word width is allowed to shift slightly during the roll. */
+  width: var(--w-old, 1em);
+}
+
+.flip-track {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Triggered by js/script.js (mouseenter/mouseleave on .hero-name), not a
+   plain :hover -- so a letter mid-roll can be told to finish its current
+   loop and settle back on "Sanjay" instead of snapping out instantly. */
+.flip-letter.is-flipping .flip-track {
+  animation: name-flip-loop 1.6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  animation-delay: calc(var(--i, 0) * 0.045s);
+}
+
+.flip-letter.is-flipping {
+  animation: name-flip-width 1.6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  animation-delay: calc(var(--i, 0) * 0.045s);
+}
+
+.flip-glyph {
+  height: 1.3em;
+  line-height: 1.3;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--surface);
+  padding: 0 0.03em;
 }
 
-.showreel-video {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.flip-old {
+  color: var(--c-accent-inner);
 }
 
-/* Collapsed state, toggled by js/script.js once the hero section scrolls
-   out of view: the header itself becomes an invisible positioning wrapper,
-   local-time/dot-grid fade out, and .header-right becomes the visible
-   floating pill (its own background/border/shadow/radius). */
-.site-header.is-collapsed {
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
-  background-color: transparent;
-  box-shadow: none;
+.flip-new {
+  color: var(--c-accent-inner);
 }
 
-.local-time,
-.dot-grid {
-  transition: opacity 0.25s ease;
+@keyframes name-flip-loop {
+  0%, 10% { transform: translateY(0%); }
+  33.333%, 66.667% { transform: translateY(-33.3334%); }
+  90%, 100% { transform: translateY(-66.6667%); }
 }
 
-.site-header.is-collapsed .local-time,
-.site-header.is-collapsed .dot-grid {
-  opacity: 0;
-  width: 0;
-  overflow: hidden;
-  pointer-events: none;
+@keyframes name-flip-width {
+  0%, 10% { width: var(--w-old, 1em); }
+  33.333%, 66.667% { width: var(--w-new, 1em); }
+  90%, 100% { width: var(--w-old, 1em); }
 }
 
-.local-time {
-  justify-self: start;
-  font-family: var(--font-body);
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-muted);
+:root.no-motion .flip-letter.is-flipping .flip-track,
+:root.no-motion .flip-letter.is-flipping {
+  animation: none;
 }
 
-.local-label {
-  color: var(--text);
+.hero-role {
+  display: block;
+  font-size: clamp(1.15rem, 0.7rem + 2.5vw, 1.6rem);
+  line-height: 1.25;
+  color: color-mix(in oklch, var(--c-text-inner) 75%, transparent);
 }
 
-.dot-grid {
-  justify-self: center;
-  display: grid;
-  grid-template-columns: repeat(2, 4px);
-  grid-template-rows: repeat(3, 4px);
-  gap: 4px;
-}
-
-.dot-grid span {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background-color: var(--text-muted);
-}
-
-.header-right {
-  justify-self: end;
-  display: flex;
-  align-items: center;
-  gap: clamp(0.75rem, 2vw, 1.25rem);
-  border-radius: 999px;
-  border: 1px solid transparent;
-  padding: 0;
-  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, padding 0.3s ease, gap 0.3s ease;
-}
-
-.site-header.is-collapsed .header-right {
-  background-color: var(--bg);
-  border-color: var(--border);
-  padding: 0.5rem 0.5rem 0.5rem 1rem;
-  gap: 0.75rem;
-  box-shadow: 0 8px 24px -14px color-mix(in srgb, var(--text) 22%, transparent);
-}
-
-/* Only shown inside the collapsed pill -- the full header has no wordmark
-   of its own, so this appears specifically as the pill's "home" link. */
-.header-wordmark {
-  font-family: var(--font-display);
-  font-weight: 900;
-  text-transform: uppercase;
-  font-size: 0.95rem;
-  letter-spacing: -0.01em;
-  color: var(--text);
-  text-decoration: none;
-  white-space: nowrap;
-  max-width: 0;
-  opacity: 0;
-  overflow: hidden;
-  transition: max-width 0.3s ease, opacity 0.25s ease;
-}
-
-.site-header.is-collapsed .header-wordmark {
-  max-width: 8rem;
-  opacity: 1;
+.hero-role-sub {
+  display: inline-block;
+  margin-top: 0.2rem;
+  font-size: 0.6em;
+  color: color-mix(in oklch, var(--c-text-inner) 55%, transparent);
 }
 
 .theme-toggle {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: 50%;
-  width: 2.75rem;
-  height: 2.75rem;
-  color: var(--text);
-  cursor: pointer;
   flex-shrink: 0;
-  transition: width 0.3s ease, height 0.3s ease, border-color 0.2s ease, color 0.2s ease;
-}
-
-.site-header.is-collapsed .theme-toggle {
   width: 2.25rem;
   height: 2.25rem;
-}
-
-.site-header.is-collapsed .pill-btn {
-  padding: 0.6rem 1.1rem;
-  font-size: 0.82rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklch, var(--c-text) 35%, transparent);
+  background: none;
+  color: var(--c-text);
+  cursor: pointer;
+  transition: border-color var(--dur-fast) ease, color var(--dur-fast) ease, transform var(--dur-fast) var(--ease-out-sharp);
 }
 
 .theme-toggle:hover {
-  border-color: var(--tiger);
-  color: var(--tiger);
+  border-color: var(--c-accent);
+  color: var(--c-accent);
+  transform: scale(1.05);
 }
 
-.icon-moon {
-  display: none;
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
 }
 
-:root[data-theme="dark"] .icon-sun {
-  display: none;
+.theme-toggle svg { display: block; width: 18px; height: 18px; }
+.theme-toggle .icon-moon { display: none; }
+:root[data-theme="dark"] .theme-toggle .icon-sun { display: none; }
+:root[data-theme="dark"] .theme-toggle .icon-moon { display: block; }
+
+.hero-bio p {
+  font-size: 1rem;
+  line-height: 1.625;
+  color: color-mix(in oklch, var(--c-text-inner) 82%, transparent);
+  margin-top: 1rem;
 }
 
-:root[data-theme="dark"] .icon-moon {
-  display: block;
+.hero-bio-note {
+  font-style: italic;
+  color: color-mix(in oklch, var(--c-text-inner) 60%, transparent) !important;
 }
 
-/* Pill buttons */
-
-.pill-btn {
-  display: inline-block;
-  width: fit-content;
-  padding: 0.85rem 1.5rem;
-  background-color: var(--text);
-  color: var(--bg);
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 0.9rem;
-  border-radius: 999px;
-  border: 1px solid var(--text);
-  white-space: nowrap;
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease,
-    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), padding 0.3s ease, font-size 0.3s ease;
-}
-
-.pill-btn:hover {
-  background-color: var(--tiger);
-  border-color: var(--tiger);
-  color: var(--cream);
-}
-
-.pill-btn-outline {
-  background-color: transparent;
-  color: var(--text);
-}
-
-.pill-btn-outline:hover {
-  background-color: var(--tiger);
-  color: var(--cream);
-}
-
-/* Section marker (numbered utility row) */
-
-.section-marker {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: 0.78rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  margin-bottom: clamp(2rem, 6vw, 4rem);
-}
-
-.marker-num {
-  color: var(--text);
-}
-
-/* Hero */
-
-.hero {
-  min-height: 80vh;
-  min-height: 80dvh;
-  justify-content: center;
-  padding-top: clamp(2rem, 6vw, 4rem);
-  padding-bottom: clamp(3rem, 8vw, 5rem);
+.hero-links {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin-top: 2.5rem;
+  font-size: 1rem;
 }
 
-.hero-inner {
-  width: fit-content;
-  max-width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: clamp(1.25rem, 3vw, 2rem);
-}
-
-.hero-wordmark {
+.hero-link {
   position: relative;
-  font-size: clamp(3.5rem, 17vw, 15rem);
-  line-height: 0.85;
-  text-align: center;
-}
-
-/* SANJAY -> SANACE cinematic reveal, then an ongoing loop -- pure CSS.
-   Each letter cell holds a 3-glyph track (SANJAY letter, SANACE letter,
-   SANJAY letter again) that scrolls upward through an infinite animation.
-   The final glyph is a duplicate of the first, so when the animation loops
-   from 100% back to 0% the jump is visually seamless -- the motion only
-   ever reads as continuing upward, never reversing, and it holds a couple
-   of seconds on each letter before the next ease-in/ease-out roll.
-   Total word width is 4.44em (sum of the --w values below); each letter's
-   --w/--x are tuned per-glyph rather than a uniform cell, since individual
-   letterforms (S vs N vs A, etc.) aren't the same width even within one font. */
-
-.flip-word {
   display: inline-flex;
+  align-items: center;
+  color: var(--c-accent-inner);
+  transition: color var(--dur-fast) ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.hero-link:hover { color: var(--c-text-inner); }
+
+/* Icon-reveal hover: an icon sits collapsed at zero width, then widens in
+   alongside the label on hover. Shared by every button/CTA/link in v2 --
+   hero links, the header's Contact button, footer socials + back-to-top. */
+.reveal-icon {
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  animation: wordmark-settle 0.9s ease-out 4.35s forwards;
+  width: 0;
+  opacity: 0;
+  overflow: hidden;
+  margin-right: 0;
+  flex-shrink: 0;
+  transition: width 0.3s var(--ease-out-back), opacity 0.25s ease, margin-right 0.3s var(--ease-out-back);
 }
 
-@keyframes wordmark-settle {
-  from {
-    transform: scale(1);
-  }
-  to {
-    transform: scale(1.03);
-  }
+.reveal-icon svg { width: 1em; height: 1em; display: block; }
+
+.hero-link:hover .reveal-icon,
+.header-contact-btn:hover .reveal-icon,
+.btn-primary:hover .reveal-icon,
+.social-text-link:hover .reveal-icon {
+  width: 1em;
+  opacity: 1;
+  margin-right: 0.4em;
 }
 
-.flip-letter {
+/* ==========================================================================
+   Feed — bento grid, 2 columns, row-span sized by real aspect ratio
+   (same technique as the Fine Arts gallery in css/style.css)
+   ========================================================================== */
+
+.feed-heading-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.3rem;
+}
+
+.feed-filter {
+  position: relative;
+  display: flex;
+  gap: 1.5rem;
+  padding-bottom: 2px;
+}
+
+.feed-filter-btn {
   position: relative;
   display: inline-block;
-  width: var(--w);
-  height: 0.85em;
+  color: var(--c-muted);
+  background: none;
+  border: 0;
+  padding: 0 0 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: color var(--dur-fast) ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.feed-filter-btn:hover,
+.feed-filter-btn.is-active {
+  color: var(--c-text);
+}
+
+.feed-filter-underline {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 1.5px;
+  width: 0;
+  background: var(--c-text);
+  border-radius: 1px;
+  transition: transform 0.35s var(--ease-out-sharp), width 0.35s var(--ease-out-sharp);
+}
+
+#feedGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: 10px;
+  grid-auto-flow: dense;
+  gap: 1rem;
+}
+
+@media (min-width: 1024px) {
+  #feedGrid { gap: 1.5rem; }
+}
+
+.card-wrap[hidden] { display: none; }
+
+.card-wrap {
+  opacity: 0;
+  transform: translateY(60px) scale(1.08);
+  filter: blur(6px);
+}
+
+.card-wrap.is-visible {
+  animation: card-rise 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+
+@keyframes card-rise {
+  to { opacity: 1; transform: none; filter: blur(0); }
+}
+
+:root.no-motion .card-wrap {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+.card-link {
+  position: relative;
+  display: block;
+  height: 100%;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  background-color: var(--c-border);
+  outline: 1px solid var(--c-border);
+  outline-offset: 0;
+  box-shadow: 0 4px 16px -8px color-mix(in oklch, var(--c-text) 18%, transparent);
+  transition: box-shadow 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), outline-width 0.25s var(--ease-out-back), outline-color 0.15s ease;
+}
+
+@supports (corner-shape: squircle) {
+  .card-link { corner-shape: squircle; border-radius: 2rem; }
+}
+
+.card-link:hover {
+  transform: translateY(-4px);
+  outline-width: 3px;
+  outline-color: var(--c-accent);
+  box-shadow: 0 12px 24px -8px color-mix(in oklch, var(--c-text) 20%, transparent);
+}
+
+.card-img-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
 }
 
-.flip-track {
-  display: flex;
-  flex-direction: column;
-  animation: flip-loop 6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
-  animation-delay: calc(1.1s + var(--i) * 0.25s);
-}
-
-.flip-glyph {
-  flex: 0 0 0.85em;
-  height: 0.85em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  font-family: var(--font-display);
-  font-weight: 900;
-  text-transform: uppercase;
-}
-
-.flip-old {
-  color: #000;
-  opacity: 0;
-  animation: letter-emerge 0.7s ease-out forwards;
-}
-
-@keyframes letter-emerge {
-  from {
-    opacity: 0;
-    color: #000;
-  }
-  to {
-    opacity: 1;
-    color: var(--text);
-  }
-}
-
-.flip-new {
-  background-image: linear-gradient(135deg, var(--tiger) 0%, var(--text) 45%, var(--tiger) 100%);
-  background-size: 4.44em 100%;
-  background-position-x: calc(-1 * var(--x));
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-}
-
-/* Hold on the SANJAY letter, ease up to SANACE, hold, ease up to the
-   duplicate SANJAY glyph -- then the infinite loop resets to 0%, which
-   looks identical, so the cycle appears to repeat endlessly upward. */
-@keyframes flip-loop {
-  0%,
-  16.667% {
-    transform: translateY(0%);
-  }
-  33.333%,
-  66.667% {
-    transform: translateY(-33.3334%);
-  }
-  83.333%,
-  100% {
-    transform: translateY(-66.6667%);
-  }
-}
-
-/* Reduced motion: skip straight to the final "SANACE" state, no reveal, no loop */
-:root.no-motion .flip-track {
-  animation: none;
-  transform: translateY(-33.3334%);
-}
-
-:root.no-motion .flip-old {
-  animation: none;
-  opacity: 0;
-}
-
-:root.no-motion .flip-word {
-  animation: none;
-}
-
-/* Video plays inside the wordmark once a source is added; transparent/inert until then */
-.wordmark-video {
+.card-img-lqip {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 200'%3E%3Ctext x='500' y='155' font-family='Archivo, sans-serif' font-weight='900' font-size='190' letter-spacing='-8' text-anchor='middle' fill='white'%3ESANACE%3C/text%3E%3C/svg%3E");
-  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 200'%3E%3Ctext x='500' y='155' font-family='Archivo, sans-serif' font-weight='900' font-size='190' letter-spacing='-8' text-anchor='middle' fill='white'%3ESANACE%3C/text%3E%3C/svg%3E");
-  -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  mask-position: center;
+  filter: blur(16px) grayscale(0.3);
+  transform: scale(1.1);
+  transition: opacity var(--dur-slow) ease;
 }
 
-.hero-tagline {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  font-size: clamp(1.05rem, 2vw, 1.35rem);
-  font-weight: 500;
-  color: var(--text-muted);
-}
-
-.hero-value {
-  text-align: center;
-  font-size: clamp(0.9rem, 1.6vw, 1.05rem);
-  font-weight: 500;
-  color: var(--text-muted);
-}
-
-.info-strip {
-  display: flex;
-  flex-wrap: wrap;
-  gap: clamp(2rem, 6vw, 4rem);
-  margin-top: 1.75rem;
-}
-
-.info-item {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  text-align: left;
-}
-
-.info-item svg {
-  color: var(--tiger);
-  flex-shrink: 0;
-}
-
-@media (max-width: 40rem) {
-  .dot-grid {
-    display: none;
-  }
-  .site-header {
-    grid-template-columns: auto 1fr;
-  }
-  .info-strip {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1.25rem;
-  }
-}
-
-.info-label {
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-.info-value {
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-/* Approach / intro */
-
-.eyebrow {
-  font-weight: 600;
-  font-size: 0.95rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--tiger-text);
-  margin-bottom: 1rem;
-}
-
-.approach-headline {
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-size: clamp(2.75rem, 8vw, 6rem);
-  line-height: 0.98;
-  letter-spacing: -0.01em;
-  max-width: 40rem;
-  margin-bottom: 1.5rem;
-}
-
-.approach-subhead {
-  font-size: clamp(1.05rem, 1.4vw, 1.4rem);
-  max-width: 38rem;
-  line-height: 1.55;
-  margin-bottom: clamp(2.5rem, 6vw, 4rem);
-}
-
-.pillars {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 2rem;
-  border-top: 1px solid var(--border);
-  padding-top: clamp(2rem, 5vw, 3rem);
-  margin-bottom: clamp(2.5rem, 6vw, 4rem);
-}
-
-.pillar-num {
-  display: inline-block;
-  font-family: var(--font-body);
-  font-weight: 700;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  margin-bottom: 0.75rem;
-}
-
-.pillar-title {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: clamp(1.1rem, 2vw, 1.4rem);
-  margin-bottom: 0.6rem;
-}
-
-.pillar-text {
-  font-size: 0.95rem;
-  color: var(--text-muted);
-  line-height: 1.5;
-  max-width: 24rem;
-}
-
-@media (max-width: 40rem) {
-  .pillars {
-    grid-template-columns: 1fr;
-  }
-}
-
-.about-cta-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-/* Credentials strip -- lightweight trust/social-proof section, sits between
-   the showreel and services per the Flux Academy portfolio handbook's
-   Hero -> Trust -> Why-work-with-you ordering. */
-
-.credentials-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: clamp(2rem, 5vw, 3rem);
-}
-
-.credential-item {
-  text-align: center;
-}
-
-.credential-label {
-  font-weight: 600;
-  font-size: 0.8rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--tiger-text);
-  margin-bottom: 0.6rem;
-}
-
-.credential-value {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: clamp(1rem, 2vw, 1.15rem);
-  margin-bottom: 0.35rem;
-}
-
-.credential-detail {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-@media (max-width: 48rem) {
-  .credentials-row {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
-}
-
-/* Services */
-
-.services {
-  min-height: 80vh;
-  min-height: 80dvh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.services-headline {
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-size: clamp(2.5rem, 6.5vw, 5rem);
-  line-height: 1.02;
-  letter-spacing: -0.01em;
-  max-width: 44rem;
-  margin-bottom: 1.25rem;
-}
-
-.services-subhead {
-  font-size: clamp(1.05rem, 1.4vw, 1.4rem);
-  color: var(--text-muted);
-  max-width: 36rem;
-  margin-bottom: clamp(2.5rem, 6vw, 4rem);
-}
-
-.services-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: clamp(2rem, 5vw, 3rem);
-  border-top: 1px solid var(--border);
-  padding-top: clamp(2rem, 5vw, 3rem);
-}
-
-.service-icon {
-  color: var(--tiger);
-  margin-bottom: 1.25rem;
-}
-
-.service-num {
-  display: block;
-  font-family: var(--font-body);
-  font-weight: 700;
-  font-size: 0.8rem;
-  letter-spacing: 0.04em;
-  color: var(--text-muted);
-  margin-bottom: 0.6rem;
-}
-
-.service-title {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: clamp(1.05rem, 1.8vw, 1.3rem);
-  margin-bottom: 0.6rem;
-}
-
-.service-text {
-  font-size: 0.92rem;
-  color: var(--text-muted);
-  line-height: 1.55;
-}
-
-@media (max-width: 48rem) {
-  .services-grid {
-    grid-template-columns: 1fr;
-    gap: 2.5rem;
-  }
-}
-
-/* Marquee divider */
-
-.marquee {
-  position: relative;
-  z-index: 2;
-  overflow: hidden;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  padding: 0.75rem 0;
-}
-
-.marquee-track {
-  display: flex;
-  width: max-content;
-  animation: marquee-scroll 22s linear infinite;
-}
-
-.marquee-track span {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: clamp(1.1rem, 2.5vw, 1.75rem);
-  text-transform: uppercase;
-  letter-spacing: -0.01em;
-  color: var(--text-muted);
-  white-space: nowrap;
-  padding-right: 2rem;
-}
-
-@keyframes marquee-scroll {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-:root.no-motion .marquee-track {
-  animation: none;
-}
-
-/* Diagonal stripe */
-
-.stripe {
-  height: 5px;
-  width: 60%;
-  margin-left: -5%;
-  background-color: var(--tiger);
-  transform: skewX(-20deg);
-  position: relative;
-  z-index: 2;
-}
-
-.stripe-alt {
-  margin-left: auto;
-  margin-right: -5%;
-}
-
-/* Section headings */
-
-.section-heading {
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-size: clamp(2.25rem, 5.5vw, 4.5rem);
-  line-height: 1;
-  letter-spacing: -0.01em;
-  margin-bottom: 0.75rem;
-}
-
-.section-lead {
-  color: var(--text);
-  font-style: italic;
-  font-size: clamp(1.05rem, 2vw, 1.25rem);
-  margin-bottom: 0.75rem;
-}
-
-.section-note {
-  color: var(--text-muted);
-  font-size: 0.95rem;
-  margin-bottom: 2rem;
-}
-
-/* Work filter tabs */
-
-.work-filter {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.75rem;
-  margin-bottom: clamp(2.5rem, 6vw, 4rem);
-}
-
-.filter-btn {
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: 0.82rem;
-  letter-spacing: 0.02em;
-  padding: 0.55rem 1.15rem;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: none;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
-}
-
-.filter-btn:hover {
-  border-color: var(--tiger);
-  color: var(--text);
-}
-
-.filter-btn.is-active {
-  background-color: var(--text);
-  border-color: var(--text);
-  color: var(--bg);
-}
-
-/* Work carousel — a centered "peek" carousel: one active card fully visible
-   in the middle, dimmed/shrunk neighbors peeking at both edges, clipped by
-   .work-carousel's overflow. .work-track is translated horizontally by JS
-   (js/script.js, renderCarousel) to bring whichever card is active to the
-   center; the active/inactive opacity+scale swap on .work-item is the whole
-   "scroll animation" -- cards wake up as they become active. */
-
-.work {
-  min-height: 100vh;
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding-top: clamp(1.5rem, 4vw, 3rem);
-  padding-bottom: clamp(1.5rem, 4vw, 3rem);
-}
-
-/* Tighter header-cluster rhythm than the sitewide defaults, so the full
-   marker + heading + note + filter tabs + active card all fit on one
-   screen instead of pushing the card below the fold. */
-.work .section-marker {
-  margin-bottom: clamp(1rem, 2.5vw, 1.5rem);
-}
-
-.work .section-heading {
-  font-size: clamp(2rem, 4vw, 3rem);
-  margin-bottom: 0.5rem;
-}
-
-.work .section-note {
-  margin-bottom: 1.25rem;
-}
-
-.work-filter {
-  margin-bottom: clamp(1.25rem, 3vw, 2rem);
-}
-
-.work-carousel {
-  position: relative;
-  overflow: hidden;
-  width: 100%;
-}
-
-.work-track {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
-  will-change: transform;
-}
-
-/* Disables the transition for one frame, used by moveTrackTo() in
-   js/script.js to snap invisibly from a boundary clone to its real
-   counterpart once a wrap-around slide lands on it. */
-.work-track.no-transition {
-  transition: none;
-}
-
-.work-item.is-clone {
-  pointer-events: none;
-}
-
-.work-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 0.6rem;
-  flex: 0 0 auto;
-  width: min(82vw, 40rem);
-  margin-left: clamp(-3rem, -6vw, -1.5rem);
-  padding: clamp(0.75rem, 2vw, 1.25rem) 0;
-  opacity: 0.4;
-  transform: scale(0.9);
-  transition: opacity 0.5s ease, transform 0.5s ease;
-  cursor: pointer;
-  z-index: 1;
-}
-
-.work-item.is-active {
-  opacity: 1;
-  transform: scale(1);
-  z-index: 2;
-}
-
-.work-item[hidden] {
-  display: none;
-}
-
-.work-item.is-active .work-thumb {
-  box-shadow: 0 20px 45px -20px color-mix(in srgb, var(--text) 25%, transparent);
-}
-
-:root.no-motion .work-track {
-  transition: none;
-}
-
-:root.no-motion .work-item {
-  transition: none;
-}
-
-/* Carousel controls: arrows in the site's circular icon-button language,
-   dots reusing the accent/border tokens already used for .filter-btn */
-.work-controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  margin-top: clamp(1.25rem, 3vw, 2rem);
-}
-
-.work-arrow {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  flex-shrink: 0;
-  border-radius: 50%;
-  border: 1px solid var(--border);
-  background: none;
-  color: var(--text);
-  cursor: pointer;
-  transition: border-color 0.2s ease, color 0.2s ease;
-}
-
-.work-arrow:hover {
-  border-color: var(--tiger);
-  color: var(--tiger);
-}
-
-.work-dots {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.work-dot {
-  width: 0.5rem;
-  height: 0.5rem;
-  padding: 0;
-  border: none;
-  border-radius: 50%;
-  background-color: var(--border);
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-}
-
-.work-dot.is-active {
-  background-color: var(--tiger);
-  transform: scale(1.3);
-}
-
-/* Floating button, scoped to the Work section: since .work is pinned by the
-   page-level scroll stack while its cards scroll horizontally, positioning
-   this relative to .work (not the viewport) keeps it visually anchored for
-   exactly as long as Work is in view, then it scrolls away with the section. */
-.next-section-btn {
+.card-img {
   position: absolute;
-  right: clamp(1.5rem, 6vw, 4rem);
-  bottom: clamp(1.5rem, 6vw, 3rem);
-  z-index: 20;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 3rem;
-  height: 3rem;
-  border-radius: 50%;
-  border: 1px solid var(--border);
-  background-color: var(--bg);
-  color: var(--text);
-  cursor: pointer;
-  transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
-}
-
-.next-section-btn:hover {
-  border-color: var(--tiger);
-  color: var(--tiger);
-  transform: translateY(3px);
-}
-
-.work-thumb {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  border-radius: 1.5rem;
-  background-color: var(--surface);
-  overflow: hidden;
-  transition: transform 0.4s ease, box-shadow 0.5s ease;
-}
-
-.work-item.is-active:hover .work-thumb {
-  transform: scale(1.02);
-}
-
-.work-category {
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--tiger-text);
-}
-
-.work-title {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 1.05rem;
-}
-
-.work-title a {
-  text-decoration: none;
-}
-
-.work-item.is-active .work-title a:hover {
-  text-decoration: underline;
-}
-
-/* Project detail pages (work/*.html) -- a single static section, opted out
-   of the homepage's sticky scroll-stack since there's only one section here. */
-.project-detail {
-  position: static;
-  padding-top: clamp(6rem, 10vw, 8rem);
-}
-
-.project-detail .section-marker a {
-  text-decoration: none;
-}
-
-.project-detail .section-marker a:hover {
-  color: var(--tiger-text);
-}
-
-.project-media {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  border-radius: 1rem;
-  background-color: var(--surface);
-  margin: 2rem 0;
-  overflow: hidden;
-}
-
-.project-media img,
-.project-media video {
-  display: block;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  filter: saturate(0.85) brightness(0.98);
+  opacity: 0;
+  transition: opacity var(--dur-slow) ease, transform 0.25s ease-out, filter 0.3s ease-out;
 }
 
-.project-body {
+.card-img.is-loaded { opacity: 1; }
+.card-img.is-loaded + .card-img-lqip,
+.card-img-wrap.loaded .card-img-lqip { opacity: 0; }
+
+.card-link:hover .card-img { transform: scale(1.03); filter: saturate(1) brightness(1.02); }
+
+/* Image-less card (MANTHIRA — undisclosed) */
+.card-img-wrap.is-blank {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--c-border);
+}
+
+.card-img-wrap.is-blank span {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  color: var(--c-muted);
+  text-align: center;
+  padding: 1rem;
+}
+
+.pin-badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 999px;
+  background: var(--c-accent);
+  color: var(--c-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+}
+
+.card-btn-zone {
+  position: absolute;
+  bottom: 0.4rem;
+  left: 0.4rem;
+  right: 0.4rem;
+  z-index: 3;
+  pointer-events: none;
+}
+
+@media (hover: hover) {
+  .card-hover-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1.1rem;
+    border-radius: 1.1rem;
+    background: var(--c-accent);
+    color: var(--c-bg);
+    font-size: 0.9rem;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+    filter: blur(6px);
+    transition: transform var(--dur-base) var(--ease-out-sharp), opacity 0.25s ease, filter 0.35s var(--ease-out-sharp);
+  }
+
+  .card-link:hover .card-hover-btn {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+
+  .btn-arrow {
+    display: inline-flex;
+    width: 1.1em;
+    height: 1.1em;
+  }
+
+  .card-caption { display: none; }
+}
+
+@media (hover: none) {
+  .card-btn-zone { display: none; }
+
+  .card-caption {
+    display: flex;
+    margin-top: 0.6rem;
+    padding: 0 0.25rem;
+    font-size: 0.82rem;
+    color: var(--c-muted);
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .card-caption-tag {
+    opacity: 0.75;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+}
+
+/* ==========================================================================
+   Contact
+   ========================================================================== */
+
+#contact {
+  text-align: center;
+}
+
+.section-lede {
+  color: var(--c-muted);
+  max-width: 32rem;
+  margin: 0.75rem auto 0;
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+  max-width: 32rem;
+  margin: 2rem auto 0;
+  text-align: left;
+}
+
+.contact-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--c-muted);
+}
+
+/* Progressive reveal: each step stays collapsed until the field before it
+   has a value (see js/script.js), so the form fills in one prompt at a time
+   in the order: message -> name -> contact method -> submit. */
+.contact-step {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity 0.4s ease, max-height 0.4s ease;
+}
+
+.contact-step.is-visible {
+  opacity: 1;
+  max-height: 20rem;
+}
+
+#stepSubmit.is-visible {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.85rem;
+}
+
+:root.no-motion .contact-step {
+  transition: none;
+}
+
+.contact-form input[type="text"],
+.contact-form input[type="email"],
+.contact-form input[type="tel"],
+.contact-form select,
+.contact-form textarea {
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  color: var(--c-text);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--c-border);
+  padding: 0.5rem 0;
+  outline: none;
+  transition: border-color var(--dur-fast) ease;
+}
+
+.contact-form input:focus,
+.contact-form select:focus,
+.contact-form textarea:focus {
+  border-color: var(--c-accent);
+}
+
+.contact-form textarea {
+  resize: vertical;
+  min-height: 5rem;
+}
+
+.contact-method {
+  border: none;
+  display: flex;
+  gap: 1.25rem;
+}
+
+.contact-method-option {
+  flex-direction: row !important;
+  align-items: center;
+  font-size: 0.9rem !important;
+  color: var(--c-text) !important;
+  gap: 0.4rem !important;
+}
+
+.contact-form-status {
+  font-size: 0.85rem;
+  color: var(--c-muted);
+}
+
+.contact-email {
+  margin-top: 1.5rem;
+  color: var(--c-muted);
+  font-size: 0.9rem;
+}
+
+.contact-email a {
+  color: var(--c-text);
+  border-bottom: 1px solid var(--c-border);
+}
+
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+
+.site-footer {
+  border-radius: 2rem;
+  background-color: var(--c-text);
+  color: var(--c-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.75rem;
+  padding: clamp(2.5rem, 8vw, 4.5rem) 1.5rem;
+  margin-bottom: 2rem;
+}
+
+@supports (corner-shape: squircle) {
+  .site-footer { corner-shape: squircle; }
+}
+
+.site-footer-mark {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(3rem, 13vw, 8.5rem);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  text-align: center;
+  user-select: none;
+}
+
+.site-footer-socials {
+  list-style: none;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem 2rem;
+  font-size: 0.9rem;
+}
+
+.social-text-link {
+  display: inline-flex;
+  align-items: center;
+  color: var(--c-bg);
+  transition: transform var(--dur-fast) var(--ease-out-sharp), color var(--dur-fast) ease;
+}
+
+.social-text-link:hover {
+  color: var(--c-accent);
+}
+
+@media (hover: hover) {
+  .site-footer-socials li:hover .social-text-link { transform: translateY(-3px); }
+}
+
+.footer-copyright {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--c-muted);
+}
+
+.footer-copyright a {
+  border-bottom: 1px solid var(--c-border);
+}
+
+/* Project-detail pages (work/*.html) put <main> and the footer as sibling
+   body children rather than nesting both inside one shared wrapper the
+   way the homepage does -- contain the footer to the same max-width/
+   padding as <main> so it doesn't run edge-to-edge. */
+body > footer.site-footer,
+body > .footer-copyright {
+  max-width: calc(1440px - 3rem);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+body > footer.site-footer { margin-top: 3rem; }
+
+@media (min-width: 1024px) {
+  body > footer.site-footer,
+  body > .footer-copyright {
+    max-width: calc(1440px - 12.5rem);
+  }
+}
+
+/* ==========================================================================
+   Project detail pages (work/*.html) — same tokens/type-scale/squircle
+   language as the homepage, so a case study reads as the same site rather
+   than a v1 holdover. Class names are kept identical to the ones already
+   written into work/*.html (case-title, case-body, work-thumb, etc.) so
+   only the header/footer/asset-links in each page needed editing, not the
+   body markup.
+   ========================================================================== */
+
+.pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  white-space: nowrap;
+  padding: 0.65rem 1.2rem;
+  border-radius: 999px;
+  background-color: var(--c-text);
+  color: var(--c-bg);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 0;
+  cursor: pointer;
+  transition: background-color var(--dur-fast) ease, color var(--dur-fast) ease,
+    border-color var(--dur-fast) ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.pill-btn:hover { background-color: var(--c-accent); }
+
+.pill-btn-outline {
+  background: none;
+  color: var(--c-muted);
+  border: 1px solid var(--c-border);
+}
+
+.pill-btn-outline:hover {
+  background: none;
+  color: var(--c-accent);
+  border-color: var(--c-accent);
+}
+
+.project-detail {
   max-width: 42rem;
-  font-size: 1.05rem;
-  line-height: 1.6;
-  color: var(--text-muted);
-  margin-bottom: clamp(2rem, 5vw, 3rem);
+  margin: 0 auto;
 }
 
-/* Deep case study pages (e.g. work/01.html -- MANTHIRA) */
+.section-marker {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  font-size: 0.8rem;
+  color: var(--c-muted);
+  margin-bottom: clamp(1rem, 2.5vw, 1.5rem);
+}
 
+.marker-num {
+  font-family: var(--font-display);
+  font-weight: 900;
+  color: var(--c-accent);
+}
+
+.marker-meta { margin-left: auto; }
+
+.section-marker a {
+  color: var(--c-muted);
+  transition: color var(--dur-fast) ease;
+}
+
+.section-marker a:hover { color: var(--c-accent); }
+
+.section-heading,
+.case-title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(2.1rem, 1.3rem + 5vw, 3.6rem);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.75rem;
+}
+
+.section-lead,
 .case-lead {
-  font-size: clamp(1.05rem, 1.4vw, 1.3rem);
-  color: var(--text-muted);
+  font-size: clamp(1.05rem, 1.4vw, 1.2rem);
+  color: var(--c-muted);
   max-width: 40rem;
+}
+
+.section-note {
+  color: var(--c-muted);
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
 }
 
 .case-meta {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+  font-size: 0.82rem;
+  color: var(--c-muted);
+  border-top: 1px solid var(--c-border);
+  border-bottom: 1px solid var(--c-border);
   padding: 1rem 0;
-  margin: 1.5rem 0 clamp(2.5rem, 6vw, 3.5rem);
+  margin: 1.5rem 0 clamp(2rem, 5vw, 3rem);
 }
 
 .case-meta span:not(:last-child)::after {
   content: "\00b7";
   margin: 0 0.75rem;
-  color: var(--border);
+  color: var(--c-border);
 }
 
 .case-heading {
   font-family: var(--font-display);
-  font-weight: 800;
-  font-size: clamp(1.3rem, 2.5vw, 1.75rem);
-  margin-top: clamp(2.5rem, 6vw, 3.5rem);
-  margin-bottom: 0.9rem;
+  font-weight: 900;
+  font-size: clamp(1.25rem, 2.5vw, 1.6rem);
+  margin-top: clamp(2rem, 5vw, 3rem);
+  margin-bottom: 0.85rem;
 }
 
-/* Script / sound-script excerpts -- a distinct quoted-document look,
-   separate from regular prose paragraphs. */
+.case-body,
+.project-body {
+  max-width: 42rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: color-mix(in oklch, var(--c-text) 82%, transparent);
+  margin-bottom: 1.4rem;
+}
+
 .script-excerpt {
   max-width: 42rem;
-  margin: 0 0 clamp(2rem, 5vw, 3rem);
+  margin: 0 0 clamp(1.5rem, 4vw, 2.5rem);
   padding: 1.25rem 1.5rem;
-  border-left: 3px solid var(--tiger);
-  background-color: var(--surface);
-  border-radius: 0 0.75rem 0.75rem 0;
+  border-left: 3px solid var(--c-accent);
+  background-color: color-mix(in oklch, var(--c-text) 4%, transparent);
+  border-radius: 0 1rem 1rem 0;
   font-family: monospace;
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   line-height: 1.7;
-  color: var(--text-muted);
+  color: var(--c-muted);
   white-space: pre-wrap;
 }
 
-.case-body {
-  max-width: 42rem;
-  font-size: 1.05rem;
-  line-height: 1.65;
-  color: var(--text-muted);
+/* Visual frames (case images, embedded video, the process-row grid) break
+   out of the narrow 42rem reading column and scale with the viewport --
+   filling ~85% of screen width, up to a sensible cap so they don't blow
+   out on ultrawide displays -- rather than being capped to the text
+   column's width like the prose around them. */
+.case-image,
+.project-media,
+.case-process-row {
+  width: min(85vw, 84rem);
+  max-width: min(85vw, 84rem);
+  margin-top: 1.5rem;
   margin-bottom: 1.5rem;
+  margin-left: 50%;
+  transform: translateX(-50%);
 }
 
-.case-image {
-  margin: 1.5rem 0;
+.case-image,
+.project-media {
+  border-radius: 1.5rem;
+  overflow: hidden;
+  background-color: var(--c-border);
 }
+
+@supports (corner-shape: squircle) {
+  .case-image,
+  .project-media { corner-shape: squircle; border-radius: 2rem; }
+}
+
+.project-media { aspect-ratio: 16 / 9; }
 
 .case-image img,
-.case-image video {
+.case-image video,
+.project-media img,
+.project-media video {
   display: block;
   width: 100%;
   height: auto;
-  border-radius: 1rem;
-  border: 1px solid var(--border);
-  background-color: var(--surface);
 }
 
+.project-media img,
+.project-media video { height: 100%; object-fit: cover; }
+
 .case-image figcaption {
-  margin-top: 0.6rem;
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: var(--c-muted);
   text-align: center;
+  padding: 0.6rem 0.2rem 0;
 }
 
 .case-process-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1.25rem;
-  margin: 1.5rem 0;
+  gap: 1.1rem;
 }
 
 .case-process-row .case-image {
   margin: 0;
+  width: auto;
+  max-width: none;
+  transform: none;
 }
 
-.case-process-row.is-pair {
-  grid-template-columns: repeat(2, 1fr);
-}
-
-@media (max-width: 40rem) {
-  .case-process-row {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Related Projects: real project cards, reusing the homepage Work carousel's
-   own .work-thumb/.work-category/.work-title (css/style.css ~line 1068) so
-   these look identical to the real thing -- just a static grid, no carousel
-   JS needed. */
-.case-related-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-  max-width: 56rem;
-  margin: 0 auto clamp(2rem, 5vw, 3rem);
-}
-
-@media (max-width: 56rem) {
-  .case-related-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
+.case-process-row.is-pair { grid-template-columns: repeat(2, 1fr); }
 
 @media (max-width: 40rem) {
-  .case-related-grid {
-    grid-template-columns: 1fr;
-  }
+  .case-process-row { grid-template-columns: 1fr; }
 }
 
-.case-related-item {
-  display: block;
-  text-decoration: none;
-  transition: transform 0.3s ease;
-}
-
-.case-related-item:hover {
-  transform: translateY(-3px);
-}
-
-/* Storyboard link card (work/09.html) -- styled as a stack of cards peeking
-   out from behind the thumbnail, fanning further out on hover. */
-.storyboard-stack {
-  position: relative;
-}
-
-.storyboard-stack::before,
-.storyboard-stack::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  border-radius: 1.5rem;
-  background-color: var(--surface);
-  border: 1px solid var(--border);
-  transition: transform 0.35s ease;
-}
-
-.storyboard-stack::before {
-  z-index: -1;
-  transform: rotate(-4deg) translate(-4px, 4px);
-}
-
-.storyboard-stack::after {
-  z-index: -2;
-  transform: rotate(5deg) translate(6px, 6px);
-}
-
-.storyboard-stack:hover::before {
-  transform: rotate(-8deg) translate(-10px, 8px);
-}
-
-.storyboard-stack:hover::after {
-  transform: rotate(10deg) translate(14px, 10px);
-}
-
-.case-cta {
-  margin-top: clamp(1.5rem, 4vw, 2.5rem);
-}
-
-.case-access-btn {
-  margin-bottom: 1rem;
-}
-
-/* Centered case-study column (MANTHIRA) -- the column itself stays centered
-   on wide screens rather than hugging the left edge, but body copy reads
-   left-aligned (centered multi-line paragraphs are harder to read) -- only
-   display elements (title/lead/headings) are actually center-aligned text.
-   Scoped to .case-noir so a future non-centered case study page isn't affected. */
-.case-noir .case-lead,
-.case-noir .case-heading {
-  text-align: center;
-}
-
-.case-noir .case-lead,
-.case-noir .case-body,
-.case-noir .case-points {
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.case-noir .case-body,
-.case-noir .case-points {
-  text-align: left;
-}
-
-.case-noir .case-meta {
-  justify-content: center;
-}
-
-.case-noir .case-access-btn,
-.case-noir .case-cta {
-  display: block;
-  width: fit-content;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* "How storyboards get made" step pipeline -- a centered row of numbered
-   chips connected by a thin line, wraps to a stack on narrow screens. */
 .case-pipeline {
   list-style: none;
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  margin: 0 auto clamp(2.5rem, 6vw, 3.5rem);
+  gap: 0.5rem 0;
+  margin: 0 auto clamp(2rem, 5vw, 3rem);
 }
 
 .case-pipeline li {
@@ -1440,7 +1123,7 @@ section::after {
   content: "";
   width: 1.25rem;
   height: 1px;
-  background-color: var(--border);
+  background-color: var(--c-border);
   margin-right: 0.5rem;
 }
 
@@ -1451,17 +1134,11 @@ section::after {
   width: 1.6rem;
   height: 1.6rem;
   border-radius: 50%;
-  border: 1px solid var(--border);
+  border: 1px solid var(--c-border);
   font-size: 0.72rem;
+  flex-shrink: 0;
 }
 
-.case-noir .case-pipeline-num {
-  border-color: var(--case-gold);
-  color: var(--case-gold);
-}
-
-/* "Process" points list -- centered as a block, left-aligned text within
-   for readability, gold marker per item. */
 .case-points {
   list-style: none;
   display: block;
@@ -1475,7 +1152,7 @@ section::after {
   position: relative;
   padding-left: 1.4rem;
   margin-bottom: 0.6rem;
-  color: var(--text-muted);
+  color: color-mix(in oklch, var(--c-text) 82%, transparent);
   font-size: 1rem;
   line-height: 1.5;
 }
@@ -1488,15 +1165,100 @@ section::after {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background-color: var(--border);
+  background-color: var(--c-accent);
 }
 
-.case-noir .case-points li::before {
-  background-color: var(--case-gold);
+.case-quote {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(1.15rem, 2vw, 1.4rem);
+  line-height: 1.35;
+  color: var(--c-text);
+  padding-left: 1.2rem;
+  border-left: 3px solid var(--c-accent);
+  margin: 1rem 0 clamp(2rem, 5vw, 3rem);
 }
 
-/* Replay control, overlaid on the intro video itself rather than living
-   as a separate button further down the page. */
+.case-related-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  max-width: 56rem;
+  margin: 0 auto clamp(1.5rem, 4vw, 2.5rem);
+}
+
+@media (max-width: 56rem) { .case-related-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 30rem) { .case-related-grid { grid-template-columns: 1fr; } }
+
+.case-related-item {
+  display: block;
+  position: relative;
+}
+
+.case-related-item .work-thumb {
+  aspect-ratio: 16 / 9;
+  border-radius: 1.5rem;
+  background-color: var(--c-border);
+  background-size: cover;
+  background-position: center;
+  outline: 1px solid var(--c-border);
+  margin-bottom: 0.6rem;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), outline-color 0.15s ease;
+}
+
+@supports (corner-shape: squircle) {
+  .case-related-item .work-thumb { corner-shape: squircle; border-radius: 2rem; }
+}
+
+.case-related-item:hover .work-thumb {
+  transform: translateY(-4px);
+  outline-color: var(--c-accent);
+}
+
+.work-category {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--c-muted);
+  margin-bottom: 0.2rem;
+}
+
+.work-title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1rem;
+}
+
+.work-title a { color: var(--c-text); }
+
+/* Storyboard link card (work/09.html) -- a stack of cards peeking out from
+   behind the thumbnail, fanning further out on hover. */
+.storyboard-stack { position: relative; }
+
+.storyboard-stack::before,
+.storyboard-stack::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 1.5rem;
+  background-color: var(--c-border);
+  border: 1px solid var(--c-border);
+  transition: transform 0.35s ease;
+}
+
+.storyboard-stack::before { z-index: -1; transform: rotate(-4deg) translate(-4px, 4px); }
+.storyboard-stack::after { z-index: -2; transform: rotate(5deg) translate(6px, 6px); }
+.storyboard-stack:hover::before { transform: rotate(-8deg) translate(-10px, 8px); }
+.storyboard-stack:hover::after { transform: rotate(10deg) translate(14px, 10px); }
+
+.case-cta { margin-top: clamp(1.5rem, 4vw, 2.5rem); }
+.case-access-btn { margin-bottom: 1rem; }
+
+/* Replay control, overlaid on the intro video itself. */
+.case-video-frame { position: relative; }
+
 .case-replay-overlay {
   position: absolute;
   bottom: 1rem;
@@ -1509,357 +1271,21 @@ section::after {
   align-items: center;
   justify-content: center;
   font-size: 1.1rem;
-  background-color: rgba(5, 5, 5, 0.55);
-  border: 1px solid var(--case-gold);
-  color: var(--case-gold);
+  background-color: rgba(0, 0, 0, 0.55);
+  border: 1px solid var(--c-dark-text);
+  color: #fff;
   cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 .case-replay-overlay:hover {
-  background-color: var(--case-gold);
-  color: #050505;
+  background-color: var(--c-accent);
+  border-color: var(--c-accent);
 }
 
-/* MANTHIRA's request-access form reuses the homepage's .contact-form as-is
-   (same markup, same js/script.js handlers) -- just centered and reaccented
-   in gold/teal to match the rest of this page instead of the default orange. */
-.case-noir .contact-form {
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.case-noir .contact-form button {
-  align-self: center;
-}
-
-.case-noir .contact-form input:focus,
-.case-noir .contact-form select:focus,
-.case-noir .contact-form textarea:focus {
-  outline-color: var(--case-gold);
-}
-
-.case-noir .contact-method-option input {
-  accent-color: var(--case-gold);
-}
-
-.case-noir .contact-form-status.is-success {
-  color: var(--case-teal);
-}
-
-/* Stop the browser's forced light autofill background from breaking the
-   dark theme on this page's form fields. */
-.case-noir .contact-form input:-webkit-autofill,
-.case-noir .contact-form input:-webkit-autofill:hover,
-.case-noir .contact-form input:-webkit-autofill:focus {
-  -webkit-text-fill-color: var(--text);
-  -webkit-box-shadow: 0 0 0 1000px var(--surface) inset;
-  box-shadow: 0 0 0 1000px var(--surface) inset;
-  caret-color: var(--text);
-  transition: background-color 9999s ease-in-out 0s;
-}
-
-/* Pull-quote, distinct from body copy -- centered as a deliberate accent. */
-.case-quote {
-  max-width: 34rem;
-  margin: clamp(2rem, 5vw, 3rem) auto;
-  padding: 0 1rem;
-  text-align: center;
-  font-family: var(--font-display);
-  font-style: italic;
-  font-weight: 700;
-  font-size: clamp(1.15rem, 2vw, 1.4rem);
-  line-height: 1.5;
-  color: var(--case-gold);
-}
-
-.case-quote::before {
-  content: "";
-  display: block;
-  width: 2.5rem;
-  height: 2px;
-  margin: 0 auto 1rem;
-  background-color: var(--case-ruby);
-}
-
-/* Cinematic theme, scoped to one case study page (MANTHIRA) -- matches the
-   film's own title card rather than the site's usual cream/tiger look, but
-   still responds to the site-wide light/dark toggle like every other page.
-   Overriding the shared --bg/--text/etc custom properties here means every
-   existing case-study rule above (and the section's own background-color)
-   picks up the new palette automatically. Dark is a near-black cinematic
-   read; light is a warm-parchment take on the same jewel palette, with
-   deeper/more saturated accent tones so gold/teal/lavender/ruby don't wash
-   out against a light background. */
-:root[data-theme="dark"] .case-noir {
-  --bg: #050505;
-  --text: #F3ECD9;
-  --text-muted: color-mix(in srgb, #F3ECD9 60%, transparent);
-  --surface: color-mix(in srgb, var(--case-gold) 8%, #050505);
-  --border: color-mix(in srgb, var(--case-gold) 25%, transparent);
-  --case-gold: #C2A06B;
-  --case-teal: #2C767C;
-  --case-magic: #9B80B0;
-  --case-ruby: #A63B34;
-}
-
-:root[data-theme="light"] .case-noir {
-  --bg: #F3ECDD;
-  --text: #2B2116;
-  --text-muted: color-mix(in srgb, #2B2116 55%, transparent);
-  --surface: color-mix(in srgb, var(--case-gold) 10%, #F3ECDD);
-  --border: color-mix(in srgb, #2B2116 15%, transparent);
-  --case-gold: #8A6A32;
-  --case-teal: #1F5A5F;
-  --case-magic: #6B4F7A;
-  --case-ruby: #8F2F29;
-}
-
-.case-noir .work-category {
-  color: var(--case-gold);
-}
-
-/* Title treatment: a decorative face closer to the title card's own
-   lettering, plus a soft multi-color glow behind the text for a more
-   "magical" feel than a flat gold gradient alone. The glow sits behind
-   the text (negative z-index) and never affects layout or click targets. */
-.case-noir .case-title {
-  position: relative;
-  z-index: 1;
-  font-family: 'Pirata One', var(--font-display);
-  letter-spacing: 0.01em;
-  background-image: linear-gradient(135deg, var(--case-gold) 0%, #F3D27A 45%, var(--case-gold) 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-}
-
-.case-noir .case-title::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  inset: -50% -15%;
-  background-image: radial-gradient(circle, var(--case-teal) 0%, var(--case-magic) 35%, var(--case-gold) 65%, transparent 75%);
-  filter: blur(50px);
-  pointer-events: none;
-}
-
-:root[data-theme="dark"] .case-noir .case-title::before {
-  opacity: 0.3;
-}
-
-:root[data-theme="light"] .case-noir .case-title::before {
-  opacity: 0.15;
-}
-
-.case-noir .case-heading {
-  color: var(--case-gold);
-}
-
-.case-noir .section-marker a:hover {
-  color: var(--case-teal);
-}
-
-.case-noir .pill-btn-outline {
-  border-color: var(--case-gold);
-  color: var(--case-gold);
-}
-
-.case-noir .pill-btn-outline:hover {
-  background-color: var(--case-gold);
-  color: #050505;
-}
-
-.case-noir .case-access-btn {
-  background-color: var(--case-gold);
-  color: #050505;
-}
-
-.case-noir .case-access-btn:hover {
-  background-color: var(--case-teal);
-}
-
-/* Cinematic video intro for the MANTHIRA case study, own sibling section
-   before .project-detail. Opts out of main > section's sticky scroll-stack
-   (position: relative instead of the inherited sticky) -- this page is a
-   simple play-through-then-scroll, not a pinned/stacking effect. */
-.case-intro {
-  position: relative;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  background-color: var(--surface);
-}
-
-.case-intro-video {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* Contained video widget for pages where the clip shouldn't fill the
-   screen (e.g. work/05.html) -- same aspect-ratio/fill technique as
-   .case-intro, just boxed into the content column with a visible frame
-   instead of going full-bleed. */
-.case-video-frame {
-  position: relative;
-  max-width: 42rem;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  border-radius: 1rem;
-  border: 1px solid var(--border);
-  background-color: var(--surface);
-  margin: 2rem 0;
-}
-
-.case-replay-center {
-  top: 50%;
-  left: 50%;
-  right: auto;
-  bottom: auto;
-  transform: translate(-50%, -50%);
-  width: 3.5rem;
-  height: 3.5rem;
-  font-size: 1.4rem;
-}
-
-/* Fine Arts gallery (fine-arts.html) -- bento grid: a real CSS grid,
-   capped at 4 columns, whose row-spans are computed in JS from each
-   image's real aspect ratio, so tiles pack tightly according to their
-   actual proportions instead of being force-cropped to one shape. */
-.fine-arts-page {
-  position: static;
-  padding-top: clamp(6rem, 10vw, 8rem);
-}
-
-.fine-art-grid {
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  grid-auto-rows: 10px;
-  grid-auto-flow: dense;
-  gap: 1.25rem;
-  margin-top: 2rem;
-}
-
-@media (min-width: 640px) {
-  .fine-art-grid { grid-template-columns: repeat(2, 1fr); }
-}
-
-@media (min-width: 1000px) {
-  .fine-art-grid { grid-template-columns: repeat(3, 1fr); }
-}
-
-@media (min-width: 1400px) {
-  .fine-art-grid { grid-template-columns: repeat(4, 1fr); }
-}
-
-.fine-art-item {
-  position: relative;
-  border-radius: 1rem;
-  overflow: hidden;
-  background-color: var(--surface);
-  border: 1px solid var(--border);
-}
-
-.fine-art-item img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.fine-art-item-title {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 1.5rem 0.9rem 0.6rem;
-  font-size: 0.85rem;
-  color: #fff;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.65), transparent);
-}
-
-.fine-arts-empty {
-  color: var(--text-muted);
-  margin-top: 1.5rem;
-}
-
-.fine-art-item {
-  cursor: pointer;
-}
-
-/* Animation Shorts gallery (animation-shorts.html) -- same bento grid
-   system as Fine Arts, but tiles are silently autoplaying video loops
-   instead of images. */
-.anim-shorts-page {
-  position: static;
-  padding-top: clamp(6rem, 10vw, 8rem);
-}
-
-.anim-grid {
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  grid-auto-rows: 10px;
-  grid-auto-flow: dense;
-  gap: 1.25rem;
-  margin-top: 2rem;
-}
-
-@media (min-width: 640px) {
-  .anim-grid { grid-template-columns: repeat(2, 1fr); }
-}
-
-@media (min-width: 1000px) {
-  .anim-grid { grid-template-columns: repeat(3, 1fr); }
-}
-
-@media (min-width: 1400px) {
-  .anim-grid { grid-template-columns: repeat(4, 1fr); }
-}
-
-.anim-item {
-  position: relative;
-  border-radius: 1rem;
-  overflow: hidden;
-  background-color: var(--surface);
-  border: 1px solid var(--border);
-  cursor: pointer;
-}
-
-.anim-item video {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.anim-item-title {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 1.5rem 0.9rem 0.6rem;
-  font-size: 0.85rem;
-  color: #fff;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.65), transparent);
-}
-
-.anim-shorts-empty {
-  color: var(--text-muted);
-  margin-top: 1.5rem;
-}
-
-/* Madan and Family storyboard gallery (work/madan-family-storyboard.html) --
-   a plain sequential grid, not the dense-packed bento layout: every frame is
-   a uniform 16:9 shot and reading order matters, so tiles stay in place
-   instead of being reflowed to fill gaps. */
-.storyboard-page {
-  position: static;
-  padding-top: clamp(6rem, 10vw, 8rem);
-}
-
+/* Storyboard grid + lightbox (5 Degrees, Madan and Family, work/09.html) --
+   the lightbox stays dark-backdrop regardless of site theme, since the
+   point is showing the artwork itself. */
 .storyboard-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -1867,28 +1293,23 @@ section::after {
   margin-top: 2rem;
 }
 
-@media (min-width: 640px) {
-  .storyboard-grid { grid-template-columns: repeat(3, 1fr); }
-}
-
-@media (min-width: 1000px) {
-  .storyboard-grid { grid-template-columns: repeat(4, 1fr); }
-}
+@media (min-width: 640px) { .storyboard-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1000px) { .storyboard-grid { grid-template-columns: repeat(4, 1fr); } }
 
 .storyboard-item {
   position: relative;
   aspect-ratio: 16 / 9;
-  border-radius: 0.6rem;
+  border-radius: 0.9rem;
   overflow: hidden;
-  background-color: var(--surface);
-  border: 1px solid var(--border);
+  background-color: var(--c-border);
+  border: 1px solid var(--c-border);
   cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* A4-landscape storyboard pages (5 Degrees) instead of 16:9 video-shot frames */
-.storyboard-grid.is-a4-landscape .storyboard-item {
-  aspect-ratio: 842 / 595;
-}
+.storyboard-item:hover { transform: translateY(-3px); }
+
+.storyboard-grid.is-a4-landscape .storyboard-item { aspect-ratio: 842 / 595; }
 
 .storyboard-item img {
   display: block;
@@ -1897,8 +1318,6 @@ section::after {
   object-fit: cover;
 }
 
-/* Fullscreen lightbox for a clicked fine-art piece. Always dark-backdrop
-   regardless of site theme -- the point is showing the piece itself. */
 .lightbox {
   position: fixed;
   inset: 0;
@@ -1909,9 +1328,7 @@ section::after {
   background-color: rgba(0, 0, 0, 0.92);
 }
 
-.lightbox[hidden] {
-  display: none;
-}
+.lightbox[hidden] { display: none; }
 
 .lightbox-stage {
   display: flex;
@@ -1925,7 +1342,7 @@ section::after {
   max-width: 90vw;
   max-height: 85vh;
   object-fit: contain;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
 }
 
 .lightbox-details {
@@ -1937,17 +1354,8 @@ section::after {
   text-align: left;
 }
 
-/* Video lightbox variant (animation-shorts.html) -- stacks the details
-   below the video instead of floating them fixed to the right, since a
-   90vw-wide 16:9 clip leaves no clear space beside it for a side panel. */
-.lightbox--stacked {
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.lightbox--stacked .lightbox-video {
-  max-height: 70vh;
-}
+.lightbox--stacked { flex-direction: column; gap: 1.25rem; }
+.lightbox--stacked .lightbox-video { max-height: 70vh; }
 
 .lightbox--stacked .lightbox-details {
   position: static;
@@ -1960,8 +1368,8 @@ section::after {
 .lightbox-title {
   color: #fff;
   font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 1.25rem;
+  font-weight: 900;
+  font-size: 1.2rem;
 }
 
 .lightbox-medium {
@@ -1971,9 +1379,7 @@ section::after {
 }
 
 @media (max-width: 800px) {
-  .lightbox-image {
-    max-height: 65vh;
-  }
+  .lightbox-image { max-height: 65vh; }
   .lightbox-details {
     top: auto;
     bottom: 1.25rem;
@@ -2001,10 +1407,7 @@ section::after {
 }
 
 .lightbox-close:hover,
-.lightbox-nav:hover {
-  background-color: #fff;
-  color: #050505;
-}
+.lightbox-nav:hover { background-color: #fff; color: #050505; }
 
 .lightbox-close {
   top: 1.5rem;
@@ -2032,215 +1435,42 @@ section::after {
   .lightbox-close { top: 0.75rem; right: 0.75rem; }
 }
 
-/* Extra grain weight for the Work section in dark mode */
-
-:root[data-theme="dark"] .work {
-  --grain-opacity: 0.1;
+/* .reveal -- v1's scroll-stagger class, kept in work/*.html markup as-is.
+   v2 has no per-element JS stagger for case-study prose; this gives it a
+   single subtle fade-up on load instead of leaving it unanimated. */
+.reveal {
+  animation: entrance-rise var(--dur-slow) var(--ease-out-sharp) both;
 }
 
-/* About / contact */
+:root.no-motion .reveal { animation: none; }
 
-.about {
-  min-height: 80vh;
-  min-height: 80dvh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.contact {
-  min-height: 80vh;
-  min-height: 80dvh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.about p,
-.contact p {
-  max-width: 42rem;
-}
-
-.contact-link {
-  font-size: 1.25rem;
+.eyebrow {
+  font-family: var(--font-sans);
   font-weight: 600;
-  text-decoration: none;
-  border-bottom: 2px solid var(--tiger);
-}
-
-.contact-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  max-width: 32rem;
-  margin: clamp(1.5rem, 4vw, 2.5rem) 0;
-}
-
-.contact-form label {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
-.contact-form input[type="text"],
-.contact-form input[type="email"],
-.contact-form input[type="tel"],
-.contact-form select,
-.contact-form textarea {
-  font-family: var(--font-body);
-  font-size: 1rem;
-  color: var(--text);
-  padding: 0.85rem 1rem;
-  border-radius: 0.75rem;
-  border: 1px solid var(--border);
-  background-color: var(--surface);
-}
-
-.contact-form input[type="text"]:focus,
-.contact-form input[type="email"]:focus,
-.contact-form input[type="tel"]:focus,
-.contact-form select:focus,
-.contact-form textarea:focus {
-  outline: 2px solid var(--tiger);
-  outline-offset: 2px;
-}
-
-.contact-form textarea {
-  resize: vertical;
-  min-height: 7rem;
-}
-
-.contact-form button {
-  align-self: flex-start;
-  border: none;
-  cursor: pointer;
-}
-
-.contact-method {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  border: none;
-  padding: 0;
-  margin: -0.5rem 0 -0.75rem;
-}
-
-.contact-method legend {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  padding: 0;
-  margin-bottom: 0.6rem;
-  width: 100%;
-}
-
-.contact-form .contact-method-option {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: var(--text);
-}
-
-.contact-method-option input {
-  accent-color: var(--tiger);
-  width: 1rem;
-  height: 1rem;
-}
-
-.contact-form-status {
-  font-size: 0.9rem;
-}
-
-.contact-form-status.is-success {
-  color: var(--tiger-text);
-}
-
-.contact-form-status.is-error {
-  color: var(--text-muted);
-}
-
-/* Sign-off */
-
-.signoff {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 0.5rem;
-  padding-top: clamp(2rem, 6vw, 4rem);
-  padding-bottom: clamp(2rem, 6vw, 4rem);
-}
-
-.signoff-label {
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.8rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--tiger-text);
+  color: var(--c-accent);
+  margin-bottom: 0.5rem;
 }
 
-.wordmark-giant {
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-size: clamp(3.5rem, 13vw, 10rem);
-  line-height: 1;
-  letter-spacing: -0.02em;
-}
-
-/* Footer */
-
-.site-footer {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 2rem clamp(1.5rem, 6vw, 4rem);
-  font-size: 0.9rem;
-  border-top: 1px solid var(--border);
-}
-
-.back-to-top {
-  text-decoration: none;
-  color: var(--text-muted);
-}
-
-.back-to-top:hover {
-  color: var(--tiger-text);
-}
-
-@media (max-width: 30rem) {
-  .site-footer {
-    flex-direction: column;
-    gap: 0.5rem;
-    text-align: center;
-  }
-}
-
-/* Studio Log (studio-log.html) -- private, unlisted internal tool, not part
+/* ==========================================================================
+   Studio Log (studio-log.html) -- private, unlisted internal tool, not part
    of the public site. A server-verified password gate (api/studio-log.js)
    guards a project directory synced to a private GitHub repo; localStorage
-   is only an instant-render cache, not the source of truth. Styling here is
-   plain and utilitarian rather than matching the portfolio's
-   scroll-stack/animation treatment. */
+   is only an instant-render cache, not the source of truth. Layout stays
+   plain/utilitarian (no scroll-stagger, no bento grid) but uses the same
+   tokens, squircle cards and pill buttons as the rest of v2.
+   ========================================================================== */
 
 .log-gate {
-  min-height: 70vh;
+  min-height: 60vh;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.log-gate[hidden] {
-  display: none;
-}
+.log-gate[hidden] { display: none; }
 
 .log-gate-box {
   width: 100%;
@@ -2248,9 +1478,7 @@ section::after {
   text-align: center;
 }
 
-.log-gate-box h1 {
-  margin-bottom: 1.5rem;
-}
+.log-gate-box h1 { margin-bottom: 1.5rem; }
 
 .log-gate-box form {
   display: flex;
@@ -2259,29 +1487,26 @@ section::after {
 }
 
 .log-gate-box input {
-  font-family: var(--font-body);
+  font-family: var(--font-sans);
   font-size: 1rem;
   padding: 0.85rem 1rem;
   border-radius: 0.75rem;
-  border: 1px solid var(--border);
-  background-color: var(--surface);
-  color: var(--text);
+  border: 1px solid var(--c-border);
+  background-color: var(--c-bg);
+  color: var(--c-text);
 }
 
 .log-gate-box input:focus {
-  outline: 2px solid var(--tiger);
+  outline: 2px solid var(--c-accent);
   outline-offset: 2px;
 }
 
-.log-gate-box button {
-  border: none;
-  cursor: pointer;
-}
+.log-gate-box button { border: none; }
 
 .log-gate-error {
   margin-top: 1rem;
   font-size: 0.85rem;
-  color: var(--tiger-text);
+  color: var(--c-accent);
 }
 
 .log-app-header {
@@ -2300,58 +1525,52 @@ section::after {
 
 .log-sync-status {
   font-size: 0.78rem;
-  color: var(--text-muted);
+  color: var(--c-muted);
 }
 
-.log-sync-status.is-saving { color: var(--text-muted); }
-.log-sync-status.is-synced { color: var(--text-muted); }
-.log-sync-status.is-error { color: var(--tiger-text); }
+.log-sync-status.is-error { color: var(--c-accent); }
 
 /* Quick-capture compose bar -- one growing textarea + a submit button,
-   replacing the old five-field form so adding a note is a single motion
-   instead of tabbing through structured fields. */
+   in place of a multi-field form, so adding a note is a single motion. */
 .log-quick-bar {
   display: flex;
   align-items: flex-end;
   gap: 0.75rem;
   padding: clamp(1rem, 2.5vw, 1.5rem);
-  border: 1px solid var(--border);
-  border-radius: 1rem;
-  background-color: var(--surface);
+  border: 1px solid var(--c-border);
+  border-radius: 1.5rem;
+  background-color: color-mix(in oklch, var(--c-text) 3%, transparent);
   margin-bottom: clamp(2.5rem, 6vw, 4rem);
+}
+
+@supports (corner-shape: squircle) {
+  .log-quick-bar { corner-shape: squircle; border-radius: 2rem; }
 }
 
 .log-quick-bar textarea {
   flex: 1;
   resize: none;
   overflow: hidden;
-  font-family: var(--font-body);
+  font-family: var(--font-sans);
   font-size: 0.95rem;
   line-height: 1.5;
   padding: 0.65rem 0.85rem;
   border-radius: 0.6rem;
-  border: 1px solid var(--border);
-  background-color: var(--bg);
-  color: var(--text);
+  border: 1px solid var(--c-border);
+  background-color: var(--c-bg);
+  color: var(--c-text);
   max-height: 12rem;
 }
 
 .log-quick-bar textarea:focus {
-  outline: 2px solid var(--tiger);
+  outline: 2px solid var(--c-accent);
   outline-offset: 1px;
 }
 
-.log-quick-bar button {
-  flex-shrink: 0;
-  border: none;
-  cursor: pointer;
-}
+.log-quick-bar button { flex-shrink: 0; }
 
 @media (max-width: 30rem) {
-  .log-quick-bar {
-    flex-direction: column;
-    align-items: stretch;
-  }
+  .log-quick-bar { flex-direction: column; align-items: stretch; }
 }
 
 .log-columns {
@@ -2361,22 +1580,20 @@ section::after {
 }
 
 @media (max-width: 60rem) {
-  .log-columns {
-    grid-template-columns: 1fr;
-  }
+  .log-columns { grid-template-columns: 1fr; }
 }
 
 .log-column h2 {
   font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 1.1rem;
+  font-weight: 900;
+  font-size: 1.05rem;
   padding-bottom: 0.75rem;
   margin-bottom: 1.25rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--c-border);
 }
 
 .log-column-count {
-  color: var(--text-muted);
+  color: var(--c-muted);
   font-weight: 600;
 }
 
@@ -2388,9 +1605,13 @@ section::after {
 
 .log-entry {
   padding: 1rem 1.25rem;
-  border: 1px solid var(--border);
-  border-radius: 0.75rem;
-  background-color: var(--surface);
+  border-radius: 1.25rem;
+  background-color: color-mix(in oklch, var(--c-text) 3%, transparent);
+  outline: 1px solid var(--c-border);
+}
+
+@supports (corner-shape: squircle) {
+  .log-entry { corner-shape: squircle; border-radius: 1.5rem; }
 }
 
 .log-entry-text {
@@ -2404,27 +1625,27 @@ section::after {
 }
 
 .log-entry-text:hover {
-  background-color: color-mix(in srgb, var(--tiger) 8%, transparent);
+  background-color: color-mix(in oklch, var(--c-accent) 10%, transparent);
 }
 
 .log-entry-text-input {
   display: block;
   width: 100%;
-  font-family: var(--font-body);
+  font-family: var(--font-sans);
   font-size: 0.92rem;
   line-height: 1.5;
   padding: 0.4rem 0.5rem;
   margin-bottom: 0.5rem;
   border-radius: 0.4rem;
-  border: 1px solid var(--border);
-  background-color: var(--bg);
-  color: var(--text);
+  border: 1px solid var(--c-border);
+  background-color: var(--c-bg);
+  color: var(--c-text);
   resize: vertical;
 }
 
 .log-entry-meta {
   font-size: 0.78rem;
-  color: var(--text-muted);
+  color: var(--c-muted);
   margin-bottom: 0.5rem;
 }
 
@@ -2435,29 +1656,28 @@ section::after {
 }
 
 .log-entry-controls select {
-  font-family: var(--font-body);
+  font-family: var(--font-sans);
   font-size: 0.8rem;
   padding: 0.4rem 0.5rem;
   border-radius: 0.4rem;
-  border: 1px solid var(--border);
-  background-color: var(--bg);
-  color: var(--text);
+  border: 1px solid var(--c-border);
+  background-color: var(--c-bg);
+  color: var(--c-text);
 }
 
 .log-entry-delete {
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: var(--c-muted);
   background: none;
   border: none;
   cursor: pointer;
   text-decoration: underline;
+  transition: color var(--dur-fast) ease;
 }
 
-.log-entry-delete:hover {
-  color: var(--tiger-text);
-}
+.log-entry-delete:hover { color: var(--c-accent); }
 
 .log-empty {
   font-size: 0.88rem;
-  color: var(--text-muted);
+  color: var(--c-muted);
 }

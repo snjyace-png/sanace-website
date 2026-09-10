@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sanace — Storyboard, 3D Visualization & Concept Art</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    (function () {
+      var saved = localStorage.getItem('theme');
+      var theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+</head>
+<body>
+
+  <header class="site-header">
+    <p class="local-time"><span class="local-label">Local /</span> <span id="localTime">--:--:--</span></p>
+    <div class="dot-grid" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="header-right">
+      <a href="index.html" class="header-wordmark">Sanace</a>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle color theme">
+        <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+      </button>
+      <a href="#contact" class="pill-btn">Contact Now</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="section-grid" aria-hidden="true"></div>
+      <div class="hero-inner">
+        <h1 class="hero-wordmark reveal" id="heroWordmark">
+          <span class="flip-word">
+            <span class="flip-letter" style="--i: 0; --w: 0.62em; --x: 0em"><span class="flip-track"><span class="flip-glyph flip-old">S</span><span class="flip-glyph flip-new">S</span><span class="flip-glyph flip-old">S</span></span></span>
+            <span class="flip-letter" style="--i: 1; --w: 0.76em; --x: 0.62em"><span class="flip-track"><span class="flip-glyph flip-old">A</span><span class="flip-glyph flip-new">A</span><span class="flip-glyph flip-old">A</span></span></span>
+            <span class="flip-letter" style="--i: 2; --w: 0.80em; --x: 1.38em"><span class="flip-track"><span class="flip-glyph flip-old">N</span><span class="flip-glyph flip-new">N</span><span class="flip-glyph flip-old">N</span></span></span>
+            <span class="flip-letter" style="--i: 3; --w: 0.78em; --x: 2.18em"><span class="flip-track"><span class="flip-glyph flip-old">J</span><span class="flip-glyph flip-new">A</span><span class="flip-glyph flip-old">J</span></span></span>
+            <span class="flip-letter" style="--i: 4; --w: 0.76em; --x: 2.96em"><span class="flip-track"><span class="flip-glyph flip-old">A</span><span class="flip-glyph flip-new">C</span><span class="flip-glyph flip-old">A</span></span></span>
+            <span class="flip-letter" style="--i: 5; --w: 0.72em; --x: 3.72em"><span class="flip-track"><span class="flip-glyph flip-old">Y</span><span class="flip-glyph flip-new">E</span><span class="flip-glyph flip-old">Y</span></span></span>
+          </span>
+          <video class="wordmark-video" autoplay muted loop playsinline aria-hidden="true">
+            <!-- Placeholder: add real footage here later, e.g. -->
+            <!-- <source src="assets/hero-reel.mp4" type="video/mp4"> -->
+          </video>
+        </h1>
+        <p class="hero-tagline reveal">
+          <span>Animation</span>
+          <span>Film</span>
+          <span>Design</span>
+        </p>
+        <p class="hero-value reveal">Storyboard artist &amp; 3D visualizer &mdash; systems, not silos.</p>
+      </div>
+    </section>
+
+    <div class="hero-sentinel" aria-hidden="true"></div>
+
+    <section class="showreel" id="showreel">
+      <video class="showreel-video" autoplay muted loop playsinline aria-label="Sanace showreel">
+        <!-- Placeholder: add real footage here later, e.g. -->
+        <!-- <source src="assets/showreel.mp4" type="video/mp4"> -->
+      </video>
+    </section>
+
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee-track">
+        <span>Storyboard — 3D Visualization — Concept Art — Film —</span>
+        <span>Storyboard — 3D Visualization — Concept Art — Film —</span>
+      </div>
+    </div>
+
+    <section class="credentials" id="credentials">
+      <div class="section-grid" aria-hidden="true"></div>
+      <div class="credentials-row">
+        <div class="credential-item reveal">
+          <p class="credential-label">Institution</p>
+          <p class="credential-value">National Institute of Design, Ahmedabad</p>
+          <p class="credential-detail">B.Des, Animation Film Design</p>
+        </div>
+        <div class="credential-item reveal">
+          <p class="credential-label">Recognition</p>
+          <p class="credential-value">NID Ford Foundation Grant</p>
+          <p class="credential-detail">Sponsored graduation film, 2022</p>
+        </div>
+        <div class="credential-item reveal">
+          <p class="credential-label">Collaborators</p>
+          <p class="credential-value">Neelesh Ram S &middot; Dr. Shilpa Das &middot; Amrit Balaji Kaliyapperumal</p>
+          <p class="credential-detail">Across Madan and Family &amp; 5 Degrees</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="services" id="services">
+      <div class="section-grid" aria-hidden="true"></div>
+      <h2 class="services-headline reveal">Three disciplines.<br>One continuous eye.</h2>
+      <p class="services-subhead reveal">Story before surface — the same throughline runs from the first sketch to the final frame.</p>
+
+      <div class="services-grid">
+        <div class="service-item reveal">
+          <svg class="service-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="12" rx="1"/><path d="M7 9h4M7 12h6"/><circle cx="16.5" cy="12" r="1.5"/></svg>
+          <span class="service-num">01</span>
+          <p class="service-title">Storyboarding &amp; Concept Art</p>
+          <p class="service-text">Every sequence starts on paper — blocking, mood, and narrative intent worked out before a single pixel or set piece exists.</p>
+        </div>
+        <div class="service-item reveal">
+          <svg class="service-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 7.5v9L12 21l8-4.5v-9L12 3Z"/><path d="M4 7.5 12 12l8-4.5M12 12v9"/></svg>
+          <span class="service-num">02</span>
+          <p class="service-title">3D Visualization</p>
+          <p class="service-text">Environments, props, and camera blocking built and lit in 3D — so the crew walks onto a set they've already seen.</p>
+        </div>
+        <div class="service-item reveal">
+          <svg class="service-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="14" height="12" rx="1"/><path d="m16.5 10 5-3v10l-5-3"/></svg>
+          <span class="service-num">03</span>
+          <p class="service-title">Production Design &amp; Art Department</p>
+          <p class="service-text">The visual language carried off the page and onto the floor — for international freelance clients and the Indian film industry alike.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="work" id="work">
+      <div class="section-grid" aria-hidden="true"></div>
+      <h2 class="section-heading reveal">Selected Work</h2>
+      <p class="section-note reveal">Case studies coming soon — placeholders below, newest first.</p>
+      <div class="work-filter reveal" role="group" aria-label="Filter projects by category">
+        <button class="filter-btn is-active" type="button" data-filter="all" aria-pressed="true">All</button>
+        <button class="filter-btn" type="button" data-filter="storyboard" aria-pressed="false">Storyboarding &amp; Concept Art</button>
+        <button class="filter-btn" type="button" data-filter="3d" aria-pressed="false">3D Vis / CGI</button>
+        <button class="filter-btn" type="button" data-filter="production" aria-pressed="false">Production Design &amp; Art Department</button>
+        <button class="filter-btn" type="button" data-filter="fine-arts" aria-pressed="false">Fine Arts</button>
+        <button class="filter-btn" type="button" data-filter="animation-shorts" aria-pressed="false">Animation Shorts</button>
+        <button class="filter-btn" type="button" data-filter="short-film" aria-pressed="false">Short Films</button>
+        <button class="filter-btn" type="button" data-filter="graphic-design" aria-pressed="false">Graphic Design</button>
+        <button class="filter-btn" type="button" data-filter="ux-ui" aria-pressed="false">UX / UI Design</button>
+      </div>
+      <div class="work-carousel" data-lenis-prevent>
+        <div class="work-track" id="workTrack">
+          <article class="work-item" data-category="storyboard">
+            <div class="work-thumb"></div>
+            <p class="work-title"><a href="../work/01.html">MANTHIRA</a></p>
+          </article>
+          <article class="work-item" data-category="storyboard">
+            <div class="work-thumb"></div>
+            <p class="work-title"><a href="../work/02.html">Illustrations — Indian 2</a></p>
+          </article>
+          <article class="work-item" data-category="graphic-design">
+            <div class="work-thumb" style="background-image: url('work/media/inspire-cricket-academy/logo.png'); background-size: contain; background-repeat: no-repeat; background-position: center; background-color: var(--surface);"></div>
+            <p class="work-title"><a href="../work/03.html">Inspire Cricket Academy</a></p>
+          </article>
+          <article class="work-item" data-category="storyboard">
+            <div class="work-thumb"></div>
+            <p class="work-title"><a href="../work/04.html">Project title placeholder</a></p>
+          </article>
+          <article class="work-item" data-category="storyboard">
+            <div class="work-thumb" style="background-image: url('work/media/madan-family/storyboard-frame.jpg'); background-size: cover; background-position: center;"></div>
+            <p class="work-title"><a href="../work/madan-family-storyboard.html">Madan and Family — Storyboard</a></p>
+          </article>
+          <article class="work-item" data-category="3d">
+            <div class="work-thumb" style="background-image: url('work/media/letter-box/poster.jpg'); background-size: cover; background-position: center;"></div>
+            <p class="work-title"><a href="../work/06.html">Letter Box</a></p>
+          </article>
+          <article class="work-item" data-category="3d">
+            <div class="work-thumb" style="background-image: url('work/media/auto-vfx/poster.jpg'); background-size: cover; background-position: center;"></div>
+            <p class="work-title"><a href="../work/07.html">Auto VFX</a></p>
+          </article>
+          <article class="work-item" data-category="production">
+            <div class="work-thumb" style="background-image: url('work/media/baby-john/render-eevee.jpg'); background-size: cover; background-position: center;"></div>
+            <p class="work-title"><a href="../work/08.html">Baby John</a></p>
+          </article>
+          <article class="work-item" data-category="short-film">
+            <div class="work-thumb" style="background-image: url('work/media/madan-family/poster.jpg'); background-size: cover; background-position: center;"></div>
+            <p class="work-title"><a href="../work/09.html">Madan and Family</a></p>
+          </article>
+          <article class="work-item" data-category="short-film">
+            <div class="work-thumb" style="background-image: url('work/media/5-degrees/hero-poster.jpg'); background-size: cover; background-position: center;"></div>
+            <p class="work-title"><a href="../work/11.html">5 Degrees</a></p>
+          </article>
+          <article class="work-item" data-category="production">
+            <div class="work-thumb"></div>
+            <p class="work-title"><a href="../work/10.html">Project title placeholder</a></p>
+          </article>
+          <article class="work-item" data-category="fine-arts">
+            <div class="work-thumb" style="background-image: url('fine-arts/kamalhaasan-2016.jpg'); background-size: cover; background-position: center;"></div>
+            <p class="work-title"><a href="fine-arts.html">Fine Arts</a></p>
+          </article>
+          <article class="work-item" data-category="animation-shorts">
+            <div class="work-thumb" style="background-image: url('animation-shorts/thumb-castaway.jpg'); background-size: cover; background-position: center;"></div>
+            <p class="work-title"><a href="animation-shorts.html">Animation Shorts</a></p>
+          </article>
+          <article class="work-item" data-category="ux-ui">
+            <div class="work-thumb" style="background-image: url('work/media/kidipoo/final-hero.jpg'); background-size: cover; background-position: center;"></div>
+            <p class="work-title"><a href="../work/kidipoo.html">Kidipoo</a></p>
+          </article>
+        </div>
+      </div>
+      <div class="work-controls">
+        <button class="work-arrow work-arrow-prev" type="button" aria-label="Previous project">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <div class="work-dots" id="workDots"></div>
+        <button class="work-arrow work-arrow-next" type="button" aria-label="Next project">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+      </div>
+      <button class="next-section-btn" type="button" aria-label="Scroll to next section">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+    </section>
+
+    <div class="stripe stripe-alt" aria-hidden="true"></div>
+
+    <section class="about" id="about">
+      <div class="section-grid" aria-hidden="true"></div>
+      <p class="eyebrow reveal">Storyboard &middot; 3D Visualization &middot; Concept Art</p>
+      <h2 class="approach-headline reveal">Systems,<br>not silos.</h2>
+      <p class="approach-subhead reveal">Sanjay is an NID Ahmedabad-trained designer and filmmaker. Sanace is his independent freelance and personal brand — one connected practice across storyboarding, concept art, 3D visualization, production design, and film art department work, for international freelance clients and the Indian film industry alike.</p>
+
+      <div class="pillars">
+        <div class="pillar reveal">
+          <span class="pillar-num">01</span>
+          <p class="pillar-title">Story before surface</p>
+          <p class="pillar-text">Every frame serves the narrative first — craft follows story, not the other way around.</p>
+        </div>
+        <div class="pillar reveal">
+          <span class="pillar-num">02</span>
+          <p class="pillar-title">NID-trained, film-tested</p>
+          <p class="pillar-text">Formal design training meets real production experience across storyboard, visualization, and set.</p>
+        </div>
+      </div>
+
+      <div class="about-cta-row reveal">
+        <a href="#contact" class="pill-btn pill-btn-outline">Let's Talk</a>
+        <a href="../Resume/index.html" class="pill-btn pill-btn-outline">View Résumé</a>
+      </div>
+    </section>
+
+    <section class="contact" id="contact">
+      <h2 class="section-heading reveal">Let's talk</h2>
+      <p class="section-note reveal">Got a project in mind? Tell me a bit about it and I'll get back to you soon.</p>
+
+      <form class="contact-form reveal" id="contactForm">
+        <!-- Get a free access key at web3forms.com (just an email address,
+             no account/password needed) and paste it in below. -->
+        <input type="hidden" name="access_key" value="YOUR_WEB3FORMS_ACCESS_KEY">
+        <input type="hidden" name="subject" value="New inquiry from the Sanace website">
+        <input type="checkbox" name="botcheck" style="display:none" tabindex="-1" autocomplete="off">
+
+        <label>What are you looking for?
+          <select name="service">
+            <option value="General Inquiry">General Inquiry</option>
+            <option value="Storyboarding & Concept Art">Storyboarding &amp; Concept Art</option>
+            <option value="3D Visualization">3D Visualization</option>
+            <option value="Production Design & Art Department">Production Design &amp; Art Department</option>
+          </select>
+        </label>
+
+        <label>What's your name?
+          <input type="text" name="name" required>
+        </label>
+
+        <fieldset class="contact-method">
+          <legend>How can I reach you?</legend>
+          <label class="contact-method-option">
+            <input type="radio" name="contactMethod" value="Email" checked> Email
+          </label>
+          <label class="contact-method-option">
+            <input type="radio" name="contactMethod" value="Phone"> Phone
+          </label>
+        </fieldset>
+        <label>
+          <span id="contactValueLabel">Your email</span>
+          <input type="email" name="contact" id="contactValue" placeholder="you@example.com" required>
+        </label>
+
+        <label>What's on your mind?
+          <textarea name="message" required></textarea>
+        </label>
+        <button type="submit" class="pill-btn">Send it over</button>
+        <p class="contact-form-status" id="contactFormStatus" hidden></p>
+      </form>
+
+      <p class="section-note reveal">Prefer email? <a href="mailto:hello@sanace.com" class="contact-link">hello@sanace.com</a> — placeholder address, swap once the domain is live.</p>
+    </section>
+
+    <section class="signoff reveal">
+      <p class="signoff-label">More about</p>
+      <p class="wordmark-giant">Sanace&copy;</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p class="wordmark-small">Sanace</p>
+    <p>&copy; 2026 Sanace. All rights reserved.</p>
+    <a href="../studio-log.html" class="back-to-top">Studio Log</a>
+    <a href="../index.html" class="back-to-top">v2</a>
+    <a href="#" class="back-to-top">Back to top</a>
+  </footer>
+
+  <script src="https://unpkg.com/lenis@1/dist/lenis.min.js"></script>
+  <script src="js/script.js" defer></script>
+</body>
+</html>
