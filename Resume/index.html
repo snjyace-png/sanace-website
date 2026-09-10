@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sanjay K — UX Designer — Sanace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <script>
+    (function () {
+      var saved = localStorage.getItem('theme');
+      var theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+  <style>
+    .resume-wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: clamp(2rem, 5vw, 3.5rem) clamp(1.25rem, 4vw, 2rem) 4rem;
+    }
+
+    .resume-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+      flex-wrap: wrap;
+    }
+
+    .resume-toolbar a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .resume-toolbar a:hover { color: var(--tiger); }
+
+    .resume-card {
+      background: transparent;
+      padding: clamp(1.75rem, 4vw, 3rem) 0;
+    }
+
+    .resume-photo-sidebar {
+      aspect-ratio: 1 / 1;
+      width: 100%;
+      max-width: 140px;
+      margin: 0 0 1.5rem;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .resume-photo-sidebar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .resume-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.75rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .resume-status {
+      display: inline-block;
+      margin-top: 0.6rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--tiger-text);
+      background: color-mix(in srgb, var(--tiger) 12%, transparent);
+      border: 1px solid color-mix(in srgb, var(--tiger) 35%, transparent);
+      border-radius: 999px;
+      padding: 0.25rem 0.7rem;
+    }
+
+    .resume-name {
+      font-family: 'Archivo', sans-serif;
+      font-weight: 900;
+      font-size: clamp(2rem, 5vw, 2.75rem);
+      letter-spacing: -0.01em;
+      line-height: 1.05;
+      margin: 0 0 0.35rem;
+    }
+
+    .resume-title {
+      font-family: 'Archivo', sans-serif;
+      font-weight: 700;
+      color: var(--tiger-text);
+      font-size: 1.05rem;
+      margin: 0;
+    }
+
+    .resume-tagline {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      margin: 0.35rem 0 0;
+      max-width: 34ch;
+    }
+
+    .resume-contact {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      text-align: right;
+    }
+
+    .resume-contact a { color: inherit; text-decoration: none; }
+    .resume-contact a:hover { color: var(--tiger); }
+
+    .resume-contact-primary {
+      font-weight: 700;
+      color: var(--tiger-text) !important;
+    }
+
+    /* 12-column grid: sidebar spans 4, main content spans 8 */
+    .resume-grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: clamp(1.5rem, 4vw, 2.5rem);
+    }
+
+    .resume-col:first-child { grid-column: span 4; }
+    .resume-col:last-child { grid-column: span 8; }
+
+    .resume-section { margin-bottom: 1.75rem; }
+    .resume-section:last-child { margin-bottom: 0; }
+
+    .resume-heading {
+      font-family: 'Archivo', sans-serif;
+      font-weight: 800;
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--tiger-text);
+      margin: 0 0 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .resume-heading::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .resume-subheading {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin: 0.9rem 0 0.5rem;
+    }
+
+    .resume-subheading:first-of-type { margin-top: 0; }
+
+    .resume-about {
+      font-size: 0.98rem;
+      line-height: 1.65;
+      color: var(--text);
+      margin: 0;
+    }
+
+    .resume-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .resume-list li {
+      font-size: 0.9rem;
+      color: var(--text);
+      padding-left: 1rem;
+      position: relative;
+    }
+
+    .resume-list li::before {
+      content: '+';
+      position: absolute;
+      left: 0;
+      color: var(--tiger-text);
+      font-weight: 700;
+    }
+
+    .resume-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .resume-tag {
+      font-size: 0.82rem;
+      padding: 0.3rem 0.7rem;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--text-muted);
+    }
+
+    .resume-tag-primary {
+      border-color: color-mix(in srgb, var(--tiger) 40%, transparent);
+      color: var(--tiger-text);
+      font-weight: 600;
+    }
+
+    .resume-entry {
+      padding-bottom: 1.4rem;
+      margin-bottom: 1.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .resume-entry:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .resume-entry-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.3rem;
+    }
+
+    .resume-entry-role {
+      font-family: 'Archivo', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      margin: 0;
+    }
+
+    .resume-entry-meta {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .resume-entry-sub {
+      font-size: 0.88rem;
+      color: var(--tiger-text);
+      font-weight: 600;
+      margin: 0 0 0.4rem;
+    }
+
+    .resume-entry-bullets {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .resume-entry-bullets li {
+      font-size: 0.92rem;
+      line-height: 1.5;
+      color: var(--text-muted);
+      padding-left: 0.9rem;
+      position: relative;
+    }
+
+    .resume-entry-bullets li::before {
+      content: '\2013';
+      position: absolute;
+      left: 0;
+      color: var(--tiger-text);
+    }
+
+    .resume-additional {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    .resume-additional strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .resume-edu-degree {
+      font-family: 'Archivo', sans-serif;
+      font-weight: 700;
+      font-size: 0.98rem;
+      margin: 0 0 0.2rem;
+    }
+
+    .resume-edu-meta {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    @media (max-width: 720px) {
+      .resume-grid { grid-template-columns: 1fr; }
+      .resume-col:first-child, .resume-col:last-child { grid-column: span 1; }
+      .resume-head { flex-direction: column; }
+      .resume-contact { text-align: left; }
+    }
+
+    @page {
+      size: A4;
+      margin: 16mm;
+    }
+
+    @media print {
+      /* Force light-theme text/border colors regardless of the on-screen theme toggle,
+         but no background fill anywhere — plain white page. */
+      :root, :root[data-theme="dark"] {
+        --bg: #ffffff;
+        --text: #171310;
+        --text-muted: rgba(23, 19, 16, 0.55);
+        --surface: #ffffff;
+        --border: rgba(23, 19, 16, 0.12);
+        --tiger-text: #b34503;
+      }
+
+      * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .site-header, .site-footer, .resume-toolbar { display: none !important; }
+      body { background: #fff !important; }
+      .resume-wrap { padding: 0; max-width: 100%; }
+      .resume-card { padding: 0; background: transparent; }
+      a { color: inherit !important; text-decoration: none !important; }
+
+      /* Content now fits a single A4 page, so the same 12-column grid used on
+         screen paginates fine in print — no float fallback needed. */
+
+      .resume-photo-sidebar { max-width: 70px; break-inside: avoid; margin-bottom: 0.75rem; }
+
+      .resume-entry, .resume-head { break-inside: avoid; }
+      .resume-section { break-inside: avoid; margin-bottom: 0.65rem; }
+      .resume-heading { break-after: avoid; margin-bottom: 0.45rem; }
+      .resume-entry { padding-bottom: 0.45rem; margin-bottom: 0.45rem; }
+
+      /* Tighten overall density so this fits one A4 page instead of spilling
+         into mostly-empty extra pages caused by uneven float-column heights */
+      .resume-name { font-size: 1.7rem; }
+      .resume-tagline { font-size: 0.78rem; max-width: 42ch; margin-top: 0.2rem; }
+      .resume-head { padding-bottom: 0.75rem; margin-bottom: 0.75rem; }
+      .resume-grid { gap: 1.5rem; }
+      .resume-subheading { margin: 0.45rem 0 0.25rem; font-size: 0.66rem; }
+      .resume-list { gap: 0.18rem; }
+      .resume-list li { font-size: 0.78rem; }
+      .resume-tags { gap: 0.3rem; }
+      .resume-tag { font-size: 0.7rem; padding: 0.16rem 0.5rem; }
+      .resume-entry-role, .resume-entry-sub { font-size: 0.84rem; }
+      .resume-entry-bullets { gap: 0.15rem; }
+      .resume-entry-bullets li { font-size: 0.78rem; line-height: 1.35; }
+      .resume-about { font-size: 0.84rem; line-height: 1.42; }
+      .resume-additional { font-size: 0.74rem; line-height: 1.4; }
+      .resume-edu-degree { font-size: 0.84rem; }
+      .resume-edu-meta { font-size: 0.74rem; }
+      .resume-contact { font-size: 0.8rem; gap: 0.3rem; }
+      .resume-status { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header is-collapsed">
+    <p class="local-time"><span class="local-label">Local /</span> <span id="localTime">--:--:--</span></p>
+    <div class="dot-grid" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="header-right">
+      <a href="../index.html" class="header-wordmark">Sanace</a>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle color theme">
+        <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+      </button>
+      <a href="../index.html#contact" class="pill-btn">Contact Now</a>
+    </div>
+  </header>
+
+  <main>
+    <div class="resume-wrap">
+      <div class="resume-toolbar">
+        <a href="../index.html">&larr; Back to Sanace</a>
+        <a href="#" class="pill-btn" id="printBtn">Download PDF</a>
+      </div>
+
+      <div class="resume-card">
+        <div class="resume-head">
+          <div>
+            <h1 class="resume-name">Sanjay K</h1>
+            <p class="resume-title">UX Designer</p>
+            <p class="resume-tagline">Directing narrative and visual systems end-to-end, now applied to product and user experience design.</p>
+            <span class="resume-status">Open to UX / Product Designer roles</span>
+          </div>
+          <div class="resume-contact">
+            <a href="mailto:snjy.ace@gmail.com" class="resume-contact-primary">snjy.ace@gmail.com</a>
+            <a href="../index.html" class="resume-contact-primary">Portfolio: Sanace &rarr;</a>
+            <span>Coimbatore, Tamil Nadu, India</span>
+            <a href="https://linkedin.com/in/snjyace" target="_blank" rel="noopener">linkedin.com/in/snjyace</a>
+            <a href="https://instagram.com/_s_n_j_y_" target="_blank" rel="noopener">instagram.com/_s_n_j_y_</a>
+            <a href="https://snjy_ace.artstation.com" target="_blank" rel="noopener">snjy_ace.artstation.com</a>
+          </div>
+        </div>
+
+        <div class="resume-grid">
+          <div class="resume-col">
+            <div class="resume-photo-sidebar"><img src="sanjay-photo.png" alt="Sanjay K"></div>
+
+            <div class="resume-section">
+              <h2 class="resume-heading">Skills</h2>
+
+              <p class="resume-subheading">Design Process</p>
+              <ul class="resume-list">
+                <li>User research &amp; observation</li>
+                <li>Journey &amp; flow mapping</li>
+                <li>Rapid prototyping</li>
+                <li>Design thinking</li>
+              </ul>
+
+              <p class="resume-subheading">Tools</p>
+              <div class="resume-tags">
+                <span class="resume-tag resume-tag-primary">Figma</span>
+                <span class="resume-tag">Photoshop</span>
+                <span class="resume-tag">Illustrator</span>
+                <span class="resume-tag">Blender</span>
+                <span class="resume-tag">Procreate Dreams</span>
+              </div>
+
+              <p class="resume-subheading">Craft</p>
+              <ul class="resume-list">
+                <li>Visual storytelling</li>
+                <li>Illustration</li>
+                <li>Motion &amp; interaction prototyping</li>
+              </ul>
+            </div>
+
+            <div class="resume-section">
+              <h2 class="resume-heading">Education</h2>
+              <p class="resume-edu-degree">Bachelor of Design, Animation Film Design</p>
+              <p class="resume-edu-meta">National Institute of Design, Ahmedabad<br>2018 &ndash; 2023</p>
+              <p class="resume-edu-meta" style="margin-top:0.6rem;">NID's B.Des foundation spans Communication, Industrial, and Animation Design &mdash; a human-centered design grounding applied across all four years, including a 15-month directed graduation project.</p>
+            </div>
+
+            <div class="resume-section">
+              <h2 class="resume-heading">Languages</h2>
+              <div class="resume-tags">
+                <span class="resume-tag">Tamil</span>
+                <span class="resume-tag">English</span>
+                <span class="resume-tag">Hindi</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="resume-col">
+            <div class="resume-section">
+              <h2 class="resume-heading">Summary</h2>
+              <p class="resume-about">I'm an NID-trained designer who takes ideas from an abstract brief to a finished, tested experience &mdash; whether that's a 15-month feature film narrative or a design-education product built on a repeatable methodology. Storyboarding and previsualization are, at their core, sequencing and prototyping a user's experience before it's built; I bring that same instinct, backed by hands-on Figma practice, to UX and product design.</p>
+            </div>
+
+            <div class="resume-section">
+              <h2 class="resume-heading">Experience</h2>
+
+              <div class="resume-entry">
+                <div class="resume-entry-head">
+                  <p class="resume-entry-role">Co-Founder &amp; Creative Director</p>
+                  <span class="resume-entry-meta">2022 &ndash; present</span>
+                </div>
+                <p class="resume-entry-sub">LOMONI &mdash; Design-Education Product</p>
+                <ul class="resume-entry-bullets">
+                  <li>Co-founded a design-education venture built on Observe &rarr; Understand &rarr; Make &mdash; a repeatable design-thinking framework, not just a brand tagline</li>
+                  <li>Own the product's creative direction end-to-end: translating an abstract methodology into a coherent, user-facing brand and pitch experience</li>
+                  <li>Currently building out the brand system and pitch deck ahead of launch, in Figma and Illustrator</li>
+                </ul>
+              </div>
+
+              <div class="resume-entry">
+                <div class="resume-entry-head">
+                  <p class="resume-entry-role">Storyboard Artist &amp; Previz Lead</p>
+                  <span class="resume-entry-meta">In production &middot; 18 months</span>
+                </div>
+                <p class="resume-entry-sub">MANTHIRA &mdash; Feature Film</p>
+                <ul class="resume-entry-bullets">
+                  <li>Sequenced complex, character-driven scenes into clear visual flows &mdash; the same structured thinking behind mapping a user journey</li>
+                  <li>Built rapid 3D prototypes (previz) in Blender and Unreal Engine to test staging and pacing before costly production, de-risking the experience early</li>
+                  <li>Collaborated directly with the director and DOP, iterating shot planning against feedback across the production</li>
+                </ul>
+              </div>
+
+              <div class="resume-entry">
+                <div class="resume-entry-head">
+                  <p class="resume-entry-role">Director &amp; Storyboard Artist</p>
+                  <span class="resume-entry-meta">2022 &ndash; 2023</span>
+                </div>
+                <p class="resume-entry-sub">5 Degrees &mdash; Graduation Film, NID</p>
+                <ul class="resume-entry-bullets">
+                  <li>Directed and owned a 15-month narrative project end-to-end, from concept through structure to final presentation</li>
+                  <li>Turned an abstract, systems-level premise (climate tipping points) into a story legible and emotionally resonant to an audience</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="resume-section">
+              <h2 class="resume-heading">Additional Work</h2>
+              <p class="resume-additional"><strong>Indian 2</strong> (Tamil feature, dir. S. Shankar) &mdash; illustration &middot; <strong>Baby John</strong> (Hindi feature) &mdash; VFX &middot; <strong>Letter Box</strong> (short film) &mdash; CGI &middot; <strong>Auto VFX</strong> (short film) &mdash; VFX cleanup &middot; <strong>Inspire Cricket Academy</strong> &mdash; brand identity &middot; <strong>Madan and Family</strong> (NID short) &mdash; co-writer &amp; animator</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p class="wordmark-small"><a href="../index.html">Sanace</a></p>
+    <p>&copy; 2026 Sanace. All rights reserved.</p>
+    <a href="../index.html" class="back-to-top">Back to home</a>
+  </footer>
+
+  <script src="../js/script.js" defer></script>
+  <script>
+    document.getElementById('printBtn').addEventListener('click', function (e) {
+      e.preventDefault();
+      window.print();
+    });
+  </script>
+</body>
+</html>

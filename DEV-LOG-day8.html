@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sanace — Dev Log — Day 8</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F6F1E7;
+    --ink: #171310;
+    --tiger: #E85D04;
+    --text-muted: color-mix(in srgb, var(--ink) 55%, transparent);
+    --surface: color-mix(in srgb, var(--ink) 6%, var(--cream));
+    --border: color-mix(in srgb, var(--ink) 12%, transparent);
+    --font-display: "Archivo", sans-serif;
+    --font-body: "Inter", sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background-color: var(--cream);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    padding: clamp(2rem, 6vw, 5rem) clamp(1.5rem, 6vw, 6rem);
+    max-width: 46rem;
+    margin: 0 auto;
+  }
+  header {
+    margin-bottom: clamp(2.5rem, 6vw, 4rem);
+  }
+  .eyebrow {
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--tiger);
+    margin-bottom: 0.75rem;
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(2rem, 6vw, 3rem);
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+  }
+  .meta {
+    margin-top: 1rem;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+  }
+  .meta strong {
+    color: var(--ink);
+  }
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.15rem;
+    margin-top: 2.25rem;
+    margin-bottom: 0.9rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border);
+  }
+  p {
+    margin-bottom: 0.9rem;
+  }
+  ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  li {
+    position: relative;
+    padding-left: 1.25rem;
+  }
+  li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--tiger);
+  }
+  .open-items li::before {
+    background-color: var(--text-muted);
+  }
+  .snippet-box {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: clamp(1.5rem, 5vw, 2.5rem);
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.75rem;
+  }
+  .snippet-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    align-self: flex-start;
+  }
+  .bento-demo {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 10px;
+    gap: 0.6rem;
+    width: 100%;
+    max-width: 16rem;
+  }
+  .bento-demo span {
+    border-radius: 0.6rem;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--tiger) 22%, var(--surface)), var(--surface));
+    border: 1px solid var(--border);
+  }
+  .flip-demo {
+    display: flex;
+    gap: 0.15rem;
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 1.6rem;
+  }
+  .flip-demo .static { color: var(--ink); }
+  .flip-demo .rolling { color: var(--tiger); }
+  .swatch-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    width: 100%;
+  }
+  .swatch {
+    width: 5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    align-items: center;
+  }
+  .swatch-chip {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 0.6rem;
+    border: 1px solid var(--border);
+  }
+  .swatch-label {
+    font-size: 0.66rem;
+    font-family: monospace;
+    color: var(--text-muted);
+  }
+  .toc-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    justify-content: center;
+    font-size: 0.78rem;
+  }
+  .toc-chip {
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  footer {
+    margin-top: clamp(3rem, 6vw, 5rem);
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Sanace &middot; Dev Log &middot; Day 8</p>
+  <h1>Monday, 7 September 2026</h1>
+  <p class="meta"><strong>Hours worked:</strong> ~8-9h</p>
+</header>
+
+<p>Almost the entire day went into one thing: a second homepage. Sanjay liked the restraint of a reference site (cyze.dev) and asked for a v2 built in that direction, kept alongside v1 rather than replacing it — so this log is mostly the story of that build, plus one real content-integrity call on the v1 side.</p>
+
+<h2>v2 — a second homepage, built to compare</h2>
+<ul>
+  <li>Tagged the pre-v2 state (<code>v1-snapshot</code>) before touching anything, then built the new homepage entirely under <code>/v2/</code> — root <code>index.html</code> untouched apart from one footer link across to it</li>
+  <li>First pass was "inspired by" the reference site's restraint. Sanjay asked for closer fidelity, so the actual compiled CSS/HTML of cyze.dev got pulled and inspected directly — its real OKLCH color-token system, named motion durations/easings, LQIP blur-up image loading, and squircle-cornered cards all got reverse-engineered and rebuilt properly rather than approximated</li>
+  <li>Structure settled at Hero &rarr; Feed &rarr; Footer, matching the reference exactly — no separate About section, no contact form on first pass (that changed later today, see below)</li>
+</ul>
+
+<h2>Design system pass — bento grid, black &amp; white, real hierarchy</h2>
+<ul>
+  <li>The work feed went through two layout systems in one day: a flex-based masonry column-balancer first, then swapped for a proper bento grid once Sanjay asked for it — reused the exact row-span-by-real-aspect-ratio technique already proven on the Fine Arts gallery, just capped at 2 columns instead of 4</li>
+  <li>Palette reworked from a warm-neutral OKLCH scheme to true black-and-white, with the sitewide tiger-orange accent refined per theme (deepened for light mode, lightened for dark) so it stays sparing rather than becoming a wash</li>
+  <li>Hero type now runs a strict &times;1.6 modular scale across three tiers — identity (name) &rarr; context (role) &rarr; supporting text — instead of three sizes picked by eye</li>
+  <li>Typography got its own live decision tool: a temporary 3-way toggle right in the hero (Bricolage Grotesque / Montserrat Black / a free stand-in for a paid font Sanjay didn't own yet) so he could compare in context instead of from a description. Montserrat Black won; the toggle came back out once it was picked</li>
+</ul>
+<div class="snippet-box">
+  <span class="snippet-label">Bento grid — row-span packed by real aspect ratio, 2 columns</span>
+  <div class="bento-demo">
+    <span style="grid-row: span 14;"></span>
+    <span style="grid-row: span 9;"></span>
+    <span style="grid-row: span 8;"></span>
+    <span style="grid-row: span 12;"></span>
+    <span style="grid-row: span 10;"></span>
+    <span style="grid-row: span 7;"></span>
+  </div>
+</div>
+
+<h2>MANTHIRA — went undisclosed, sitewide</h2>
+<ul>
+  <li>Sanjay flagged that the MANTHIRA case study's storyboard/previz imagery hadn't cleared disclosure with the film's team yet — the page needed to become text-only, process and experience only</li>
+  <li>Tracing where that same title-card image and intro video actually appeared turned up four more spots: twice in v1's homepage carousel, once in v2's feed, and once as the entire premise of a separate "MANTHIRA — Title Animation" page. All four came down for consistency — the Title Animation page unlinked (not deleted) until disclosure clears, the carousel/feed cards reduced to a plain "Undisclosed — under NDA" tile</li>
+  <li>The case-study page itself kept every word of its process writing intact, just folded the captions the removed images used to carry into the existing prose instead of losing that content</li>
+</ul>
+
+<h2>Hero: portrait, header, interactions</h2>
+<ul>
+  <li>Sanjay's actual portrait went in — cropped properly by finding the real alpha-threshold content bounds first (a naive transparency crop was fooled by faint stray pixels stretching to the canvas edges), then a tighter chest-level recrop with a light bottom dissolve so it doesn't cut off hard</li>
+  <li>Two versions of the portrait (white outfit / black outfit) now swap automatically with the theme — whichever reads better against that background</li>
+  <li>The floating pill header is v1's own "collapsed" header pattern, reused wholesale — wordmark, theme toggle, and a Contact Now button in one rounded capsule</li>
+  <li>The SANJAY&rarr;SANACE hover animation on the name got rebuilt to actually match v1's real flip mechanism (a 3-glyph vertical track per letter) instead of a simplified version — and the letter-spacing bug that came with it got fixed by measuring each glyph's real rendered width in JS rather than forcing every letter into a shared box</li>
+  <li>One interaction pattern — an icon that reveals from zero width on hover — got generalized into a shared class and applied everywhere: hero links, the header CTA, footer socials. Same for v1's magnetic hover (buttons pull slightly toward the cursor), now on every clickable element in v2</li>
+  <li>Found and fixed a real bug: the theme toggle's sun/moon icons were both rendering at once because a more specific CSS rule was silently beating the one meant to hide the inactive icon</li>
+  <li>Theme switching now ripples out from the click point via the View Transitions API — took two rebuilds to get right, since animating the transition pseudo-element directly has spotty cross-browser support; landed on injecting the keyframe fresh per click with the coordinates baked in as literal values</li>
+</ul>
+<div class="snippet-box">
+  <span class="snippet-label">Only the letters that actually change get the flip treatment</span>
+  <div class="flip-demo">
+    <span class="static">San</span><span class="rolling">jay</span>
+  </div>
+</div>
+<div class="snippet-box">
+  <span class="snippet-label">v2 palette — black/white base, one sparing accent</span>
+  <div class="swatch-row">
+    <div class="swatch"><div class="swatch-chip" style="background-color: #0a0a0a;"></div><span class="swatch-label">near-black</span></div>
+    <div class="swatch"><div class="swatch-chip" style="background-color: #fbfbfb; border-color:#ccc;"></div><span class="swatch-label">near-white</span></div>
+    <div class="swatch"><div class="swatch-chip" style="background-color: #e0721f;"></div><span class="swatch-label">accent</span></div>
+  </div>
+</div>
+
+<h2>A working Contact section</h2>
+<ul>
+  <li>Re-added a real Contact section to v2 (the reference site doesn't need one; a freelance practice does) — restyled to the new system: underlined inputs, no boxes</li>
+  <li>Built as a progressive reveal rather than one long form — it asks what's on your mind first, then your name once you've started answering, then how to reach you once you've named yourself, matching the exact order Sanjay asked for</li>
+  <li>Phone placeholder switched to an Indian format (<code>+91 XXXXX XXXXX</code>), written as an obvious template rather than anything that could read as a real number</li>
+</ul>
+<div class="snippet-box">
+  <span class="snippet-label">v2 homepage structure</span>
+  <div class="toc-row">
+    <span class="toc-chip">hero</span>
+    <span class="toc-chip">works</span>
+    <span class="toc-chip">let's talk</span>
+    <span class="toc-chip">footer</span>
+  </div>
+</div>
+
+<h2>Open items for next session</h2>
+<ul class="open-items">
+  <li>Both contact forms (v1 and this new v2 one) still need a real Web3Forms access key before either can actually deliver a submission</li>
+  <li>The hero's third bio line is still a placeholder ("When I'm not on a project...") standing in for Sanjay's own personality line</li>
+  <li>MANTHIRA's Title Animation page is unlinked but not resolved — needs Sanjay's go-ahead with the film's team before it (or the MANTHIRA case study's imagery) can go back up anywhere</li>
+  <li>v2 hasn't been checked on a real phone yet, only at simulated widths — worth an actual device pass</li>
+  <li>Long-standing: "Vincent Van Goah" filename spelling in Fine Arts, Studio Log's placeholder password <code>changeme</code></li>
+</ul>
+
+<footer>
+  Sanace Website — internal dev log, not part of the public site.
+</footer>
+
+</body>
+</html>

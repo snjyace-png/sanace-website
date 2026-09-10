@@ -84,6 +84,7 @@ main > section {
 .hero { z-index: 10; }
 .showreel { z-index: 12; }
 .marquee { z-index: 15; }
+.credentials { z-index: 18; }
 .services { z-index: 20; }
 .work { z-index: 30; }
 .stripe { z-index: 35; }
@@ -592,6 +593,13 @@ section::after {
   color: var(--text-muted);
 }
 
+.hero-value {
+  text-align: center;
+  font-size: clamp(0.9rem, 1.6vw, 1.05rem);
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
 .info-strip {
   display: flex;
   flex-wrap: wrap;
@@ -701,6 +709,54 @@ section::after {
 @media (max-width: 40rem) {
   .pillars {
     grid-template-columns: 1fr;
+  }
+}
+
+.about-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+/* Credentials strip -- lightweight trust/social-proof section, sits between
+   the showreel and services per the Flux Academy portfolio handbook's
+   Hero -> Trust -> Why-work-with-you ordering. */
+
+.credentials-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(2rem, 5vw, 3rem);
+}
+
+.credential-item {
+  text-align: center;
+}
+
+.credential-label {
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tiger-text);
+  margin-bottom: 0.6rem;
+}
+
+.credential-value {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1rem, 2vw, 1.15rem);
+  margin-bottom: 0.35rem;
+}
+
+.credential-detail {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+@media (max-width: 48rem) {
+  .credentials-row {
+    grid-template-columns: 1fr;
+    gap: 2rem;
   }
 }
 
@@ -2169,8 +2225,10 @@ section::after {
 }
 
 /* Studio Log (studio-log.html) -- private, unlisted internal tool, not part
-   of the public site. Password gate + a localStorage-backed project
-   directory, both plain and utilitarian rather than matching the portfolio's
+   of the public site. A server-verified password gate (api/studio-log.js)
+   guards a project directory synced to a private GitHub repo; localStorage
+   is only an instant-render cache, not the source of truth. Styling here is
+   plain and utilitarian rather than matching the portfolio's
    scroll-stack/animation treatment. */
 
 .log-gate {
@@ -2231,55 +2289,69 @@ section::after {
   align-items: baseline;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 0.5rem 1rem;
   margin-bottom: clamp(2rem, 5vw, 3rem);
 }
 
-.log-form {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
-  gap: 1rem;
-  padding: clamp(1.25rem, 3vw, 2rem);
+.log-app-header .section-note {
+  width: 100%;
+  margin-bottom: 0;
+}
+
+.log-sync-status {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.log-sync-status.is-saving { color: var(--text-muted); }
+.log-sync-status.is-synced { color: var(--text-muted); }
+.log-sync-status.is-error { color: var(--tiger-text); }
+
+/* Quick-capture compose bar -- one growing textarea + a submit button,
+   replacing the old five-field form so adding a note is a single motion
+   instead of tabbing through structured fields. */
+.log-quick-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  padding: clamp(1rem, 2.5vw, 1.5rem);
   border: 1px solid var(--border);
   border-radius: 1rem;
   background-color: var(--surface);
   margin-bottom: clamp(2.5rem, 6vw, 4rem);
 }
 
-.log-form label {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
-.log-form input,
-.log-form select,
-.log-form textarea {
+.log-quick-bar textarea {
+  flex: 1;
+  resize: none;
+  overflow: hidden;
   font-family: var(--font-body);
   font-size: 0.95rem;
-  padding: 0.65rem 0.75rem;
-  border-radius: 0.5rem;
+  line-height: 1.5;
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.6rem;
   border: 1px solid var(--border);
   background-color: var(--bg);
   color: var(--text);
+  max-height: 12rem;
 }
 
-.log-form textarea {
-  resize: vertical;
-  min-height: 4rem;
+.log-quick-bar textarea:focus {
+  outline: 2px solid var(--tiger);
+  outline-offset: 1px;
 }
 
-.log-form-full {
-  grid-column: 1 / -1;
-}
-
-.log-form button {
+.log-quick-bar button {
+  flex-shrink: 0;
   border: none;
   cursor: pointer;
-  justify-self: start;
+}
+
+@media (max-width: 30rem) {
+  .log-quick-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 .log-columns {
@@ -2321,23 +2393,39 @@ section::after {
   background-color: var(--surface);
 }
 
-.log-entry-title {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 1rem;
-  margin-bottom: 0.25rem;
+.log-entry-text {
+  font-size: 0.92rem;
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+  white-space: pre-wrap;
+  cursor: text;
+  border-radius: 0.4rem;
+  transition: background-color 0.15s ease;
+}
+
+.log-entry-text:hover {
+  background-color: color-mix(in srgb, var(--tiger) 8%, transparent);
+}
+
+.log-entry-text-input {
+  display: block;
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  padding: 0.4rem 0.5rem;
+  margin-bottom: 0.5rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--border);
+  background-color: var(--bg);
+  color: var(--text);
+  resize: vertical;
 }
 
 .log-entry-meta {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
   margin-bottom: 0.5rem;
-}
-
-.log-entry-notes {
-  font-size: 0.88rem;
-  line-height: 1.5;
-  margin-bottom: 0.75rem;
 }
 
 .log-entry-controls {

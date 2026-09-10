@@ -34,9 +34,10 @@
 
   <main>
     <section>
-      <!-- Password gate: a simple client-side check, not real security --
-           anyone who reads this page's source can find the password. Good
-           enough to keep this off casual view, not for sensitive data. -->
+      <!-- Password gate: the password is verified server-side by
+           api/studio-log.js against STUDIO_LOG_API_SECRET (a Vercel env
+           var) -- no data loads or saves without it. Nothing secret ships
+           in this page's source. -->
       <div class="log-gate" id="logGate">
         <div class="log-gate-box">
           <p class="eyebrow">Studio Log</p>
@@ -55,37 +56,13 @@
             <p class="eyebrow">Sanace &middot; Internal</p>
             <h1 class="section-heading">Studio Log</h1>
           </div>
-          <p class="section-note">Every project, one directory — completed, ongoing, and new leads.</p>
+          <p class="section-note">Quick notes on leads and projects — jot it down, sort it later.</p>
+          <p class="log-sync-status" id="logSyncStatus"></p>
         </div>
 
-        <form class="log-form" id="logForm">
-          <label>Project name
-            <input type="text" id="logFieldName" required>
-          </label>
-          <label>Client
-            <input type="text" id="logFieldClient">
-          </label>
-          <label>Category
-            <select id="logFieldCategory">
-              <option value="storyboard">Storyboarding &amp; Concept Art</option>
-              <option value="3d">3D Visualization</option>
-              <option value="production">Production Design &amp; Art Department</option>
-            </select>
-          </label>
-          <label>Status
-            <select id="logFieldStatus">
-              <option value="lead">New Lead</option>
-              <option value="ongoing">Ongoing</option>
-              <option value="completed">Completed</option>
-            </select>
-          </label>
-          <label>Date
-            <input type="text" id="logFieldDate" placeholder="e.g. Aug 2026">
-          </label>
-          <label class="log-form-full">Notes
-            <textarea id="logFieldNotes" placeholder="Scope, contact info, rate, links..."></textarea>
-          </label>
-          <button type="submit" class="pill-btn log-form-full">Add Project</button>
+        <form class="log-quick-bar" id="logForm">
+          <textarea id="logQuickInput" rows="1" placeholder="Jot a lead or update… (Enter to add, Shift+Enter for a new line)" required></textarea>
+          <button type="submit" class="pill-btn">Add</button>
         </form>
 
         <div class="log-columns">

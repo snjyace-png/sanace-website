@@ -1,0 +1,1445 @@
+/* ==========================================================================
+   Design tokens — black-and-white base with one sparing accent color,
+   tuned per theme so it holds contrast against pure black/white rather
+   than reusing the sitewide brand orange verbatim.
+   ========================================================================== */
+
+/* Theme-switch: a soft cross-fade between the old and new theme snapshots,
+   instead of the instant hard cut a plain data-theme swap would give.
+   Slower and eased vs. the browser's ~0.25s linear default, both pseudo
+   elements share the timing so old fades out exactly as new fades in. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.45s;
+  animation-timing-function: ease;
+}
+
+:root {
+  --c-bg: oklch(99% 0 0);
+  --c-text: oklch(12% 0 0);
+  --c-muted: oklch(45% 0 0);
+  --c-border: oklch(12% 0 0 / 0.12);
+  --c-accent: oklch(58% 0.19 45);
+
+  --c-dark-bg: oklch(10% 0 0);
+  --c-dark-text: oklch(97% 0 0);
+  --c-dark-muted: oklch(65% 0 0);
+  --c-dark-border: oklch(97% 0 0 / 0.16);
+  --c-dark-accent: oklch(70% 0.17 45);
+
+  --font-display: "Montserrat", sans-serif;
+  --font-sans: "Inter", sans-serif;
+
+  --dur-fast: 0.2s;
+  --dur-base: 0.4s;
+  --dur-slow: 0.5s;
+  --ease-out-sharp: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out-back: cubic-bezier(0.2, 0, 0, 1.4);
+}
+
+:root[data-theme="dark"] {
+  --c-bg: var(--c-dark-bg);
+  --c-text: var(--c-dark-text);
+  --c-muted: var(--c-dark-muted);
+  --c-border: var(--c-dark-border);
+  --c-accent: var(--c-dark-accent);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --c-bg: var(--c-dark-bg);
+    --c-text: var(--c-dark-text);
+    --c-muted: var(--c-dark-muted);
+    --c-border: var(--c-dark-border);
+    --c-accent: var(--c-dark-accent);
+  }
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { color-scheme: light dark; }
+
+body {
+  background-color: var(--c-bg);
+  /* Same "cutting-mat" grid used behind v1's Work section (css/style.css
+     .work .section-grid) -- major+minor line grid, applied sitewide here
+     as the page's own background instead of per-section. */
+  background-image:
+    linear-gradient(to right, color-mix(in oklch, var(--c-text) 5.5%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklch, var(--c-text) 5.5%, transparent) 1px, transparent 1px),
+    linear-gradient(to right, color-mix(in oklch, var(--c-text) 3%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklch, var(--c-text) 3%, transparent) 1px, transparent 1px);
+  background-size: 260px 260px, 260px 260px, 52px 52px, 52px 52px;
+  background-attachment: fixed;
+  color: var(--c-text);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  font-size: 16px;
+  transition: background-color var(--dur-base) ease, color var(--dur-base) ease;
+}
+
+a { color: inherit; text-decoration: none; }
+
+main {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 0;
+}
+
+@media (min-width: 1024px) {
+  main { padding: 2.5rem 6.25rem 0; }
+}
+
+.stack { display: flex; flex-direction: column; gap: 5rem; }
+@media (min-width: 640px) { .stack { gap: 8rem; } }
+
+/* ---------- Header ---------- */
+
+/* Pill header — same "collapsed" floating capsule used on v1's inner
+   project pages (site-header.is-collapsed .header-right in css/style.css),
+   minus the local-time/dot-grid decoration since those stay hidden in
+   that collapsed state anyway. */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: flex-end;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 1.5rem 1.5rem 0;
+}
+
+@media (min-width: 1024px) {
+  .site-header { padding: 2rem 6.25rem 0; }
+}
+
+.header-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  background-color: var(--c-bg);
+  border: 1px solid var(--c-border);
+  box-shadow: 0 8px 24px -14px color-mix(in oklch, var(--c-text) 22%, transparent);
+  padding: 0.4rem 0.4rem 0.4rem 0.85rem;
+  max-width: calc(100vw - 2rem);
+}
+
+@media (min-width: 480px) {
+  .header-pill {
+    gap: 0.75rem;
+    padding: 0.5rem 0.5rem 0.5rem 1rem;
+  }
+}
+
+.header-wordmark {
+  display: inline-block;
+  flex-shrink: 0;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1rem;
+  color: var(--c-text);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@media (min-width: 480px) {
+  .header-wordmark { font-size: 1.2rem; }
+}
+
+.header-contact-btn,
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  padding: 0.5rem 0.75rem;
+  border-radius: 999px;
+  background-color: var(--c-text);
+  color: var(--c-bg);
+  font-size: 0.74rem;
+  font-weight: 600;
+  border: 0;
+  cursor: pointer;
+  transition: background-color var(--dur-fast) ease, color var(--dur-fast) ease,
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@media (min-width: 480px) {
+  .header-contact-btn,
+  .btn-primary {
+    padding: 0.6rem 1.1rem;
+    font-size: 0.82rem;
+  }
+}
+
+.header-contact-btn:hover,
+.btn-primary:hover {
+  background-color: var(--c-accent);
+}
+
+.btn-primary {
+  font-size: 0.9rem;
+  padding: 0.85rem 1.5rem;
+}
+
+/* ---------- Motion primitives ---------- */
+
+[data-entrance] {
+  opacity: 0;
+  transform: translateY(8px);
+  animation: entrance-rise var(--dur-slow) var(--ease-out-sharp) forwards;
+  animation-delay: var(--entrance-delay, 0ms);
+}
+
+@keyframes entrance-rise {
+  to { opacity: 1; transform: none; }
+}
+
+:root.no-motion [data-entrance] {
+  opacity: 1;
+  transform: none;
+  animation: none;
+}
+
+/* ==========================================================================
+   Hero (sky band) — grayscale panel, portrait + bio side by side
+   ========================================================================== */
+
+.sky-band {
+  position: relative;
+  z-index: 0;
+  padding-top: 2.5rem;
+  padding-bottom: 3rem;
+}
+
+.sky-band__content {
+  --c-text-inner: var(--c-text);
+  --c-accent-inner: var(--c-accent);
+  color: var(--c-text-inner);
+  max-width: 64rem;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+}
+
+@media (min-width: 720px) {
+  .sky-band__content {
+    grid-template-columns: 1.1fr 0.9fr;
+    align-items: center;
+    gap: 3rem;
+  }
+}
+
+.hero-text { max-width: 28rem; }
+
+.hero-portrait {
+  display: flex;
+  justify-content: center;
+}
+
+.hero-portrait img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: clamp(13rem, 55vw, 26rem);
+  object-fit: contain;
+  object-position: bottom;
+}
+
+/* Two portraits -- white outfit for the light theme, black outfit for
+   the dark theme. */
+.hero-portrait img.portrait-light { display: none; }
+
+:root[data-theme="dark"] .hero-portrait img.portrait-dark { display: none; }
+:root[data-theme="dark"] .hero-portrait img.portrait-light { display: block; }
+
+.hero-top {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+/* Type scale: three tiers, each x1.6 the one below, mapped to information
+   hierarchy — identity (name) > context (role) > supporting text (base). */
+.hero-name {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(1.85rem, 1.1rem + 4vw, 2.56rem);
+  line-height: 1.1;
+  color: var(--c-accent-inner);
+  cursor: default;
+}
+
+/* Sanjay -> Sanace hover roll — restyled from v1's homepage wordmark flip
+   (css/style.css .flip-word: a 3-glyph vertical track per letter, the
+   "new" glyph gradient-filled), but hover-triggered/looping here instead
+   of an autoplay-once-then-loop-forever page-load reveal. Every letter
+   gets the same track (matching v1's uniform per-letter treatment) even
+   where the letter doesn't visually change (S-a-n), so the whole word
+   settles together as one gesture. */
+.flip-word {
+  display: inline-flex;
+}
+
+.flip-letter {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  height: 1.3em;
+  vertical-align: top;
+  /* Width is set per-letter by js/script.js (measureFlipLetters) to the
+     actual rendered width of its "old" glyph, then animated to its "new"
+     glyph's width on hover -- letters take exactly the space each glyph
+     needs rather than being padded out to a shared box, so the total
+     word width is allowed to shift slightly during the roll. */
+  width: var(--w-old, 1em);
+}
+
+.flip-track {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Triggered by js/script.js (mouseenter/mouseleave on .hero-name), not a
+   plain :hover -- so a letter mid-roll can be told to finish its current
+   loop and settle back on "Sanjay" instead of snapping out instantly. */
+.flip-letter.is-flipping .flip-track {
+  animation: name-flip-loop 1.6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  animation-delay: calc(var(--i, 0) * 0.045s);
+}
+
+.flip-letter.is-flipping {
+  animation: name-flip-width 1.6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  animation-delay: calc(var(--i, 0) * 0.045s);
+}
+
+.flip-glyph {
+  height: 1.3em;
+  line-height: 1.3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.03em;
+}
+
+.flip-old {
+  color: var(--c-accent-inner);
+}
+
+.flip-new {
+  color: var(--c-accent-inner);
+}
+
+@keyframes name-flip-loop {
+  0%, 10% { transform: translateY(0%); }
+  33.333%, 66.667% { transform: translateY(-33.3334%); }
+  90%, 100% { transform: translateY(-66.6667%); }
+}
+
+@keyframes name-flip-width {
+  0%, 10% { width: var(--w-old, 1em); }
+  33.333%, 66.667% { width: var(--w-new, 1em); }
+  90%, 100% { width: var(--w-old, 1em); }
+}
+
+:root.no-motion .flip-letter.is-flipping .flip-track,
+:root.no-motion .flip-letter.is-flipping {
+  animation: none;
+}
+
+.hero-role {
+  display: block;
+  font-size: clamp(1.15rem, 0.7rem + 2.5vw, 1.6rem);
+  line-height: 1.25;
+  color: color-mix(in oklch, var(--c-text-inner) 75%, transparent);
+}
+
+.hero-role-sub {
+  display: inline-block;
+  margin-top: 0.2rem;
+  font-size: 0.6em;
+  color: color-mix(in oklch, var(--c-text-inner) 55%, transparent);
+}
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklch, var(--c-text) 35%, transparent);
+  background: none;
+  color: var(--c-text);
+  cursor: pointer;
+  transition: border-color var(--dur-fast) ease, color var(--dur-fast) ease, transform var(--dur-fast) var(--ease-out-sharp);
+}
+
+.theme-toggle:hover {
+  border-color: var(--c-accent);
+  color: var(--c-accent);
+  transform: scale(1.05);
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+}
+
+.theme-toggle svg { display: block; width: 18px; height: 18px; }
+.theme-toggle .icon-moon { display: none; }
+:root[data-theme="dark"] .theme-toggle .icon-sun { display: none; }
+:root[data-theme="dark"] .theme-toggle .icon-moon { display: block; }
+
+.hero-bio p {
+  font-size: 1rem;
+  line-height: 1.625;
+  color: color-mix(in oklch, var(--c-text-inner) 82%, transparent);
+  margin-top: 1rem;
+}
+
+.hero-bio-note {
+  font-style: italic;
+  color: color-mix(in oklch, var(--c-text-inner) 60%, transparent) !important;
+}
+
+.hero-links {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin-top: 2.5rem;
+  font-size: 1rem;
+}
+
+.hero-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  color: var(--c-accent-inner);
+  transition: color var(--dur-fast) ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.hero-link:hover { color: var(--c-text-inner); }
+
+/* Icon-reveal hover: an icon sits collapsed at zero width, then widens in
+   alongside the label on hover. Shared by every button/CTA/link in v2 --
+   hero links, the header's Contact button, footer socials + back-to-top. */
+.reveal-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0;
+  opacity: 0;
+  overflow: hidden;
+  margin-right: 0;
+  flex-shrink: 0;
+  transition: width 0.3s var(--ease-out-back), opacity 0.25s ease, margin-right 0.3s var(--ease-out-back);
+}
+
+.reveal-icon svg { width: 1em; height: 1em; display: block; }
+
+.hero-link:hover .reveal-icon,
+.header-contact-btn:hover .reveal-icon,
+.btn-primary:hover .reveal-icon,
+.social-text-link:hover .reveal-icon {
+  width: 1em;
+  opacity: 1;
+  margin-right: 0.4em;
+}
+
+/* ==========================================================================
+   Feed — bento grid, 2 columns, row-span sized by real aspect ratio
+   (same technique as the Fine Arts gallery in css/style.css)
+   ========================================================================== */
+
+.feed-heading-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.3rem;
+}
+
+.feed-filter {
+  position: relative;
+  display: flex;
+  gap: 1.5rem;
+  padding-bottom: 2px;
+}
+
+.feed-filter-btn {
+  position: relative;
+  display: inline-block;
+  color: var(--c-muted);
+  background: none;
+  border: 0;
+  padding: 0 0 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: color var(--dur-fast) ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.feed-filter-btn:hover,
+.feed-filter-btn.is-active {
+  color: var(--c-text);
+}
+
+.feed-filter-underline {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 1.5px;
+  width: 0;
+  background: var(--c-text);
+  border-radius: 1px;
+  transition: transform 0.35s var(--ease-out-sharp), width 0.35s var(--ease-out-sharp);
+}
+
+#feedGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: 10px;
+  grid-auto-flow: dense;
+  gap: 1rem;
+}
+
+@media (min-width: 1024px) {
+  #feedGrid { gap: 1.5rem; }
+}
+
+.card-wrap[hidden] { display: none; }
+
+.card-wrap {
+  opacity: 0;
+  transform: translateY(60px) scale(1.08);
+  filter: blur(6px);
+}
+
+.card-wrap.is-visible {
+  animation: card-rise 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+
+@keyframes card-rise {
+  to { opacity: 1; transform: none; filter: blur(0); }
+}
+
+:root.no-motion .card-wrap {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+.card-link {
+  position: relative;
+  display: block;
+  height: 100%;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  background-color: var(--c-border);
+  outline: 1px solid var(--c-border);
+  outline-offset: 0;
+  box-shadow: 0 4px 16px -8px color-mix(in oklch, var(--c-text) 18%, transparent);
+  transition: box-shadow 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), outline-width 0.25s var(--ease-out-back), outline-color 0.15s ease;
+}
+
+@supports (corner-shape: squircle) {
+  .card-link { corner-shape: squircle; border-radius: 2rem; }
+}
+
+.card-link:hover {
+  transform: translateY(-4px);
+  outline-width: 3px;
+  outline-color: var(--c-accent);
+  box-shadow: 0 12px 24px -8px color-mix(in oklch, var(--c-text) 20%, transparent);
+}
+
+.card-img-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.card-img-lqip {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(16px) grayscale(0.3);
+  transform: scale(1.1);
+  transition: opacity var(--dur-slow) ease;
+}
+
+.card-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.85) brightness(0.98);
+  opacity: 0;
+  transition: opacity var(--dur-slow) ease, transform 0.25s ease-out, filter 0.3s ease-out;
+}
+
+.card-img.is-loaded { opacity: 1; }
+.card-img.is-loaded + .card-img-lqip,
+.card-img-wrap.loaded .card-img-lqip { opacity: 0; }
+
+.card-link:hover .card-img { transform: scale(1.03); filter: saturate(1) brightness(1.02); }
+
+/* Image-less card (MANTHIRA — undisclosed) */
+.card-img-wrap.is-blank {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--c-border);
+}
+
+.card-img-wrap.is-blank span {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  color: var(--c-muted);
+  text-align: center;
+  padding: 1rem;
+}
+
+.pin-badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 999px;
+  background: var(--c-accent);
+  color: var(--c-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+}
+
+.card-btn-zone {
+  position: absolute;
+  bottom: 0.4rem;
+  left: 0.4rem;
+  right: 0.4rem;
+  z-index: 3;
+  pointer-events: none;
+}
+
+@media (hover: hover) {
+  .card-hover-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1.1rem;
+    border-radius: 1.1rem;
+    background: var(--c-accent);
+    color: var(--c-bg);
+    font-size: 0.9rem;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+    filter: blur(6px);
+    transition: transform var(--dur-base) var(--ease-out-sharp), opacity 0.25s ease, filter 0.35s var(--ease-out-sharp);
+  }
+
+  .card-link:hover .card-hover-btn {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+
+  .btn-arrow {
+    display: inline-flex;
+    width: 1.1em;
+    height: 1.1em;
+  }
+
+  .card-caption { display: none; }
+}
+
+@media (hover: none) {
+  .card-btn-zone { display: none; }
+
+  .card-caption {
+    display: flex;
+    margin-top: 0.6rem;
+    padding: 0 0.25rem;
+    font-size: 0.82rem;
+    color: var(--c-muted);
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .card-caption-tag {
+    opacity: 0.75;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+}
+
+/* ==========================================================================
+   Contact
+   ========================================================================== */
+
+#contact {
+  text-align: center;
+}
+
+.section-lede {
+  color: var(--c-muted);
+  max-width: 32rem;
+  margin: 0.75rem auto 0;
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+  max-width: 32rem;
+  margin: 2rem auto 0;
+  text-align: left;
+}
+
+.contact-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--c-muted);
+}
+
+/* Progressive reveal: each step stays collapsed until the field before it
+   has a value (see js/script.js), so the form fills in one prompt at a time
+   in the order: message -> name -> contact method -> submit. */
+.contact-step {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity 0.4s ease, max-height 0.4s ease;
+}
+
+.contact-step.is-visible {
+  opacity: 1;
+  max-height: 20rem;
+}
+
+#stepSubmit.is-visible {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.85rem;
+}
+
+:root.no-motion .contact-step {
+  transition: none;
+}
+
+.contact-form input[type="text"],
+.contact-form input[type="email"],
+.contact-form input[type="tel"],
+.contact-form select,
+.contact-form textarea {
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  color: var(--c-text);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--c-border);
+  padding: 0.5rem 0;
+  outline: none;
+  transition: border-color var(--dur-fast) ease;
+}
+
+.contact-form input:focus,
+.contact-form select:focus,
+.contact-form textarea:focus {
+  border-color: var(--c-accent);
+}
+
+.contact-form textarea {
+  resize: vertical;
+  min-height: 5rem;
+}
+
+.contact-method {
+  border: none;
+  display: flex;
+  gap: 1.25rem;
+}
+
+.contact-method-option {
+  flex-direction: row !important;
+  align-items: center;
+  font-size: 0.9rem !important;
+  color: var(--c-text) !important;
+  gap: 0.4rem !important;
+}
+
+.contact-form-status {
+  font-size: 0.85rem;
+  color: var(--c-muted);
+}
+
+.contact-email {
+  margin-top: 1.5rem;
+  color: var(--c-muted);
+  font-size: 0.9rem;
+}
+
+.contact-email a {
+  color: var(--c-text);
+  border-bottom: 1px solid var(--c-border);
+}
+
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+
+.site-footer {
+  border-radius: 2rem;
+  background-color: var(--c-text);
+  color: var(--c-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.75rem;
+  padding: clamp(2.5rem, 8vw, 4.5rem) 1.5rem;
+  margin-bottom: 2rem;
+}
+
+@supports (corner-shape: squircle) {
+  .site-footer { corner-shape: squircle; }
+}
+
+.site-footer-mark {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(3rem, 13vw, 8.5rem);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  text-align: center;
+  user-select: none;
+}
+
+.site-footer-socials {
+  list-style: none;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem 2rem;
+  font-size: 0.9rem;
+}
+
+.social-text-link {
+  display: inline-flex;
+  align-items: center;
+  color: var(--c-bg);
+  transition: transform var(--dur-fast) var(--ease-out-sharp), color var(--dur-fast) ease;
+}
+
+.social-text-link:hover {
+  color: var(--c-accent);
+}
+
+@media (hover: hover) {
+  .site-footer-socials li:hover .social-text-link { transform: translateY(-3px); }
+}
+
+.footer-copyright {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--c-muted);
+}
+
+.footer-copyright a {
+  border-bottom: 1px solid var(--c-border);
+}
+
+/* Project-detail pages (work/*.html) put <main> and the footer as sibling
+   body children rather than nesting both inside one shared wrapper the
+   way the homepage does -- contain the footer to the same max-width/
+   padding as <main> so it doesn't run edge-to-edge. */
+body > footer.site-footer,
+body > .footer-copyright {
+  max-width: calc(1440px - 3rem);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+body > footer.site-footer { margin-top: 3rem; }
+
+@media (min-width: 1024px) {
+  body > footer.site-footer,
+  body > .footer-copyright {
+    max-width: calc(1440px - 12.5rem);
+  }
+}
+
+/* ==========================================================================
+   Project detail pages (work/*.html) — same tokens/type-scale/squircle
+   language as the homepage, so a case study reads as the same site rather
+   than a v1 holdover. Class names are kept identical to the ones already
+   written into work/*.html (case-title, case-body, work-thumb, etc.) so
+   only the header/footer/asset-links in each page needed editing, not the
+   body markup.
+   ========================================================================== */
+
+.pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  white-space: nowrap;
+  padding: 0.65rem 1.2rem;
+  border-radius: 999px;
+  background-color: var(--c-text);
+  color: var(--c-bg);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 0;
+  cursor: pointer;
+  transition: background-color var(--dur-fast) ease, color var(--dur-fast) ease,
+    border-color var(--dur-fast) ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.pill-btn:hover { background-color: var(--c-accent); }
+
+.pill-btn-outline {
+  background: none;
+  color: var(--c-muted);
+  border: 1px solid var(--c-border);
+}
+
+.pill-btn-outline:hover {
+  background: none;
+  color: var(--c-accent);
+  border-color: var(--c-accent);
+}
+
+.project-detail {
+  max-width: 42rem;
+  margin: 0 auto;
+}
+
+.section-marker {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  font-size: 0.8rem;
+  color: var(--c-muted);
+  margin-bottom: clamp(1rem, 2.5vw, 1.5rem);
+}
+
+.marker-num {
+  font-family: var(--font-display);
+  font-weight: 900;
+  color: var(--c-accent);
+}
+
+.marker-meta { margin-left: auto; }
+
+.section-marker a {
+  color: var(--c-muted);
+  transition: color var(--dur-fast) ease;
+}
+
+.section-marker a:hover { color: var(--c-accent); }
+
+.section-heading,
+.case-title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(2.1rem, 1.3rem + 5vw, 3.6rem);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.75rem;
+}
+
+.section-lead,
+.case-lead {
+  font-size: clamp(1.05rem, 1.4vw, 1.2rem);
+  color: var(--c-muted);
+  max-width: 40rem;
+}
+
+.section-note {
+  color: var(--c-muted);
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+}
+
+.case-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: 0.82rem;
+  color: var(--c-muted);
+  border-top: 1px solid var(--c-border);
+  border-bottom: 1px solid var(--c-border);
+  padding: 1rem 0;
+  margin: 1.5rem 0 clamp(2rem, 5vw, 3rem);
+}
+
+.case-meta span:not(:last-child)::after {
+  content: "\00b7";
+  margin: 0 0.75rem;
+  color: var(--c-border);
+}
+
+.case-heading {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(1.25rem, 2.5vw, 1.6rem);
+  margin-top: clamp(2rem, 5vw, 3rem);
+  margin-bottom: 0.85rem;
+}
+
+.case-body,
+.project-body {
+  max-width: 42rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: color-mix(in oklch, var(--c-text) 82%, transparent);
+  margin-bottom: 1.4rem;
+}
+
+.script-excerpt {
+  max-width: 42rem;
+  margin: 0 0 clamp(1.5rem, 4vw, 2.5rem);
+  padding: 1.25rem 1.5rem;
+  border-left: 3px solid var(--c-accent);
+  background-color: color-mix(in oklch, var(--c-text) 4%, transparent);
+  border-radius: 0 1rem 1rem 0;
+  font-family: monospace;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--c-muted);
+  white-space: pre-wrap;
+}
+
+/* Visual frames (case images, embedded video, the process-row grid) break
+   out of the narrow 42rem reading column and scale with the viewport --
+   filling ~85% of screen width, up to a sensible cap so they don't blow
+   out on ultrawide displays -- rather than being capped to the text
+   column's width like the prose around them. */
+.case-image,
+.project-media,
+.case-process-row {
+  width: min(85vw, 84rem);
+  max-width: min(85vw, 84rem);
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  margin-left: 50%;
+  transform: translateX(-50%);
+}
+
+.case-image,
+.project-media {
+  border-radius: 1.5rem;
+  overflow: hidden;
+  background-color: var(--c-border);
+}
+
+@supports (corner-shape: squircle) {
+  .case-image,
+  .project-media { corner-shape: squircle; border-radius: 2rem; }
+}
+
+.project-media { aspect-ratio: 16 / 9; }
+
+.case-image img,
+.case-image video,
+.project-media img,
+.project-media video {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.project-media img,
+.project-media video { height: 100%; object-fit: cover; }
+
+.case-image figcaption {
+  font-size: 0.8rem;
+  color: var(--c-muted);
+  text-align: center;
+  padding: 0.6rem 0.2rem 0;
+}
+
+.case-process-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.1rem;
+}
+
+.case-process-row .case-image {
+  margin: 0;
+  width: auto;
+  max-width: none;
+  transform: none;
+}
+
+.case-process-row.is-pair { grid-template-columns: repeat(2, 1fr); }
+
+@media (max-width: 40rem) {
+  .case-process-row { grid-template-columns: 1fr; }
+}
+
+.case-pipeline {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0;
+  margin: 0 auto clamp(2rem, 5vw, 3rem);
+}
+
+.case-pipeline li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 1.1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.case-pipeline li:not(:first-child)::before {
+  content: "";
+  width: 1.25rem;
+  height: 1px;
+  background-color: var(--c-border);
+  margin-right: 0.5rem;
+}
+
+.case-pipeline-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  border: 1px solid var(--c-border);
+  font-size: 0.72rem;
+  flex-shrink: 0;
+}
+
+.case-points {
+  list-style: none;
+  display: block;
+  width: fit-content;
+  max-width: 34rem;
+  margin: 0 auto 1.5rem;
+  text-align: left;
+}
+
+.case-points li {
+  position: relative;
+  padding-left: 1.4rem;
+  margin-bottom: 0.6rem;
+  color: color-mix(in oklch, var(--c-text) 82%, transparent);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.case-points li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--c-accent);
+}
+
+.case-quote {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(1.15rem, 2vw, 1.4rem);
+  line-height: 1.35;
+  color: var(--c-text);
+  padding-left: 1.2rem;
+  border-left: 3px solid var(--c-accent);
+  margin: 1rem 0 clamp(2rem, 5vw, 3rem);
+}
+
+.case-related-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  max-width: 56rem;
+  margin: 0 auto clamp(1.5rem, 4vw, 2.5rem);
+}
+
+@media (max-width: 56rem) { .case-related-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 30rem) { .case-related-grid { grid-template-columns: 1fr; } }
+
+.case-related-item {
+  display: block;
+  position: relative;
+}
+
+.case-related-item .work-thumb {
+  aspect-ratio: 16 / 9;
+  border-radius: 1.5rem;
+  background-color: var(--c-border);
+  background-size: cover;
+  background-position: center;
+  outline: 1px solid var(--c-border);
+  margin-bottom: 0.6rem;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), outline-color 0.15s ease;
+}
+
+@supports (corner-shape: squircle) {
+  .case-related-item .work-thumb { corner-shape: squircle; border-radius: 2rem; }
+}
+
+.case-related-item:hover .work-thumb {
+  transform: translateY(-4px);
+  outline-color: var(--c-accent);
+}
+
+.work-category {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--c-muted);
+  margin-bottom: 0.2rem;
+}
+
+.work-title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1rem;
+}
+
+.work-title a { color: var(--c-text); }
+
+/* Storyboard link card (work/09.html) -- a stack of cards peeking out from
+   behind the thumbnail, fanning further out on hover. */
+.storyboard-stack { position: relative; }
+
+.storyboard-stack::before,
+.storyboard-stack::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 1.5rem;
+  background-color: var(--c-border);
+  border: 1px solid var(--c-border);
+  transition: transform 0.35s ease;
+}
+
+.storyboard-stack::before { z-index: -1; transform: rotate(-4deg) translate(-4px, 4px); }
+.storyboard-stack::after { z-index: -2; transform: rotate(5deg) translate(6px, 6px); }
+.storyboard-stack:hover::before { transform: rotate(-8deg) translate(-10px, 8px); }
+.storyboard-stack:hover::after { transform: rotate(10deg) translate(14px, 10px); }
+
+.case-cta { margin-top: clamp(1.5rem, 4vw, 2.5rem); }
+.case-access-btn { margin-bottom: 1rem; }
+
+/* Replay control, overlaid on the intro video itself. */
+.case-video-frame { position: relative; }
+
+.case-replay-overlay {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 5;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  background-color: rgba(0, 0, 0, 0.55);
+  border: 1px solid var(--c-dark-text);
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.case-replay-overlay:hover {
+  background-color: var(--c-accent);
+  border-color: var(--c-accent);
+}
+
+/* Storyboard grid + lightbox (5 Degrees, Madan and Family, work/09.html) --
+   the lightbox stays dark-backdrop regardless of site theme, since the
+   point is showing the artwork itself. */
+.storyboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+@media (min-width: 640px) { .storyboard-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1000px) { .storyboard-grid { grid-template-columns: repeat(4, 1fr); } }
+
+.storyboard-item {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 0.9rem;
+  overflow: hidden;
+  background-color: var(--c-border);
+  border: 1px solid var(--c-border);
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.storyboard-item:hover { transform: translateY(-3px); }
+
+.storyboard-grid.is-a4-landscape .storyboard-item { aspect-ratio: 842 / 595; }
+
+.storyboard-item img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.92);
+}
+
+.lightbox[hidden] { display: none; }
+
+.lightbox-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lightbox-image,
+.lightbox-video {
+  display: block;
+  max-width: 90vw;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: 0.75rem;
+}
+
+.lightbox-details {
+  position: fixed;
+  top: 50%;
+  right: 4rem;
+  transform: translateY(-50%);
+  width: 16rem;
+  text-align: left;
+}
+
+.lightbox--stacked { flex-direction: column; gap: 1.25rem; }
+.lightbox--stacked .lightbox-video { max-height: 70vh; }
+
+.lightbox--stacked .lightbox-details {
+  position: static;
+  width: auto;
+  max-width: 90vw;
+  transform: none;
+  text-align: center;
+}
+
+.lightbox-title {
+  color: #fff;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.2rem;
+}
+
+.lightbox-medium {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  margin-top: 0.4rem;
+}
+
+@media (max-width: 800px) {
+  .lightbox-image { max-height: 65vh; }
+  .lightbox-details {
+    top: auto;
+    bottom: 1.25rem;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: 90vw;
+    text-align: center;
+  }
+}
+
+.lightbox-close,
+.lightbox-nav {
+  position: fixed;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.lightbox-close:hover,
+.lightbox-nav:hover { background-color: #fff; color: #050505; }
+
+.lightbox-close {
+  top: 1.5rem;
+  right: 1.5rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  font-size: 1.4rem;
+}
+
+.lightbox-nav {
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3rem;
+  height: 3rem;
+  font-size: 1.6rem;
+}
+
+.lightbox-prev { left: 1.5rem; }
+.lightbox-next { right: 1.5rem; }
+
+@media (max-width: 640px) {
+  .lightbox-nav { width: 2.5rem; height: 2.5rem; font-size: 1.3rem; }
+  .lightbox-prev { left: 0.5rem; }
+  .lightbox-next { right: 0.5rem; }
+  .lightbox-close { top: 0.75rem; right: 0.75rem; }
+}
+
+/* .reveal -- v1's scroll-stagger class, kept in work/*.html markup as-is.
+   v2 has no per-element JS stagger for case-study prose; this gives it a
+   single subtle fade-up on load instead of leaving it unanimated. */
+.reveal {
+  animation: entrance-rise var(--dur-slow) var(--ease-out-sharp) both;
+}
+
+:root.no-motion .reveal { animation: none; }
