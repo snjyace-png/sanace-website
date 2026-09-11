@@ -1681,3 +1681,411 @@ body > footer.site-footer { margin-top: 3rem; }
   font-size: 0.88rem;
   color: var(--c-muted);
 }
+
+/* ==========================================================================
+   Studio OS (studio-os.html) -- private lead/project/timeline tracker, same
+   trust boundary and visual language as Studio Log above (shared password,
+   same synced-JSON-over-GitHub pattern via api/studio-os.js). Reuses
+   .log-gate*, .log-app-header, .log-sync-status, .log-quick-bar, .pill-btn*
+   from the Studio Log block; only genuinely new shapes are defined here.
+   ========================================================================== */
+
+.studio-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: clamp(2rem, 5vw, 3rem);
+}
+
+.studio-nav button {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid var(--c-border);
+  background: transparent;
+  color: var(--c-muted);
+  cursor: pointer;
+  transition: color var(--dur-fast) ease, border-color var(--dur-fast) ease;
+}
+
+.studio-nav button:hover { color: var(--c-text); }
+
+.studio-nav button.is-active {
+  color: var(--c-text);
+  border-color: var(--c-accent);
+  background-color: color-mix(in oklch, var(--c-accent) 10%, transparent);
+}
+
+.studio-view[hidden] { display: none; }
+
+.studio-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.lead-card,
+.project-card,
+.contact-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 1.25rem;
+  background-color: color-mix(in oklch, var(--c-text) 3%, transparent);
+  outline: 1px solid var(--c-border);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-sans);
+  color: var(--c-text);
+  transition: background-color 0.15s ease;
+}
+
+@supports (corner-shape: squircle) {
+  .lead-card, .project-card, .contact-card { corner-shape: squircle; border-radius: 1.5rem; }
+}
+
+.lead-card:hover,
+.project-card:hover,
+.contact-card:hover {
+  background-color: color-mix(in oklch, var(--c-accent) 8%, transparent);
+}
+
+.lead-card-main,
+.project-card-main,
+.contact-card-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.lead-card-name,
+.project-card-name,
+.contact-card-name {
+  font-weight: 700;
+  font-size: 0.98rem;
+}
+
+.lead-card-meta,
+.project-card-meta,
+.contact-card-meta {
+  font-size: 0.82rem;
+  color: var(--c-muted);
+}
+
+.status-pill {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  color: var(--c-muted);
+  border: 1px solid var(--c-border);
+}
+
+.status-pill.is-active,
+.status-pill.is-confirmed,
+.status-pill.is-converted {
+  color: var(--c-accent);
+  border-color: color-mix(in oklch, var(--c-accent) 45%, transparent);
+}
+
+.status-pill.is-completed {
+  color: var(--c-text);
+  border-color: var(--c-border);
+  background-color: color-mix(in oklch, var(--c-text) 6%, transparent);
+}
+
+.project-card-progress {
+  flex-shrink: 0;
+  width: 6rem;
+  height: 0.4rem;
+  border-radius: 999px;
+  background-color: var(--c-border);
+  overflow: hidden;
+}
+
+.project-card-progress-fill {
+  height: 100%;
+  background-color: var(--c-accent);
+  border-radius: inherit;
+}
+
+/* Detail panel -- inline expanded Lead/Project view, replaces the list. */
+.detail-panel {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.detail-back {
+  align-self: flex-start;
+  font-size: 0.85rem;
+  color: var(--c-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.detail-back:hover { color: var(--c-accent); }
+
+.detail-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 1rem 1.5rem;
+}
+
+.detail-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.detail-field label {
+  font-size: 0.75rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--c-muted);
+}
+
+.detail-field input,
+.detail-field select,
+.detail-field textarea {
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 0.6rem;
+  border: 1px solid var(--c-border);
+  background-color: var(--c-bg);
+  color: var(--c-text);
+}
+
+.detail-field input:focus,
+.detail-field select:focus,
+.detail-field textarea:focus {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 1px;
+}
+
+.detail-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.detail-section h3 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1rem;
+}
+
+.detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* Timeline */
+.timeline-scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: var(--c-muted);
+  margin-bottom: 0.75rem;
+}
+
+.timeline-row {
+  display: grid;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.timeline-row-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.timeline-track {
+  position: relative;
+  height: 1.6rem;
+  border-radius: 999px;
+  background-color: color-mix(in oklch, var(--c-text) 4%, transparent);
+  outline: 1px solid var(--c-border);
+}
+
+.timeline-bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 999px;
+  background-color: var(--c-accent);
+  opacity: 0.85;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.timeline-bar:hover { opacity: 1; }
+
+.timeline-bar.is-completed {
+  background-color: var(--c-muted);
+}
+
+/* Phase checklist -- drives a Project's progress bar */
+.phase-progress-bar {
+  height: 0.5rem;
+  border-radius: 999px;
+  background-color: var(--c-border);
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.phase-progress-fill {
+  height: 100%;
+  background-color: var(--c-accent);
+  border-radius: inherit;
+  transition: width 0.2s ease;
+}
+
+.phase-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.phase-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--c-border);
+}
+
+.phase-item input[type="checkbox"] {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--c-accent);
+  flex-shrink: 0;
+}
+
+.phase-item-name {
+  flex: 1;
+  font-size: 0.9rem;
+}
+
+.phase-item.is-done .phase-item-name {
+  color: var(--c-muted);
+  text-decoration: line-through;
+}
+
+.phase-item-remove {
+  font-size: 0.78rem;
+  color: var(--c-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.phase-item-remove:hover { color: var(--c-accent); }
+
+.phase-add {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.phase-add input {
+  flex: 1;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 0.6rem;
+  border: 1px solid var(--c-border);
+  background-color: var(--c-bg);
+  color: var(--c-text);
+}
+
+/* Project Log feed inside Project Detail */
+.log-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.log-feed-item {
+  padding: 0.85rem 1rem;
+  border-radius: 1rem;
+  background-color: color-mix(in oklch, var(--c-text) 3%, transparent);
+  outline: 1px solid var(--c-border);
+}
+
+.log-feed-item-meta {
+  display: flex;
+  gap: 0.6rem;
+  align-items: baseline;
+  font-size: 0.75rem;
+  color: var(--c-muted);
+  margin-bottom: 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.log-feed-item-type { color: var(--c-accent); }
+
+.log-feed-item-note { font-size: 0.9rem; line-height: 1.5; white-space: pre-wrap; }
+
+.log-feed-item-next {
+  margin-top: 0.4rem;
+  font-size: 0.82rem;
+  color: var(--c-muted);
+}
+
+/* Contact picker -- typeahead used from Lead Detail's "Referred by" field */
+.contact-picker {
+  position: relative;
+}
+
+.contact-picker-results {
+  position: absolute;
+  z-index: 5;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 0.25rem;
+  max-height: 12rem;
+  overflow-y: auto;
+  border-radius: 0.75rem;
+  border: 1px solid var(--c-border);
+  background-color: var(--c-bg);
+  box-shadow: 0 8px 24px color-mix(in oklch, black 15%, transparent);
+}
+
+.contact-picker-results[hidden] { display: none; }
+
+.contact-picker-result {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.55rem 0.75rem;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  color: var(--c-text);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.contact-picker-result:hover {
+  background-color: color-mix(in oklch, var(--c-accent) 10%, transparent);
+}
