@@ -74,6 +74,23 @@
               <textarea id="leadQuickInput" rows="1" placeholder="New lead name… (Enter to add, Shift+Enter for a new line)" required></textarea>
               <button type="submit" class="pill-btn">Add Lead</button>
             </form>
+            <div class="studio-filter-bar">
+              <input type="search" id="leadsSearchInput" placeholder="Search leads…">
+              <select id="leadsStatusFilter">
+                <option value="all">All statuses</option>
+                <option value="new">New</option>
+                <option value="contacted">Contacted</option>
+                <option value="discussion">Discussion</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="converted">Converted</option>
+                <option value="lost">Lost</option>
+                <option value="on-hold">On Hold</option>
+              </select>
+              <div class="studio-view-toggle" id="leadsViewToggle">
+                <button type="button" data-mode="cards" class="is-active">Cards</button>
+                <button type="button" data-mode="table">Table</button>
+              </div>
+            </div>
             <div class="studio-list" id="leadsList"></div>
           </section>
 
@@ -84,6 +101,21 @@
 
           <!-- PROJECTS -->
           <section class="studio-view" id="viewProjects" data-view="projects" hidden>
+            <div class="studio-filter-bar">
+              <input type="search" id="projectsSearchInput" placeholder="Search projects…">
+              <select id="projectsStatusFilter">
+                <option value="all">All statuses</option>
+                <option value="not-started">Not Started</option>
+                <option value="active">Active</option>
+                <option value="waiting">Waiting</option>
+                <option value="on-hold">On Hold</option>
+                <option value="completed">Completed</option>
+              </select>
+              <div class="studio-view-toggle" id="projectsViewToggle">
+                <button type="button" data-mode="cards" class="is-active">Cards</button>
+                <button type="button" data-mode="table">Table</button>
+              </div>
+            </div>
             <div class="studio-list" id="projectsList"></div>
             <p class="log-empty" id="projectsEmptyNote" hidden>Projects are created by converting a confirmed lead.</p>
           </section>
@@ -104,6 +136,21 @@
               <textarea id="contactQuickInput" rows="1" placeholder="New contact name… (Enter to add, Shift+Enter for a new line)" required></textarea>
               <button type="submit" class="pill-btn">Add Contact</button>
             </form>
+            <div class="studio-filter-bar">
+              <input type="search" id="contactsSearchInput" placeholder="Search contacts…">
+              <select id="contactsCategoryFilter">
+                <option value="all">All categories</option>
+                <option value="client">Client</option>
+                <option value="referrer">Referrer</option>
+                <option value="vendor">Vendor</option>
+                <option value="collaborator">Collaborator</option>
+                <option value="other">Other</option>
+              </select>
+              <div class="studio-view-toggle" id="contactsViewToggle">
+                <button type="button" data-mode="cards" class="is-active">Cards</button>
+                <button type="button" data-mode="table">Table</button>
+              </div>
+            </div>
             <div class="studio-list" id="contactsList"></div>
           </section>
 
