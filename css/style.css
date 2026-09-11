@@ -2239,3 +2239,120 @@ body > footer.site-footer { margin-top: 3rem; }
 .related-lead-item:hover {
   background-color: color-mix(in oklch, var(--c-accent) 8%, transparent);
 }
+
+/* Project Detail disclosure sections (Deliverables, Budget, Contract,
+   Invoice, Review, Case Study, etc.) -- native <details>, no JS needed. */
+.detail-disclosure {
+  border: 1px solid var(--c-border);
+  border-radius: 1rem;
+  padding: 1rem 1.25rem;
+}
+
+@supports (corner-shape: squircle) {
+  .detail-disclosure { corner-shape: squircle; border-radius: 1.25rem; }
+}
+
+.detail-disclosure > summary {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.detail-disclosure > summary::-webkit-details-marker { display: none; }
+
+.detail-disclosure > summary::before {
+  content: '+';
+  display: inline-block;
+  width: 1.1rem;
+  color: var(--c-accent);
+}
+
+.detail-disclosure[open] > summary::before { content: '−'; }
+
+.detail-disclosure > summary + * { margin-top: 1rem; }
+
+/* Line-item lists (Expenses, Invoice items) */
+.line-item-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0;
+}
+
+.line-item-row input[type="text"] {
+  flex: 1;
+}
+
+.line-item-row input[type="number"] {
+  width: 7rem;
+}
+
+.line-item-row input {
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  padding: 0.5rem 0.7rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--c-border);
+  background-color: var(--c-bg);
+  color: var(--c-text);
+}
+
+.line-item-remove {
+  font-size: 0.78rem;
+  color: var(--c-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.line-item-remove:hover { color: var(--c-accent); }
+
+.line-item-add {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.line-item-add input[type="text"] { flex: 1; }
+.line-item-add input[type="number"] { width: 7rem; }
+
+.line-item-add input {
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  padding: 0.5rem 0.7rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--c-border);
+  background-color: var(--c-bg);
+  color: var(--c-text);
+}
+
+.line-item-total {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding-top: 0.6rem;
+  margin-top: 0.4rem;
+  border-top: 1px solid var(--c-border);
+}
+
+/* Drive links */
+.drive-link-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 0.85rem;
+  border-radius: 0.7rem;
+  border: 1px solid var(--c-border);
+  margin-bottom: 0.5rem;
+}
+
+.drive-link-item a {
+  color: var(--c-accent);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklch, var(--c-accent) 40%, transparent);
+  font-size: 0.88rem;
+}

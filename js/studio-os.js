@@ -27,9 +27,9 @@
   var osSyncStatus = document.getElementById('osSyncStatus');
   var osNav = document.getElementById('osNav');
 
-  var LEAD_STATUSES = ['new', 'contacted', 'discussion', 'confirmed', 'converted', 'lost', 'on-hold'];
+  var LEAD_STATUSES = ['new', 'contacted', 'meeting', 'discussion', 'confirmed', 'converted', 'lost', 'on-hold'];
   var LEAD_STATUS_LABELS = {
-    'new': 'New', 'contacted': 'Contacted', 'discussion': 'Discussion',
+    'new': 'New', 'contacted': 'Contacted', 'meeting': 'Meeting', 'discussion': 'Discussion',
     'confirmed': 'Confirmed', 'converted': 'Converted', 'lost': 'Lost', 'on-hold': 'On Hold'
   };
   var PROJECT_STATUSES = ['not-started', 'active', 'waiting', 'on-hold', 'completed'];
@@ -73,11 +73,33 @@
   }
 
   function normalizeProject(p) {
+    var contract = p.contract || {};
+    var invoice = p.invoice || {};
+    var review = p.review || {};
+    var caseStudy = p.caseStudy || {};
     return {
       id: p.id, leadId: p.leadId || null, name: p.name || '', service: p.service || '',
       client: p.client || '', startDate: p.startDate || '', deadline: p.deadline || '',
       status: p.status || 'not-started', completed: !!p.completed, progress: p.progress || 0,
-      fee: p.fee || '', notes: p.notes || '', phases: Array.isArray(p.phases) ? p.phases : []
+      fee: p.fee || '', notes: p.notes || '', phases: Array.isArray(p.phases) ? p.phases : [],
+      deliverables: Array.isArray(p.deliverables) ? p.deliverables : [],
+      expenses: Array.isArray(p.expenses) ? p.expenses : [],
+      driveLinks: Array.isArray(p.driveLinks) ? p.driveLinks : [],
+      contract: {
+        scope: contract.scope || '', terms: contract.terms || '',
+        paymentSchedule: contract.paymentSchedule || '', status: contract.status || 'draft',
+        notes: contract.notes || ''
+      },
+      invoice: {
+        items: Array.isArray(invoice.items) ? invoice.items : [],
+        taxPercent: invoice.taxPercent || '', status: invoice.status || 'draft',
+        issuedDate: invoice.issuedDate || ''
+      },
+      review: {
+        rating: review.rating || '', wouldRecommend: review.wouldRecommend || '',
+        testimonial: review.testimonial || '', notes: review.notes || ''
+      },
+      caseStudy: { status: caseStudy.status || 'not-ready', summary: caseStudy.summary || '' }
     };
   }
 
@@ -729,6 +751,47 @@
       '</div>';
     }).join('');
 
+    var deliverablesHtml = (project.deliverables || []).map(function (d) {
+      return '<div class="phase-item' + (d.done ? ' is-done' : '') + '">' +
+        '<input type="checkbox" ' + (d.done ? 'checked' : '') + ' onchange="toggleDeliverable(\'' + project.id + '\',\'' + d.id + '\')">' +
+        '<span class="phase-item-name">' + escapeHtml(d.name) + '</span>' +
+        '<button type="button" class="phase-item-remove" onclick="removeDeliverable(\'' + project.id + '\',\'' + d.id + '\')">Remove</button>' +
+      '</div>';
+    }).join('') || '<p class="log-empty">No deliverables listed yet.</p>';
+
+    var totalExpenses = (project.expenses || []).reduce(function (sum, x) { return sum + (parseFloat(x.amount) || 0); }, 0);
+    var netAfterExpenses = (parseFloat(project.fee) || 0) - totalExpenses;
+    var expensesHtml = lineItemsHtml(project.expenses, project.id, 'expenses');
+
+    var driveLinksHtml = (project.driveLinks || []).map(function (link) {
+      return '<div class="drive-link-item"><a href="' + escapeHtml(link.url) + '" target="_blank" rel="noopener">' + escapeHtml(link.label || link.url) + '</a>' +
+        '<button type="button" class="line-item-remove" onclick="removeDriveLink(\'' + project.id + '\',\'' + link.id + '\')">Remove</button></div>';
+    }).join('') || '<p class="log-empty">No links added yet.</p>';
+
+    var contractStatusOptions = ['draft', 'sent', 'signed'].map(function (s) {
+      return '<option value="' + s + '"' + (s === project.contract.status ? ' selected' : '') + '>' + s.charAt(0).toUpperCase() + s.slice(1) + '</option>';
+    }).join('');
+
+    var invoiceItemsHtml = lineItemsHtml(project.invoice.items, project.id, 'invoice.items');
+    var invoiceSubtotal = (project.invoice.items || []).reduce(function (sum, x) { return sum + (parseFloat(x.amount) || 0); }, 0);
+    var invoiceTax = invoiceSubtotal * ((parseFloat(project.invoice.taxPercent) || 0) / 100);
+    var invoiceTotal = invoiceSubtotal + invoiceTax;
+    var invoiceStatusOptions = ['draft', 'sent', 'paid'].map(function (s) {
+      return '<option value="' + s + '"' + (s === project.invoice.status ? ' selected' : '') + '>' + s.charAt(0).toUpperCase() + s.slice(1) + '</option>';
+    }).join('');
+
+    var recommendOptions = ['', 'yes', 'no', 'unsure'].map(function (v) {
+      var label = v === '' ? '—' : v.charAt(0).toUpperCase() + v.slice(1);
+      return '<option value="' + v + '"' + (v === project.review.wouldRecommend ? ' selected' : '') + '>' + label + '</option>';
+    }).join('');
+    var ratingOptions = ['', '1', '2', '3', '4', '5'].map(function (v) {
+      return '<option value="' + v + '"' + (v === String(project.review.rating) ? ' selected' : '') + '>' + (v || '—') + '</option>';
+    }).join('');
+
+    var caseStudyStatusOptions = [['not-ready', 'Not ready'], ['ready', 'Ready to publish'], ['published', 'Published']].map(function (pair) {
+      return '<option value="' + pair[0] + '"' + (pair[0] === project.caseStudy.status ? ' selected' : '') + '>' + pair[1] + '</option>';
+    }).join('');
+
     panel.innerHTML =
       '<button type="button" class="detail-back" onclick="showView(\'projects\')">&larr; Back to Projects</button>' +
       '<div><p class="eyebrow">Project &middot; ' + project.id + '</p><h1 class="case-title">' + escapeHtml(project.name) + '</h1></div>' +
@@ -742,16 +805,81 @@
         '<div class="detail-field"><label>Status</label><select onchange="updateProjectField(\'' + project.id + '\',\'status\',this.value)">' + statusOptions + '</select></div>' +
       '</div>' +
       '<div class="detail-field"><label>Notes</label><textarea rows="3" onchange="updateProjectField(\'' + project.id + '\',\'notes\',this.value)">' + escapeHtml(project.notes) + '</textarea></div>' +
-      '<div class="detail-section">' +
-        '<h3>Plan Phases</h3>' +
+
+      '<details class="detail-disclosure" open><summary>Deliverables</summary>' +
+        '<div class="phase-list">' + deliverablesHtml + '</div>' +
+        '<form class="phase-add" onsubmit="return addDeliverable(event,\'' + project.id + '\')">' +
+          '<input type="text" class="new-deliverable-input" placeholder="Add a deliverable… (e.g. Final storyboard PDF)" required>' +
+          '<button type="submit" class="pill-btn pill-btn-outline">Add</button>' +
+        '</form>' +
+      '</details>' +
+
+      '<details class="detail-disclosure" open><summary>Plan Phases</summary>' +
         '<div class="phase-progress-bar"><div class="phase-progress-fill" style="width:' + (project.progress || 0) + '%"></div></div>' +
         '<div class="phase-list">' + phasesHtml + '</div>' +
         '<form class="phase-add" onsubmit="return addPhase(event,\'' + project.id + '\')">' +
           '<input type="text" id="newPhaseInput" placeholder="Add a phase… (e.g. Storyboard)" required>' +
           '<button type="submit" class="pill-btn pill-btn-outline">Add</button>' +
         '</form>' +
-      '</div>' +
+      '</details>' +
+
+      '<details class="detail-disclosure"><summary>Budget &amp; Expenses</summary>' +
+        expensesHtml +
+        '<form class="line-item-add" onsubmit="return addLineItem(event,\'' + project.id + '\',\'expenses\')">' +
+          '<input type="text" class="new-item-desc" placeholder="Expense description" required>' +
+          '<input type="number" class="new-item-amount" placeholder="Amount" step="0.01" required>' +
+          '<button type="submit" class="pill-btn pill-btn-outline">Add</button>' +
+        '</form>' +
+        '<div class="line-item-total"><span>Total Expenses</span><span>₹' + totalExpenses.toFixed(2) + '</span></div>' +
+        '<div class="line-item-total"><span>Net (Fee − Expenses)</span><span>₹' + netAfterExpenses.toFixed(2) + '</span></div>' +
+      '</details>' +
+
+      '<details class="detail-disclosure"><summary>Drive Links</summary>' +
+        driveLinksHtml +
+        '<form class="line-item-add" onsubmit="return addDriveLink(event,\'' + project.id + '\')">' +
+          '<input type="text" class="new-link-label" placeholder="Label (e.g. Reference folder)" required>' +
+          '<input type="text" class="new-link-url" placeholder="https://drive.google.com/…" required>' +
+          '<button type="submit" class="pill-btn pill-btn-outline">Add</button>' +
+        '</form>' +
+      '</details>' +
+
+      '<details class="detail-disclosure"><summary>Contract</summary>' +
+        '<div class="detail-field"><label>Scope</label><textarea rows="3" onchange="updateContractField(\'' + project.id + '\',\'scope\',this.value)">' + escapeHtml(project.contract.scope) + '</textarea></div>' +
+        '<div class="detail-field"><label>Terms</label><textarea rows="3" onchange="updateContractField(\'' + project.id + '\',\'terms\',this.value)">' + escapeHtml(project.contract.terms) + '</textarea></div>' +
+        '<div class="detail-field"><label>Payment Schedule</label><textarea rows="2" onchange="updateContractField(\'' + project.id + '\',\'paymentSchedule\',this.value)">' + escapeHtml(project.contract.paymentSchedule) + '</textarea></div>' +
+        '<div class="detail-field"><label>Notes</label><textarea rows="2" onchange="updateContractField(\'' + project.id + '\',\'notes\',this.value)">' + escapeHtml(project.contract.notes) + '</textarea></div>' +
+        '<div class="detail-field"><label>Status</label><select onchange="updateContractField(\'' + project.id + '\',\'status\',this.value)">' + contractStatusOptions + '</select></div>' +
+      '</details>' +
+
+      '<details class="detail-disclosure"><summary>Invoice</summary>' +
+        invoiceItemsHtml +
+        '<form class="line-item-add" onsubmit="return addLineItem(event,\'' + project.id + '\',\'invoice.items\')">' +
+          '<input type="text" class="new-item-desc" placeholder="Item description" required>' +
+          '<input type="number" class="new-item-amount" placeholder="Amount" step="0.01" required>' +
+          '<button type="submit" class="pill-btn pill-btn-outline">Add</button>' +
+        '</form>' +
+        '<div class="detail-field"><label>Tax %</label><input type="number" step="0.01" value="' + escapeHtml(project.invoice.taxPercent) + '" onchange="updateInvoiceField(\'' + project.id + '\',\'taxPercent\',this.value)"></div>' +
+        '<div class="line-item-total"><span>Subtotal</span><span>₹' + invoiceSubtotal.toFixed(2) + '</span></div>' +
+        '<div class="line-item-total"><span>Tax</span><span>₹' + invoiceTax.toFixed(2) + '</span></div>' +
+        '<div class="line-item-total"><span>Total</span><span>₹' + invoiceTotal.toFixed(2) + '</span></div>' +
+        '<div class="detail-field"><label>Status</label><select onchange="updateInvoiceField(\'' + project.id + '\',\'status\',this.value)">' + invoiceStatusOptions + '</select></div>' +
+        '<div class="detail-field"><label>Issued Date</label><input type="date" value="' + escapeHtml(project.invoice.issuedDate) + '" onchange="updateInvoiceField(\'' + project.id + '\',\'issuedDate\',this.value)"></div>' +
+      '</details>' +
+
       renderActivityLog('project', project.id) +
+
+      '<details class="detail-disclosure"><summary>Review &amp; Feedback</summary>' +
+        '<div class="detail-field"><label>Rating (1–5)</label><select onchange="updateReviewField(\'' + project.id + '\',\'rating\',this.value)">' + ratingOptions + '</select></div>' +
+        '<div class="detail-field"><label>Would client recommend?</label><select onchange="updateReviewField(\'' + project.id + '\',\'wouldRecommend\',this.value)">' + recommendOptions + '</select></div>' +
+        '<div class="detail-field"><label>Testimonial</label><textarea rows="3" onchange="updateReviewField(\'' + project.id + '\',\'testimonial\',this.value)">' + escapeHtml(project.review.testimonial) + '</textarea></div>' +
+        '<div class="detail-field"><label>Notes</label><textarea rows="2" onchange="updateReviewField(\'' + project.id + '\',\'notes\',this.value)">' + escapeHtml(project.review.notes) + '</textarea></div>' +
+      '</details>' +
+
+      '<details class="detail-disclosure"><summary>Case Study</summary>' +
+        '<div class="detail-field"><label>Status</label><select onchange="updateCaseStudyField(\'' + project.id + '\',\'status\',this.value)">' + caseStudyStatusOptions + '</select></div>' +
+        '<div class="detail-field"><label>Summary (challenge / process / result)</label><textarea rows="4" onchange="updateCaseStudyField(\'' + project.id + '\',\'summary\',this.value)">' + escapeHtml(project.caseStudy.summary) + '</textarea></div>' +
+      '</details>' +
+
       '<div class="detail-actions">' +
         (project.status !== 'completed' ? '<button type="button" class="pill-btn" onclick="markProjectComplete(\'' + project.id + '\')">Mark Complete</button>' : '') +
         '<button type="button" class="log-entry-delete" onclick="deleteProject(\'' + project.id + '\')">Delete project</button>' +
@@ -760,6 +888,24 @@
     function field(label, type, key, value) {
       return '<div class="detail-field"><label>' + label + '</label><input type="' + type + '" value="' + escapeHtml(value) + '" onchange="updateProjectField(\'' + project.id + '\',\'' + key + '\',this.value)"></div>';
     }
+  }
+
+  // Shared renderer for "description + amount" line-item lists (Expenses, Invoice items)
+  function lineItemsHtml(items, projectId, listKey) {
+    if (!items || !items.length) return '<p class="log-empty">No items yet.</p>';
+    return items.map(function (item) {
+      return '<div class="line-item-row">' +
+        '<input type="text" value="' + escapeHtml(item.description) + '" readonly>' +
+        '<input type="number" value="' + escapeHtml(item.amount) + '" readonly>' +
+        '<button type="button" class="line-item-remove" onclick="removeLineItem(\'' + projectId + '\',\'' + listKey + '\',\'' + item.id + '\')">Remove</button>' +
+      '</div>';
+    }).join('');
+  }
+
+  function getLineItemArray(project, listKey) {
+    if (listKey === 'expenses') return project.expenses;
+    if (listKey === 'invoice.items') return project.invoice.items;
+    return null;
   }
 
   window.updateProjectField = function (id, key, value) {
@@ -815,6 +961,133 @@
     saveLocalState();
     scheduleSync();
     renderProjectDetail(projectId);
+  };
+
+  window.addDeliverable = function (e, projectId) {
+    e.preventDefault();
+    var input = e.target.querySelector('.new-deliverable-input');
+    var name = input.value.trim();
+    if (!name) return false;
+    var project = findProject(projectId);
+    if (!project) return false;
+    if (!project.deliverables) project.deliverables = [];
+    project.deliverables.push({ id: 'DEL-' + Date.now(), name: name, done: false });
+    saveLocalState();
+    scheduleSync();
+    renderProjectDetail(projectId);
+    return false;
+  };
+
+  window.toggleDeliverable = function (projectId, deliverableId) {
+    var project = findProject(projectId);
+    if (!project) return;
+    var d = (project.deliverables || []).filter(function (x) { return x.id === deliverableId; })[0];
+    if (!d) return;
+    d.done = !d.done;
+    saveLocalState();
+    scheduleSync();
+    renderProjectDetail(projectId);
+  };
+
+  window.removeDeliverable = function (projectId, deliverableId) {
+    var project = findProject(projectId);
+    if (!project) return;
+    project.deliverables = (project.deliverables || []).filter(function (x) { return x.id !== deliverableId; });
+    saveLocalState();
+    scheduleSync();
+    renderProjectDetail(projectId);
+  };
+
+  window.addLineItem = function (e, projectId, listKey) {
+    e.preventDefault();
+    var form = e.target;
+    var descInput = form.querySelector('.new-item-desc');
+    var amountInput = form.querySelector('.new-item-amount');
+    var description = descInput.value.trim();
+    var amount = amountInput.value;
+    if (!description || amount === '') return false;
+    var project = findProject(projectId);
+    if (!project) return false;
+    var arr = getLineItemArray(project, listKey);
+    if (!arr) return false;
+    arr.push({ id: 'ITEM-' + Date.now(), description: description, amount: amount });
+    saveLocalState();
+    scheduleSync();
+    renderProjectDetail(projectId);
+    return false;
+  };
+
+  window.removeLineItem = function (projectId, listKey, itemId) {
+    var project = findProject(projectId);
+    if (!project) return;
+    if (listKey === 'expenses') {
+      project.expenses = project.expenses.filter(function (x) { return x.id !== itemId; });
+    } else if (listKey === 'invoice.items') {
+      project.invoice.items = project.invoice.items.filter(function (x) { return x.id !== itemId; });
+    }
+    saveLocalState();
+    scheduleSync();
+    renderProjectDetail(projectId);
+  };
+
+  window.addDriveLink = function (e, projectId) {
+    e.preventDefault();
+    var form = e.target;
+    var labelInput = form.querySelector('.new-link-label');
+    var urlInput = form.querySelector('.new-link-url');
+    var label = labelInput.value.trim();
+    var url = urlInput.value.trim();
+    if (!url) return false;
+    var project = findProject(projectId);
+    if (!project) return false;
+    if (!project.driveLinks) project.driveLinks = [];
+    project.driveLinks.push({ id: 'LINK-' + Date.now(), label: label, url: url });
+    saveLocalState();
+    scheduleSync();
+    renderProjectDetail(projectId);
+    return false;
+  };
+
+  window.removeDriveLink = function (projectId, linkId) {
+    var project = findProject(projectId);
+    if (!project) return;
+    project.driveLinks = (project.driveLinks || []).filter(function (x) { return x.id !== linkId; });
+    saveLocalState();
+    scheduleSync();
+    renderProjectDetail(projectId);
+  };
+
+  window.updateContractField = function (projectId, key, value) {
+    var project = findProject(projectId);
+    if (!project) return;
+    project.contract[key] = value;
+    saveLocalState();
+    scheduleSync();
+  };
+
+  window.updateInvoiceField = function (projectId, key, value) {
+    var project = findProject(projectId);
+    if (!project) return;
+    project.invoice[key] = value;
+    saveLocalState();
+    scheduleSync();
+    if (key === 'taxPercent') renderProjectDetail(projectId);
+  };
+
+  window.updateReviewField = function (projectId, key, value) {
+    var project = findProject(projectId);
+    if (!project) return;
+    project.review[key] = value;
+    saveLocalState();
+    scheduleSync();
+  };
+
+  window.updateCaseStudyField = function (projectId, key, value) {
+    var project = findProject(projectId);
+    if (!project) return;
+    project.caseStudy[key] = value;
+    saveLocalState();
+    scheduleSync();
   };
 
   window.markProjectComplete = function (projectId) {
