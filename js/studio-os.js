@@ -16,6 +16,7 @@
   var state = null;
   var currentSecret = null;
   var currentView = 'leads';
+  var currentDetailId = null;
   var syncTimer = null;
 
   var osGate = document.getElementById('osGate');
@@ -24,6 +25,7 @@
   var osGateError = document.getElementById('osGateError');
   var osApp = document.getElementById('osApp');
   var osLogoutBtn = document.getElementById('osLogoutBtn');
+  var osRefreshBtn = document.getElementById('osRefreshBtn');
   var osSyncStatus = document.getElementById('osSyncStatus');
   var osNav = document.getElementById('osNav');
 
@@ -345,16 +347,12 @@
   osNav.addEventListener('click', function (e) {
     var btn = e.target.closest('button[data-view]');
     if (!btn) return;
-    var view = btn.getAttribute('data-view');
-    showView(view);
-    if (view === 'leads') renderLeads();
-    if (view === 'projects') renderProjects();
-    if (view === 'timeline') renderTimeline();
-    if (view === 'contacts') renderContacts();
+    window.showView(btn.getAttribute('data-view'));
   });
 
   window.showView = function (name) {
     showView(name);
+    if (name === 'leads' || name === 'projects' || name === 'timeline' || name === 'contacts') currentDetailId = null;
     if (name === 'leads') renderLeads();
     if (name === 'projects') renderProjects();
     if (name === 'timeline') renderTimeline();
@@ -487,6 +485,7 @@
   });
 
   function openLeadDetail(id) {
+    currentDetailId = id;
     showView('lead-detail');
     renderLeadDetail(id);
   }
@@ -729,6 +728,7 @@
   });
 
   function openProjectDetail(id) {
+    currentDetailId = id;
     showView('project-detail');
     renderProjectDetail(id);
   }
@@ -1261,6 +1261,7 @@
   });
 
   function openContactDetail(id) {
+    currentDetailId = id;
     showView('contact-detail');
     renderContactDetail(id);
   }
@@ -1385,6 +1386,29 @@
     try { localStorage.removeItem(SECRET_KEY); } catch (e) { /* ignore */ }
     location.reload();
   });
+
+  function refreshFromServer() {
+    if (!currentSecret) return;
+    setSyncStatus('saving', 'Refreshing…');
+    fetchState(currentSecret)
+      .then(function (fetched) {
+        state = fetched;
+        saveLocalState();
+        if (currentView === 'lead-detail' && currentDetailId) renderLeadDetail(currentDetailId);
+        else if (currentView === 'project-detail' && currentDetailId) renderProjectDetail(currentDetailId);
+        else if (currentView === 'contact-detail' && currentDetailId) renderContactDetail(currentDetailId);
+        else if (currentView === 'leads') renderLeads();
+        else if (currentView === 'projects') renderProjects();
+        else if (currentView === 'timeline') renderTimeline();
+        else if (currentView === 'contacts') renderContacts();
+        setSyncStatus('synced', 'Synced');
+      })
+      .catch(function () {
+        setSyncStatus('error', 'Refresh failed — showing last loaded copy');
+      });
+  }
+
+  osRefreshBtn.addEventListener('click', refreshFromServer);
 
   var cachedSecret = null;
   try { cachedSecret = localStorage.getItem(SECRET_KEY); } catch (e) { /* ignore */ }
