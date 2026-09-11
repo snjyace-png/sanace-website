@@ -2356,3 +2356,51 @@ body > footer.site-footer { margin-top: 3rem; }
   text-decoration-color: color-mix(in oklch, var(--c-accent) 40%, transparent);
   font-size: 0.88rem;
 }
+
+/* Project Process -- each milestone/step carries its own small notes feed,
+   so feedback recorded "during the shoot" stays attached to that step. */
+.milestone-block {
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--c-border);
+}
+
+.milestone-block:last-child { border-bottom: none; }
+
+.milestone-notes {
+  margin: 0.5rem 0 0 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.milestone-note {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.milestone-note-date {
+  flex-shrink: 0;
+  color: var(--c-muted);
+}
+
+.milestone-note-add {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+
+.milestone-note-add textarea {
+  flex: 1;
+  resize: none;
+  overflow: hidden;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--c-border);
+  background-color: var(--c-bg);
+  color: var(--c-text);
+}

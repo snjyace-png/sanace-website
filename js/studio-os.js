@@ -34,15 +34,11 @@
     'new': 'New', 'contacted': 'Contacted', 'meeting': 'Meeting', 'discussion': 'Discussion',
     'confirmed': 'Confirmed', 'converted': 'Converted', 'lost': 'Lost', 'on-hold': 'On Hold'
   };
-  var PROJECT_STATUSES = ['not-started', 'active', 'waiting', 'on-hold', 'completed'];
-  var PROJECT_STATUS_LABELS = {
-    'not-started': 'Not Started', 'active': 'Active', 'waiting': 'Waiting',
-    'on-hold': 'On Hold', 'completed': 'Completed'
-  };
-  var CONTACT_CATEGORIES = ['client', 'referrer', 'vendor', 'collaborator', 'other'];
-  var CONTACT_CATEGORY_LABELS = {
-    'client': 'Client', 'referrer': 'Referrer', 'vendor': 'Vendor',
-    'collaborator': 'Collaborator', 'other': 'Other'
+  var PROJECT_STATUSES = ['meeting', 'production', 'completed'];
+  var PROJECT_STATUS_LABELS = { 'meeting': 'Meeting', 'production': 'Production', 'completed': 'Completed' };
+  var PROJECT_STATUS_MIGRATION = {
+    'not-started': 'meeting', 'on-hold': 'meeting', 'active': 'production',
+    'waiting': 'production', 'completed': 'completed'
   };
   var LOG_TYPES = ['note', 'call', 'email', 'meeting', 'decision', 'feedback', 'milestone', 'delivery'];
   var LOG_TYPE_LABELS = {
@@ -50,9 +46,9 @@
     'decision': 'Decision', 'feedback': 'Feedback', 'milestone': 'Milestone', 'delivery': 'Delivery'
   };
 
-  var leadsViewState = { mode: 'cards', search: '', filter: 'all', sortKey: 'date', sortDir: 'desc' };
-  var projectsViewState = { mode: 'cards', search: '', filter: 'all', sortKey: 'deadline', sortDir: 'asc' };
-  var contactsViewState = { mode: 'cards', search: '', filter: 'all', sortKey: 'name', sortDir: 'asc' };
+  var leadsViewState = { search: '', filter: 'all' };
+  var projectsViewState = { search: '', filter: 'all' };
+  var contactsViewState = { search: '' };
 
   // ---------------------------------------------------------------------
   // State normalization / persistence
@@ -69,8 +65,16 @@
       timing: l.timing || '', status: l.status || 'new', nextFollowUp: l.nextFollowUp || '',
       notes: l.notes || '', projectId: l.projectId || null, convertedDate: l.convertedDate || null,
       contactId: l.contactId || null, source: l.source || '',
-      contactPerson: l.contactPerson || '', contactPhone: l.contactPhone || '', contactEmail: l.contactEmail || '',
-      tags: Array.isArray(l.tags) ? l.tags : []
+      contactPerson: l.contactPerson || '', contactPhone: l.contactPhone || '', contactEmail: l.contactEmail || ''
+    };
+  }
+
+  function normalizeMilestone(m) {
+    return {
+      id: m.id, name: m.name || '', done: !!m.done,
+      notes: Array.isArray(m.notes) ? m.notes.map(function (n) {
+        return { id: n.id, date: n.date || new Date().toISOString(), text: n.text || '' };
+      }) : []
     };
   }
 
@@ -79,12 +83,22 @@
     var invoice = p.invoice || {};
     var review = p.review || {};
     var caseStudy = p.caseStudy || {};
+    // Migrate old separate phases+deliverables into one milestones list.
+    var milestones;
+    if (Array.isArray(p.milestones)) {
+      milestones = p.milestones;
+    } else {
+      milestones = [].concat(Array.isArray(p.phases) ? p.phases : [], Array.isArray(p.deliverables) ? p.deliverables : []);
+    }
+    var status = p.status || 'meeting';
+    if (PROJECT_STATUS_MIGRATION[status]) status = PROJECT_STATUS_MIGRATION[status];
+    if (PROJECT_STATUSES.indexOf(status) === -1) status = 'meeting';
     return {
       id: p.id, leadId: p.leadId || null, name: p.name || '', service: p.service || '',
       client: p.client || '', startDate: p.startDate || '', deadline: p.deadline || '',
-      status: p.status || 'not-started', completed: !!p.completed, progress: p.progress || 0,
-      fee: p.fee || '', notes: p.notes || '', phases: Array.isArray(p.phases) ? p.phases : [],
-      deliverables: Array.isArray(p.deliverables) ? p.deliverables : [],
+      status: status, completed: !!p.completed, progress: p.progress || 0,
+      fee: p.fee || '', notes: p.notes || '',
+      milestones: milestones.map(normalizeMilestone),
       expenses: Array.isArray(p.expenses) ? p.expenses : [],
       driveLinks: Array.isArray(p.driveLinks) ? p.driveLinks : [],
       contract: {
@@ -109,8 +123,7 @@
     return {
       id: c.id, name: c.name || '', company: c.company || '', phone: c.phone || '',
       email: c.email || '', website: c.website || '', instagram: c.instagram || '',
-      linkedin: c.linkedin || '', notes: c.notes || '',
-      category: c.category || '', tags: Array.isArray(c.tags) ? c.tags : []
+      linkedin: c.linkedin || '', notes: c.notes || ''
     };
   }
 
@@ -215,58 +228,9 @@
     return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
   }
 
-  function parseTags(input) {
-    return input.split(',').map(function (t) { return t.trim(); }).filter(Boolean);
-  }
-
-  function tagChipsHtml(tags) {
-    if (!tags || !tags.length) return '';
-    return '<div class="tag-chip-row">' + tags.map(function (t) {
-      return '<span class="tag-chip">' + escapeHtml(t) + '</span>';
-    }).join('') + '</div>';
-  }
-
   // ---------------------------------------------------------------------
-  // Generic sort helper (shared by Leads/Projects/Contacts table+cards)
-  // ---------------------------------------------------------------------
-
-  function sortItems(items, sortKey, sortDir, accessor) {
-    var sorted = items.slice().sort(function (a, b) {
-      var av = accessor(a, sortKey);
-      var bv = accessor(b, sortKey);
-      if (av == null) av = '';
-      if (bv == null) bv = '';
-      if (typeof av === 'number' && typeof bv === 'number') return av - bv;
-      return String(av).localeCompare(String(bv));
-    });
-    if (sortDir === 'desc') sorted.reverse();
-    return sorted;
-  }
-
-  function setupSortableTable(table, viewState, onSort) {
-    var ths = table.querySelectorAll('th[data-sort]');
-    for (var i = 0; i < ths.length; i++) {
-      var th = ths[i];
-      var key = th.getAttribute('data-sort');
-      if (key === viewState.sortKey) {
-        th.setAttribute('data-sort-active', '');
-        th.setAttribute('data-sort-dir', viewState.sortDir === 'asc' ? '▲' : '▼');
-      }
-      th.addEventListener('click', function () {
-        var k = this.getAttribute('data-sort');
-        if (viewState.sortKey === k) {
-          viewState.sortDir = viewState.sortDir === 'asc' ? 'desc' : 'asc';
-        } else {
-          viewState.sortKey = k;
-          viewState.sortDir = 'asc';
-        }
-        onSort();
-      });
-    }
-  }
-
-  // ---------------------------------------------------------------------
-  // Generalized Activity Log (Leads, Projects, Contacts)
+  // Generalized Activity Log (Leads and Contacts only — Projects use
+  // per-milestone notes instead, see the Projects section below)
   // ---------------------------------------------------------------------
 
   function logsForEntity(entityType, entityId) {
@@ -319,7 +283,6 @@
     saveLocalState();
     scheduleSync();
     if (entityType === 'lead') renderLeadDetail(entityId);
-    if (entityType === 'project') renderProjectDetail(entityId);
     if (entityType === 'contact') renderContactDetail(entityId);
     return false;
   };
@@ -363,46 +326,31 @@
   // Leads
   // ---------------------------------------------------------------------
 
-  function leadAccessor(lead, key) {
-    if (key === 'fee') return parseFloat(lead.estimatedFee) || 0;
-    if (key === 'name') return (lead.name || '').toLowerCase();
-    if (key === 'service') return (lead.service || '').toLowerCase();
-    if (key === 'status') return lead.status || '';
-    if (key === 'nextFollowUp') return lead.nextFollowUp || '';
-    return lead.date || '';
-  }
-
   function leadMatches(lead, vs) {
     if (vs.filter !== 'all' && lead.status !== vs.filter) return false;
     var q = vs.search.trim().toLowerCase();
     if (!q) return true;
-    var hay = [lead.name, lead.service, lead.notes, lead.brief, (lead.tags || []).join(' ')].join(' ').toLowerCase();
+    var hay = [lead.name, lead.service, lead.notes, lead.brief].join(' ').toLowerCase();
     return hay.indexOf(q) !== -1;
   }
 
   function renderLeads() {
     var list = document.getElementById('leadsList');
     list.innerHTML = '';
-    var filtered = state.leads.filter(function (l) { return leadMatches(l, leadsViewState); });
     if (!state.leads.length) {
       list.innerHTML = '<p class="log-empty">No leads yet — jot one down above.</p>';
       return;
     }
+    var filtered = state.leads.filter(function (l) { return leadMatches(l, leadsViewState); });
     if (!filtered.length) {
       list.innerHTML = '<p class="log-empty">No leads match your search/filter.</p>';
       return;
     }
-    var leads = sortItems(filtered, leadsViewState.sortKey, leadsViewState.sortDir, leadAccessor);
-
-    if (leadsViewState.mode === 'table') {
-      renderLeadsTable(list, leads);
-      return;
-    }
+    var leads = filtered.slice().reverse();
 
     leads.forEach(function (lead) {
       var card = document.createElement('div');
       card.className = 'lead-card';
-      card.setAttribute('data-lead-id', lead.id);
       card.setAttribute('tabindex', '0');
       var metaParts = [];
       if (lead.service) metaParts.push(lead.service);
@@ -412,37 +360,10 @@
         '<div class="lead-card-main">' +
           '<span class="lead-card-name">' + escapeHtml(lead.name) + '</span>' +
           '<span class="lead-card-meta">' + escapeHtml(metaParts.join(' · ')) + '</span>' +
-          tagChipsHtml(lead.tags) +
         '</div>' +
         '<span class="status-pill is-' + lead.status + '">' + escapeHtml(LEAD_STATUS_LABELS[lead.status] || lead.status) + '</span>';
       card.addEventListener('click', function () { openLeadDetail(lead.id); });
       list.appendChild(card);
-    });
-  }
-
-  function renderLeadsTable(list, leads) {
-    var wrap = document.createElement('div');
-    wrap.className = 'studio-table-wrap';
-    wrap.innerHTML =
-      '<table class="studio-table"><thead><tr>' +
-        '<th data-sort="name">Name</th><th data-sort="service">Service</th><th data-sort="fee">Fee</th>' +
-        '<th data-sort="status">Status</th><th data-sort="nextFollowUp">Next Follow-up</th><th>Tags</th>' +
-      '</tr></thead><tbody>' +
-      leads.map(function (lead) {
-        return '<tr data-lead-id="' + lead.id + '">' +
-          '<td>' + escapeHtml(lead.name) + '</td>' +
-          '<td>' + escapeHtml(lead.service) + '</td>' +
-          '<td>' + (lead.estimatedFee ? '₹' + escapeHtml(lead.estimatedFee) : '') + '</td>' +
-          '<td><span class="status-pill is-' + lead.status + '">' + escapeHtml(LEAD_STATUS_LABELS[lead.status] || lead.status) + '</span></td>' +
-          '<td>' + shortDate(lead.nextFollowUp) + '</td>' +
-          '<td>' + tagChipsHtml(lead.tags) + '</td>' +
-        '</tr>';
-      }).join('') +
-      '</tbody></table>';
-    list.appendChild(wrap);
-    setupSortableTable(wrap.querySelector('table'), leadsViewState, renderLeads);
-    wrap.querySelectorAll('tbody tr').forEach(function (tr) {
-      tr.addEventListener('click', function () { openLeadDetail(tr.getAttribute('data-lead-id')); });
     });
   }
 
@@ -452,13 +373,6 @@
   });
   document.getElementById('leadsStatusFilter').addEventListener('change', function (e) {
     leadsViewState.filter = e.target.value;
-    renderLeads();
-  });
-  document.getElementById('leadsViewToggle').addEventListener('click', function (e) {
-    var btn = e.target.closest('button[data-mode]');
-    if (!btn) return;
-    leadsViewState.mode = btn.getAttribute('data-mode');
-    this.querySelectorAll('button').forEach(function (b) { b.classList.toggle('is-active', b === btn); });
     renderLeads();
   });
 
@@ -524,7 +438,6 @@
         field('Contact Person', 'text', 'contactPerson', lead.contactPerson) +
         field('Contact Phone', 'text', 'contactPhone', lead.contactPhone) +
         field('Contact Email', 'text', 'contactEmail', lead.contactEmail) +
-        field('Tags (comma-separated)', 'text', 'tagsRaw', lead.tags.join(', ')) +
         '<div class="detail-field contact-picker">' +
           '<label>Referred by</label>' +
           '<input type="text" id="leadContactInput" value="' + escapeHtml(contactDisplay) + '" placeholder="Type a name or contact…" oninput="onLeadContactInput(\'' + lead.id + '\', this.value)" onblur="setTimeout(function(){var r=document.getElementById(\'leadContactResults\'); if(r) r.hidden=true;},150)">' +
@@ -544,11 +457,7 @@
   window.updateLeadField = function (id, key, value) {
     var lead = findLead(id);
     if (!lead) return;
-    if (key === 'tagsRaw') {
-      lead.tags = parseTags(value);
-    } else {
-      lead[key] = value;
-    }
+    lead[key] = value;
     saveLocalState();
     scheduleSync();
     if (key === 'status') renderLeadDetail(id);
@@ -620,21 +529,12 @@
   // ---------------------------------------------------------------------
 
   function recalcProgress(project) {
-    if (!project.phases || !project.phases.length) {
+    if (!project.milestones || !project.milestones.length) {
       project.progress = project.completed ? 100 : 0;
       return;
     }
-    var done = project.phases.filter(function (p) { return p.done; }).length;
-    project.progress = Math.round((done / project.phases.length) * 100);
-  }
-
-  function projectAccessor(project, key) {
-    if (key === 'name') return (project.name || '').toLowerCase();
-    if (key === 'client') return (project.client || '').toLowerCase();
-    if (key === 'status') return project.status || '';
-    if (key === 'deadline') return project.deadline || '';
-    if (key === 'progress') return project.progress || 0;
-    return project.deadline || '';
+    var done = project.milestones.filter(function (m) { return m.done; }).length;
+    project.progress = Math.round((done / project.milestones.length) * 100);
   }
 
   function projectMatches(project, vs) {
@@ -659,17 +559,11 @@
       list.innerHTML = '<p class="log-empty">No projects match your search/filter.</p>';
       return;
     }
-    var projects = sortItems(filtered, projectsViewState.sortKey, projectsViewState.sortDir, projectAccessor);
-
-    if (projectsViewState.mode === 'table') {
-      renderProjectsTable(list, projects);
-      return;
-    }
+    var projects = filtered.slice().reverse();
 
     projects.forEach(function (project) {
       var card = document.createElement('div');
       card.className = 'project-card';
-      card.setAttribute('data-project-id', project.id);
       card.setAttribute('tabindex', '0');
       var metaParts = [];
       if (project.client) metaParts.push(project.client);
@@ -686,44 +580,12 @@
     });
   }
 
-  function renderProjectsTable(list, projects) {
-    var wrap = document.createElement('div');
-    wrap.className = 'studio-table-wrap';
-    wrap.innerHTML =
-      '<table class="studio-table"><thead><tr>' +
-        '<th data-sort="name">Name</th><th data-sort="client">Client</th><th data-sort="status">Status</th>' +
-        '<th data-sort="deadline">Deadline</th><th data-sort="progress">Progress</th>' +
-      '</tr></thead><tbody>' +
-      projects.map(function (project) {
-        return '<tr data-project-id="' + project.id + '">' +
-          '<td>' + escapeHtml(project.name) + '</td>' +
-          '<td>' + escapeHtml(project.client) + '</td>' +
-          '<td><span class="status-pill is-' + project.status + '">' + escapeHtml(PROJECT_STATUS_LABELS[project.status] || project.status) + '</span></td>' +
-          '<td>' + shortDate(project.deadline) + '</td>' +
-          '<td>' + (project.progress || 0) + '%</td>' +
-        '</tr>';
-      }).join('') +
-      '</tbody></table>';
-    list.appendChild(wrap);
-    setupSortableTable(wrap.querySelector('table'), projectsViewState, renderProjects);
-    wrap.querySelectorAll('tbody tr').forEach(function (tr) {
-      tr.addEventListener('click', function () { openProjectDetail(tr.getAttribute('data-project-id')); });
-    });
-  }
-
   document.getElementById('projectsSearchInput').addEventListener('input', function (e) {
     projectsViewState.search = e.target.value;
     renderProjects();
   });
   document.getElementById('projectsStatusFilter').addEventListener('change', function (e) {
     projectsViewState.filter = e.target.value;
-    renderProjects();
-  });
-  document.getElementById('projectsViewToggle').addEventListener('click', function (e) {
-    var btn = e.target.closest('button[data-mode]');
-    if (!btn) return;
-    projectsViewState.mode = btn.getAttribute('data-mode');
-    this.querySelectorAll('button').forEach(function (b) { b.classList.toggle('is-active', b === btn); });
     renderProjects();
   });
 
@@ -743,21 +605,24 @@
       return '<option value="' + s + '"' + (s === project.status ? ' selected' : '') + '>' + PROJECT_STATUS_LABELS[s] + '</option>';
     }).join('');
 
-    var phasesHtml = (project.phases || []).map(function (phase) {
-      return '<div class="phase-item' + (phase.done ? ' is-done' : '') + '">' +
-        '<input type="checkbox" ' + (phase.done ? 'checked' : '') + ' onchange="togglePhase(\'' + project.id + '\',\'' + phase.id + '\')">' +
-        '<span class="phase-item-name">' + escapeHtml(phase.name) + '</span>' +
-        '<button type="button" class="phase-item-remove" onclick="removePhase(\'' + project.id + '\',\'' + phase.id + '\')">Remove</button>' +
+    var milestonesHtml = (project.milestones || []).map(function (m) {
+      var notesHtml = (m.notes || []).slice().sort(function (a, b) { return new Date(b.date) - new Date(a.date); }).map(function (n) {
+        return '<div class="milestone-note"><span class="milestone-note-date">' + shortDate(n.date) + '</span><span class="milestone-note-text">' + escapeHtml(n.text) + '</span></div>';
+      }).join('') || '<p class="log-empty">No notes on this step yet.</p>';
+      return '<div class="milestone-block">' +
+        '<div class="phase-item' + (m.done ? ' is-done' : '') + '">' +
+          '<input type="checkbox" ' + (m.done ? 'checked' : '') + ' onchange="toggleMilestone(\'' + project.id + '\',\'' + m.id + '\')">' +
+          '<span class="phase-item-name">' + escapeHtml(m.name) + '</span>' +
+          '<button type="button" class="phase-item-remove" onclick="removeMilestone(\'' + project.id + '\',\'' + m.id + '\')">Remove</button>' +
+        '</div>' +
+        '<div class="milestone-notes">' + notesHtml +
+          '<form class="milestone-note-add" onsubmit="return addMilestoneNote(event,\'' + project.id + '\',\'' + m.id + '\')">' +
+            '<textarea rows="1" placeholder="Add a note to this step…" required></textarea>' +
+            '<button type="submit" class="pill-btn pill-btn-outline">Add</button>' +
+          '</form>' +
+        '</div>' +
       '</div>';
-    }).join('');
-
-    var deliverablesHtml = (project.deliverables || []).map(function (d) {
-      return '<div class="phase-item' + (d.done ? ' is-done' : '') + '">' +
-        '<input type="checkbox" ' + (d.done ? 'checked' : '') + ' onchange="toggleDeliverable(\'' + project.id + '\',\'' + d.id + '\')">' +
-        '<span class="phase-item-name">' + escapeHtml(d.name) + '</span>' +
-        '<button type="button" class="phase-item-remove" onclick="removeDeliverable(\'' + project.id + '\',\'' + d.id + '\')">Remove</button>' +
-      '</div>';
-    }).join('') || '<p class="log-empty">No deliverables listed yet.</p>';
+    }).join('') || '<p class="log-empty">No steps yet — add your first one below.</p>';
 
     var totalExpenses = (project.expenses || []).reduce(function (sum, x) { return sum + (parseFloat(x.amount) || 0); }, 0);
     var netAfterExpenses = (parseFloat(project.fee) || 0) - totalExpenses;
@@ -806,19 +671,11 @@
       '</div>' +
       '<div class="detail-field"><label>Notes</label><textarea rows="3" onchange="updateProjectField(\'' + project.id + '\',\'notes\',this.value)">' + escapeHtml(project.notes) + '</textarea></div>' +
 
-      '<details class="detail-disclosure" open><summary>Deliverables</summary>' +
-        '<div class="phase-list">' + deliverablesHtml + '</div>' +
-        '<form class="phase-add" onsubmit="return addDeliverable(event,\'' + project.id + '\')">' +
-          '<input type="text" class="new-deliverable-input" placeholder="Add a deliverable… (e.g. Final storyboard PDF)" required>' +
-          '<button type="submit" class="pill-btn pill-btn-outline">Add</button>' +
-        '</form>' +
-      '</details>' +
-
-      '<details class="detail-disclosure" open><summary>Plan Phases</summary>' +
+      '<details class="detail-disclosure" open><summary>Process</summary>' +
         '<div class="phase-progress-bar"><div class="phase-progress-fill" style="width:' + (project.progress || 0) + '%"></div></div>' +
-        '<div class="phase-list">' + phasesHtml + '</div>' +
-        '<form class="phase-add" onsubmit="return addPhase(event,\'' + project.id + '\')">' +
-          '<input type="text" id="newPhaseInput" placeholder="Add a phase… (e.g. Storyboard)" required>' +
+        milestonesHtml +
+        '<form class="phase-add" onsubmit="return addMilestone(event,\'' + project.id + '\')">' +
+          '<input type="text" id="newMilestoneInput" placeholder="Add a step… (e.g. Shoot day)" required>' +
           '<button type="submit" class="pill-btn pill-btn-outline">Add</button>' +
         '</form>' +
       '</details>' +
@@ -865,8 +722,6 @@
         '<div class="detail-field"><label>Status</label><select onchange="updateInvoiceField(\'' + project.id + '\',\'status\',this.value)">' + invoiceStatusOptions + '</select></div>' +
         '<div class="detail-field"><label>Issued Date</label><input type="date" value="' + escapeHtml(project.invoice.issuedDate) + '" onchange="updateInvoiceField(\'' + project.id + '\',\'issuedDate\',this.value)"></div>' +
       '</details>' +
-
-      renderActivityLog('project', project.id) +
 
       '<details class="detail-disclosure"><summary>Review &amp; Feedback</summary>' +
         '<div class="detail-field"><label>Rating (1–5)</label><select onchange="updateReviewField(\'' + project.id + '\',\'rating\',this.value)">' + ratingOptions + '</select></div>' +
@@ -925,15 +780,15 @@
     window.showView('projects');
   };
 
-  window.addPhase = function (e, projectId) {
+  window.addMilestone = function (e, projectId) {
     e.preventDefault();
-    var input = document.getElementById('newPhaseInput');
+    var input = document.getElementById('newMilestoneInput');
     var name = input.value.trim();
     if (!name) return false;
     var project = findProject(projectId);
     if (!project) return false;
-    if (!project.phases) project.phases = [];
-    project.phases.push({ id: 'PH-' + Date.now(), name: name, done: false });
+    if (!project.milestones) project.milestones = [];
+    project.milestones.push({ id: 'MS-' + Date.now(), name: name, done: false, notes: [] });
     recalcProgress(project);
     saveLocalState();
     scheduleSync();
@@ -941,61 +796,43 @@
     return false;
   };
 
-  window.togglePhase = function (projectId, phaseId) {
+  window.toggleMilestone = function (projectId, milestoneId) {
     var project = findProject(projectId);
     if (!project) return;
-    var phase = (project.phases || []).filter(function (p) { return p.id === phaseId; })[0];
-    if (!phase) return;
-    phase.done = !phase.done;
+    var m = (project.milestones || []).filter(function (x) { return x.id === milestoneId; })[0];
+    if (!m) return;
+    m.done = !m.done;
     recalcProgress(project);
     saveLocalState();
     scheduleSync();
     renderProjectDetail(projectId);
   };
 
-  window.removePhase = function (projectId, phaseId) {
+  window.removeMilestone = function (projectId, milestoneId) {
     var project = findProject(projectId);
     if (!project) return;
-    project.phases = (project.phases || []).filter(function (p) { return p.id !== phaseId; });
+    project.milestones = (project.milestones || []).filter(function (x) { return x.id !== milestoneId; });
     recalcProgress(project);
     saveLocalState();
     scheduleSync();
     renderProjectDetail(projectId);
   };
 
-  window.addDeliverable = function (e, projectId) {
+  window.addMilestoneNote = function (e, projectId, milestoneId) {
     e.preventDefault();
-    var input = e.target.querySelector('.new-deliverable-input');
-    var name = input.value.trim();
-    if (!name) return false;
+    var textarea = e.target.querySelector('textarea');
+    var text = textarea.value.trim();
+    if (!text) return false;
     var project = findProject(projectId);
     if (!project) return false;
-    if (!project.deliverables) project.deliverables = [];
-    project.deliverables.push({ id: 'DEL-' + Date.now(), name: name, done: false });
+    var m = (project.milestones || []).filter(function (x) { return x.id === milestoneId; })[0];
+    if (!m) return false;
+    if (!m.notes) m.notes = [];
+    m.notes.push({ id: 'NOTE-' + Date.now(), date: new Date().toISOString(), text: text });
     saveLocalState();
     scheduleSync();
     renderProjectDetail(projectId);
     return false;
-  };
-
-  window.toggleDeliverable = function (projectId, deliverableId) {
-    var project = findProject(projectId);
-    if (!project) return;
-    var d = (project.deliverables || []).filter(function (x) { return x.id === deliverableId; })[0];
-    if (!d) return;
-    d.done = !d.done;
-    saveLocalState();
-    scheduleSync();
-    renderProjectDetail(projectId);
-  };
-
-  window.removeDeliverable = function (projectId, deliverableId) {
-    var project = findProject(projectId);
-    if (!project) return;
-    project.deliverables = (project.deliverables || []).filter(function (x) { return x.id !== deliverableId; });
-    saveLocalState();
-    scheduleSync();
-    renderProjectDetail(projectId);
   };
 
   window.addLineItem = function (e, projectId, listKey) {
@@ -1095,7 +932,7 @@
     if (!project) return;
     project.status = 'completed';
     project.completed = true;
-    (project.phases || []).forEach(function (p) { p.done = true; });
+    (project.milestones || []).forEach(function (m) { m.done = true; });
     recalcProgress(project);
     saveLocalState();
     scheduleSync();
@@ -1143,18 +980,10 @@
   // Contacts
   // ---------------------------------------------------------------------
 
-  function contactAccessor(contact, key) {
-    if (key === 'name') return (contact.name || '').toLowerCase();
-    if (key === 'company') return (contact.company || '').toLowerCase();
-    if (key === 'category') return contact.category || '';
-    return (contact.name || '').toLowerCase();
-  }
-
   function contactMatches(contact, vs) {
-    if (vs.filter !== 'all' && contact.category !== vs.filter) return false;
     var q = vs.search.trim().toLowerCase();
     if (!q) return true;
-    var hay = [contact.name, contact.company, contact.notes, (contact.tags || []).join(' ')].join(' ').toLowerCase();
+    var hay = [contact.name, contact.company, contact.notes].join(' ').toLowerCase();
     return hay.indexOf(q) !== -1;
   }
 
@@ -1167,20 +996,14 @@
     }
     var filtered = state.contacts.filter(function (c) { return contactMatches(c, contactsViewState); });
     if (!filtered.length) {
-      list.innerHTML = '<p class="log-empty">No contacts match your search/filter.</p>';
+      list.innerHTML = '<p class="log-empty">No contacts match your search.</p>';
       return;
     }
-    var contacts = sortItems(filtered, contactsViewState.sortKey, contactsViewState.sortDir, contactAccessor);
-
-    if (contactsViewState.mode === 'table') {
-      renderContactsTable(list, contacts);
-      return;
-    }
+    var contacts = filtered.slice().reverse();
 
     contacts.forEach(function (contact) {
       var card = document.createElement('div');
       card.className = 'contact-card';
-      card.setAttribute('data-contact-id', contact.id);
       card.setAttribute('tabindex', '0');
       var metaParts = [];
       if (contact.company) metaParts.push(contact.company);
@@ -1189,52 +1012,14 @@
         '<div class="contact-card-main">' +
           '<span class="contact-card-name">' + escapeHtml(contact.name) + '</span>' +
           '<span class="contact-card-meta">' + escapeHtml(metaParts.join(' · ')) + '</span>' +
-          tagChipsHtml(contact.tags) +
-        '</div>' +
-        (contact.category ? '<span class="status-pill">' + escapeHtml(CONTACT_CATEGORY_LABELS[contact.category] || contact.category) + '</span>' : '');
+        '</div>';
       card.addEventListener('click', function () { openContactDetail(contact.id); });
       list.appendChild(card);
     });
   }
 
-  function renderContactsTable(list, contacts) {
-    var wrap = document.createElement('div');
-    wrap.className = 'studio-table-wrap';
-    wrap.innerHTML =
-      '<table class="studio-table"><thead><tr>' +
-        '<th data-sort="name">Name</th><th data-sort="company">Company</th><th data-sort="category">Category</th>' +
-        '<th>Phone / Email</th><th>Tags</th>' +
-      '</tr></thead><tbody>' +
-      contacts.map(function (contact) {
-        return '<tr data-contact-id="' + contact.id + '">' +
-          '<td>' + escapeHtml(contact.name) + '</td>' +
-          '<td>' + escapeHtml(contact.company) + '</td>' +
-          '<td>' + escapeHtml(CONTACT_CATEGORY_LABELS[contact.category] || '') + '</td>' +
-          '<td>' + escapeHtml([contact.phone, contact.email].filter(Boolean).join(' / ')) + '</td>' +
-          '<td>' + tagChipsHtml(contact.tags) + '</td>' +
-        '</tr>';
-      }).join('') +
-      '</tbody></table>';
-    list.appendChild(wrap);
-    setupSortableTable(wrap.querySelector('table'), contactsViewState, renderContacts);
-    wrap.querySelectorAll('tbody tr').forEach(function (tr) {
-      tr.addEventListener('click', function () { openContactDetail(tr.getAttribute('data-contact-id')); });
-    });
-  }
-
   document.getElementById('contactsSearchInput').addEventListener('input', function (e) {
     contactsViewState.search = e.target.value;
-    renderContacts();
-  });
-  document.getElementById('contactsCategoryFilter').addEventListener('change', function (e) {
-    contactsViewState.filter = e.target.value;
-    renderContacts();
-  });
-  document.getElementById('contactsViewToggle').addEventListener('click', function (e) {
-    var btn = e.target.closest('button[data-mode]');
-    if (!btn) return;
-    contactsViewState.mode = btn.getAttribute('data-mode');
-    this.querySelectorAll('button').forEach(function (b) { b.classList.toggle('is-active', b === btn); });
     renderContacts();
   });
 
@@ -1272,10 +1057,6 @@
     var panel = document.getElementById('contactDetailPanel');
     if (!contact) { panel.innerHTML = ''; return; }
 
-    var categoryOptions = '<option value="">—</option>' + CONTACT_CATEGORIES.map(function (c) {
-      return '<option value="' + c + '"' + (c === contact.category ? ' selected' : '') + '>' + CONTACT_CATEGORY_LABELS[c] + '</option>';
-    }).join('');
-
     var relatedLeads = state.leads.filter(function (l) { return l.contactId === contact.id; });
     var relatedHtml = relatedLeads.length
       ? '<div class="related-leads-list">' + relatedLeads.map(function (l) {
@@ -1289,13 +1070,11 @@
       '<div class="detail-fields">' +
         field('Name', 'text', 'name', contact.name) +
         field('Company', 'text', 'company', contact.company) +
-        '<div class="detail-field"><label>Category</label><select onchange="updateContactField(\'' + contact.id + '\',\'category\',this.value)">' + categoryOptions + '</select></div>' +
         field('Phone', 'text', 'phone', contact.phone) +
         field('Email', 'text', 'email', contact.email) +
         field('Website', 'text', 'website', contact.website) +
         field('Instagram', 'text', 'instagram', contact.instagram) +
         field('LinkedIn', 'text', 'linkedin', contact.linkedin) +
-        field('Tags (comma-separated)', 'text', 'tagsRaw', contact.tags.join(', ')) +
       '</div>' +
       '<div class="detail-field"><label>Notes</label><textarea rows="3" onchange="updateContactField(\'' + contact.id + '\',\'notes\',this.value)">' + escapeHtml(contact.notes) + '</textarea></div>' +
       '<div class="detail-section"><h3>Related Leads</h3>' + relatedHtml + '</div>' +
@@ -1310,11 +1089,7 @@
   window.updateContactField = function (id, key, value) {
     var contact = findContact(id);
     if (!contact) return;
-    if (key === 'tagsRaw') {
-      contact.tags = parseTags(value);
-    } else {
-      contact[key] = value;
-    }
+    contact[key] = value;
     saveLocalState();
     scheduleSync();
   };
@@ -1333,7 +1108,7 @@
   // ---------------------------------------------------------------------
 
   document.addEventListener('input', function (e) {
-    if (e.target.matches('.log-quick-bar textarea')) {
+    if (e.target.matches('.log-quick-bar textarea, .milestone-note-add textarea')) {
       e.target.style.height = 'auto';
       e.target.style.height = e.target.scrollHeight + 'px';
     }
