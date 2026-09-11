@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Studio Log — Sanace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    (function () {
+      var saved = localStorage.getItem('theme');
+      var theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+  <style>
+    .studio-log-shell {
+      min-height: 100svh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .studio-log-gate {
+      width: 100%;
+      max-width: 360px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      text-align: center;
+    }
+    .studio-log-gate h1 {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      margin: 0;
+    }
+    .studio-log-gate p {
+      color: var(--c-muted);
+      font-size: 0.9rem;
+      margin: 0;
+    }
+    .studio-log-gate input[type="password"] {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--c-border);
+      background: transparent;
+      color: var(--c-text);
+      font-family: var(--font-sans);
+      font-size: 0.95rem;
+      text-align: center;
+    }
+    .studio-log-gate input[type="password"]:focus {
+      outline: none;
+      border-color: var(--c-accent);
+    }
+    .studio-log-gate .btn-primary {
+      width: 100%;
+      justify-content: center;
+    }
+    .studio-log-error {
+      color: var(--c-accent);
+      font-size: 0.85rem;
+      margin: 0;
+    }
+    .studio-log-area {
+      width: 100%;
+      max-width: 640px;
+      text-align: center;
+      color: var(--c-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-pill">
+      <a href="index.html" class="header-wordmark">Sanace</a>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle color theme">
+        <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="studio-log-shell">
+    <form class="studio-log-gate" id="studioLogGate">
+      <h1>Studio Log</h1>
+      <p>Private. Enter the password to continue.</p>
+      <input type="password" id="studioLogPassword" placeholder="Password" autocomplete="current-password" required>
+      <button type="submit" class="btn-primary">Unlock</button>
+      <p class="studio-log-error" id="studioLogError" hidden></p>
+    </form>
+
+    <div class="studio-log-area" id="studioLogArea" hidden>
+      <p>You're in. Nothing here yet.</p>
+    </div>
+  </main>
+
+  <script src="js/script.js" defer></script>
+  <script>
+    (function () {
+      var gate = document.getElementById('studioLogGate');
+      var area = document.getElementById('studioLogArea');
+      var errorEl = document.getElementById('studioLogError');
+      var passwordInput = document.getElementById('studioLogPassword');
+
+      function showArea() {
+        gate.hidden = true;
+        area.hidden = false;
+      }
+
+      async function tryUnlock(password) {
+        try {
+          var res = await fetch('/api/studio-log', {
+            method: 'POST',
+            headers: { Authorization: 'Bearer ' + password }
+          });
+          return res.ok;
+        } catch (err) {
+          return false;
+        }
+      }
+
+      var cached = localStorage.getItem('studioLogSecret');
+      if (cached) {
+        tryUnlock(cached).then(function (ok) {
+          if (ok) showArea();
+        });
+      }
+
+      gate.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        errorEl.hidden = true;
+        var password = passwordInput.value;
+        var ok = await tryUnlock(password);
+        if (ok) {
+          localStorage.setItem('studioLogSecret', password);
+          showArea();
+        } else {
+          errorEl.textContent = 'Incorrect password.';
+          errorEl.hidden = false;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
